@@ -1,0 +1,13 @@
+
+<?php
+if ($this->isActiveMethod()) :
+?>
+<dl class="payfast-recurring-payment product schedule">
+    <?php foreach ($this->getPayfastRecurringPaymentScheduleInfo() as $term => $definitions) : ?>
+        <dt class="title"><?= $this->escapeHtml($term); ?></dt>
+        <?php foreach ($definitions as $definition) :?>
+            <dd class="content"><?= $this->escapeHtml($definition)?></dd>
+        <?php endforeach;?>
+    <?php endforeach;?>
+</dl>
+<?php endif;?>

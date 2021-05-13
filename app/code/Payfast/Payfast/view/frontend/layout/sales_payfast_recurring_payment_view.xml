@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <update handle="sales_payfast_recurring_payment_view_tabs"/>
+    <body>
+        <referenceBlock name="customer-account-navigation-payfast-recurring-payments-link">
+            <arguments>
+                <argument name="is_highlighted" xsi:type="boolean">true</argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="sales.payfast_recurring_payment.view">
+            <block class="Payfast\Payfast\Block\Payment\View\Reference" name="sales.payfast_recurring_payment.payment.view.general" as="general" template="Payfast_Payfast::payfast/recurring/payment/info.phtml" group="info_blocks_row_1" cacheable="false">
+                <action method="setViewColumn">
+                    <argument name="value" xsi:type="string">1</argument>
+                </action>
+                <action method="setViewLabel">
+                    <argument translate="true" name="value" xsi:type="string">Payfast Info</argument>
+                </action>
+            </block>
+            <block class="Payfast\Payfast\Block\Payment\View\Item" name="sales.payfast_recurring_payment.view.item" as="item" template="Payfast_Payfast::payfast/recurring/payment/info.phtml" group="info_blocks_row_1" cacheable="false">
+                <action method="setViewColumn">
+                    <argument name="value" xsi:type="string">2</argument>
+                </action>
+                <action method="setViewLabel">
+                    <argument translate="true" name="value" xsi:type="string">Product Info</argument>
+                </action>
+            </block>
+            <block class="Payfast\Payfast\Block\Payment\View\Schedule" name="sales.payfast_recurring_payment.view.schedule" as="payment" template="Payfast_Payfast::payfast/recurring/payment/info.phtml" group="info_blocks_row_2" cacheable="false">
+                <action method="setViewColumn">
+                    <argument name="value" xsi:type="string">1</argument>
+                </action>
+                <action method="setViewLabel">
+                    <argument translate="true" name="value" xsi:type="string">Payment Schedule</argument>
+                </action>
+            </block>
+            <block class="Payfast\Payfast\Block\Payment\View\Fees" name="sales.payfast_recurring_payment.view.fees" as="fees" template="Payfast_Payfast::payfast/recurring/payment/info.phtml" group="info_blocks_row_2" cacheable="false">
+                <action method="setViewColumn">
+                    <argument name="value" xsi:type="string">2</argument>
+                </action>
+                <action method="setViewLabel">
+                    <argument translate="true" name="value" xsi:type="string">Payments</argument>
+                </action>
+            </block>
+            <block class="Payfast\Payfast\Block\Payment\View\Address" name="sales.payfast_recurring_payment.view.billing" as="billing_address" template="Payfast_Payfast::payfast/recurring/payment/info.phtml" group="info_blocks_row_3" cacheable="false">
+                <action method="setViewColumn">
+                    <argument name="value" xsi:type="string">1</argument>
+                </action>
+                <action method="setViewLabel">
+                    <argument translate="true" name="value" xsi:type="string">Billing Address</argument>
+                </action>
+            </block>
+            <block class="Payfast\Payfast\Block\Payment\View\Address" name="sales.payfast_recurring_payment.view.shipping" as="shipping_address" template="Payfast_Payfast::payfast/recurring/payment/info.phtml" group="info_blocks_row_3" cacheable="false">
+                <action method="setViewColumn">
+                    <argument name="value" xsi:type="string">2</argument>
+                </action>
+                <action method="setViewLabel">
+                    <argument translate="true" name="value" xsi:type="string">Shipping Address</argument>
+                </action>
+                <arguments>
+                    <argument name="address_type" xsi:type="string">shipping</argument>
+                </arguments>
+            </block>
+        </referenceBlock>
+        <referenceBlock name="sales.payfast_recurring_payment.view.tab.payment">
+            <action method="setIsViewCurrent">
+                <argument name="value" xsi:type="string">1</argument>
+            </action>
+        </referenceBlock>
+    </body>
+</page>

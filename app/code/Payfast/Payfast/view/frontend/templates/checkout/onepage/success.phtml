@@ -1,0 +1,12 @@
+<?php /** @var $this \Sparsh\PaypalRecurringPayment\Block\Checkout\Onepage\Success */ ?>
+<?php if ($payments = $this->getRecurringPayments()) : ?>
+    <p>&nbsp;</p>
+    <p><strong><?= /* @noEscape */ __('PayPal Recurring Payments:'); ?></strong></p>
+    <?php foreach ($payments as $payment) : ?>
+        <?php $paymentIdHtml = $this->getCanViewPayments()
+            ? sprintf('<a href="%s">%s</a>', $this->escapeHtml($this->getPaymentUrl($payment)), $this->escapeHtml($this->getObjectData($payment, 'reference_id')))
+            : $this->escapeHtml($this->getObjectData($payment, 'reference_id')); ?>
+        <p><?= /* @noEscape */ __('Your paypal reference number for "%2" is: %1', $paymentIdHtml, $this->escapeHtml($this->getObjectData($payment, 'schedule_description'))) ?></p>
+    <?php endforeach; ?>
+    <p>&nbsp;</p>
+<?php endif; ?>

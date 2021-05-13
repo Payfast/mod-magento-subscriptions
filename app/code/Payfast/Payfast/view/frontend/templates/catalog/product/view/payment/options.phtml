@@ -1,0 +1,31 @@
+<?php
+if ($this->isActiveMethod() && $this->isStartDateEditable() && $this->isScheduledProduct()) : ?>
+        <dl class="payfast-recurring-payment product options">
+            <dt class="title">
+                <label><?= /* @noEscape */ __('PayFast Recurring Payment Start Date') ?></label>
+            </dt>
+            <dd class="content">
+                <input type="text" name="payfast_recurring_payment_start_date" id="payfast_recurring_payment_start_date" class="date-picker input-text" autocomplete="on">
+            </dd>
+        </dl>
+<script type="text/javascript">
+    require(['jquery', 'jquery/ui','mage/mage','mage/calendar'], function($){
+        $( document ).ready(function() {
+            var existCondition = setInterval(function() {
+            if ($('#payfast_recurring_payment_start_date').length) {
+                clearInterval(existCondition);
+                payfastRecurringPaymentStartDate();
+            }
+           }, 100);
+           function payfastRecurringPaymentStartDate(){
+                $('#payfast_recurring_payment_start_date').datepicker({
+                    dateFormat: 'm/d/yy',
+                    minDate: new Date()
+                });
+            }
+        });
+    });
+</script>
+<?php
+endif;
+?>

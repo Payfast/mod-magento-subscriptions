@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <update handle="sales_payfast_recurring_payment_view_tabs"/>
+    <body>
+        <referenceBlock name="customer-account-navigation-payfast-recurring-payments-link">
+            <arguments>
+                <argument name="is_highlighted" xsi:type="boolean">true</argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="sales.payfast_recurring_payment.view">
+            <block class="Payfast\Payfast\Block\Payment\Related\Orders\Grid" name="sales.payfast_recurring_payment.view.orders" as="table" template="Payfast_Payfast::payfast/recurring/payment/grid.phtml" cacheable="false">
+                <action method="setViewLabel">
+                    <argument translate="true" name="value" xsi:type="string">Orders Based on This Payment</argument>
+                </action>
+                <action method="setEmptyGridMessage">
+                    <argument translate="true" name="value" xsi:type="string">There are no orders yet.</argument>
+                </action>
+                <action method="setGridHtmlClass">
+                    <argument name="value" xsi:type="string">info-box</argument>
+                </action>
+                <action method="setGridHtmlCss">
+                    <argument name="value" xsi:type="string">border:0</argument>
+                </action>
+            </block>
+        </referenceBlock>
+        <referenceBlock name="sales.payfast_recurring_payment.view.tab.orders">
+            <action method="setIsViewCurrent">
+                <argument name="value" xsi:type="string">1</argument>
+            </action>
+        </referenceBlock>
+    </body>
+</page>

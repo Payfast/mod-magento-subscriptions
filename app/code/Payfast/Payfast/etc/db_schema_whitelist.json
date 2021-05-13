@@ -1,0 +1,63 @@
+{
+    "payfast_payfast_recurring_payment": {
+        "column": {
+            "payment_id": true,
+            "state": true,
+            "order_id": true,
+            "customer_id": true,
+            "store_id": true,
+            "method_code": true,
+            "reference_id": true,
+            "subscriber_name": true,
+            "internal_reference_id": true,
+            "profile_id": true,
+            "schedule_description": true,
+            "billing_period_frequency": true,
+            "billing_period_max_cycles": true,
+            "billing_amount": true,
+            "currency_code": true,
+            "shipping_amount": true,
+            "tax_amount": true,
+            "initial_amount": true,
+            "allow_initial_amount_failure": true,
+            "max_allowed_payment_failures": true,
+            "auto_bill_failures": true,
+            "order_info": true,
+            "order_item_info": true,
+            "billing_address_info": true,
+            "shipping_address_info": true,
+            "payment_vendor_info": true,
+            "additional_info": true,
+            "created_at": true,
+            "updated_at": true,
+            "subscription_type": true,
+            "recurring_amount": true,
+            "recurring_payment_start_date": true
+        },
+        "index": {
+            "PAYFAST_PAYFAST_RECURRING_PAYMENT_INTERNAL_REFERENCE_ID": true,
+            "PAYFAST_PAYFAST_RECURRING_PAYMENT_STORE_ID": true,
+            "PAYFAST_PAYFAST_RECURRING_PAYMENT_CUSTOMER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "PAYFAST_PAYFAST_RECURRING_PAYMENT_CSTR_ID_CSTR_ENTT_ENTT_ID": true,
+            "PAYFAST_PAYFAST_RECURRING_PAYMENT_STORE_ID_STORE_STORE_ID": true
+        }
+    },
+    "payfast_payfast_recurring_payment_order": {
+        "column": {
+            "link_id": true,
+            "payment_id": true,
+            "order_id": true
+        },
+        "index": {
+            "PAYFAST_PAYFAST_RECURRING_PAYMENT_ORDER_ORDER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "PAYFAST_PAYFAST_RECURRING_PAYMENT_ORDER_PAYMENT_ID_ORDER_ID": true,
+            "FK_2A75ED5291E012C688995872B698279D": true
+        }
+    }
+}

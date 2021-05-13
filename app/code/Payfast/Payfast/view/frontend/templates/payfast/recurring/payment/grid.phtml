@@ -1,0 +1,56 @@
+<div <?= $this->getGridHtmlClass() ? ' class="' . $this->getGridHtmlClass() . '"' : '' ?><?= $this->getGridHtmlCss() ? ' style="' . $this->getGridHtmlCss() . '"' : '' ?>>
+    <?php if ($caption = $this->getGridCaption()) : ?>
+        <div class="title"><strong><?= $this->escapeHtml($caption) ?></strong></div>
+    <?php endif; ?>
+
+    <?php $gridElements = $this->getGridElements(); ?>
+    <?php if ($gridElements) : ?>
+        <div class="table-wrapper payfast-recurring-payments">
+            <table id="<?= $this->getGridHtmlId() ?>" class="data table table-payfast-recurring-payments">
+                <caption class="table-caption"><?= /* @noEscape */ __('PayFast Recurring Payments') ?></caption>
+                <thead>
+                <tr>
+                    <?php foreach ($this->getGridColumns() as $column) :
+                        $nobr = $this->getObjectData($column, 'is_nobr') ? '%s' : '%s';
+                        $title = $this->getObjectData($column, 'title');
+                        $index = $this->getObjectData($column, 'index');
+                        ?>
+                        <th scope="col" class="col <?= $this->escapeHtmlAttr($index) ?>"><?= $this->escapeHtml($title ? sprintf($nobr, $this->escapeHtml($title)) : '&nbsp;') ?></th>
+                    <?php endforeach; ?>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($gridElements as $_payment) : ?>
+                    <tr>
+                        <?php foreach ($this->getGridColumns() as $column) :
+                            $nobr = $this->getObjectData($column, 'is_nobr') ? '%s' : '%s';
+                            $index = $this->getObjectData($column, 'index');
+                            $value = $this->getObjectData($_payment, $index);
+                            $linkUrl = $this->getObjectData($_payment, "{$index}_link_url");
+                            $linkAnchorText = $this->getObjectData($_payment, "{$index}_link_text");
+                            $linkText = $linkUrl ? ($linkAnchorText ? $linkAnchorText : $value) : '';
+                            $linkFormat = $linkUrl ? '<a href="%s">%s</a>' : '';
+                            $title = $this->getObjectData($column, 'title');
+                            ?>
+                            <td data-th="<?= $title ? $this->escapeHtml($title) : '&nbsp;' ?>" <?= $this->getObjectData($_payment, 'is_amount') ? ' class="col qty"' : '' ?>>
+                                <?php
+                                if ($linkFormat) {
+                                    echo sprintf($nobr, sprintf($linkFormat, $this->escapeHtml($linkUrl), $this->escapeHtml($linkText)));
+                                } else {
+                                    echo $this->escapeHtml(sprintf($nobr, $this->escapeHtml($value)));
+                                }
+                                ?>
+                            </td>
+                        <?php endforeach; ?>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php if ($block->getPagerHtml()) : ?>
+            <div class="payfast-recurring-payments-toolbar toolbar bottom"><?= $block->getPagerHtml() ?></div>
+        <?php endif;?>
+    <?php else : ?>
+        <div class="message info empty"><span><?= $this->escapeHtml($this->getEmptyGridMessage()); ?></span></div>
+    <?php endif; ?>
+</div>
