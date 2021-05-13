@@ -11,5 +11,8 @@
         <route id="payfast" frontName="payfast">
             <module name="Payfast_Payfast" />
         </route>
+        <route id="sales" frontName="sales">
+            <module name="Payfast_Payfast" />
+        </route>
     </router>
 </config>

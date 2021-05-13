@@ -45,5 +45,12 @@
             </argument>
         </arguments>
     </referenceBlock>
+    <referenceContainer name="content">
+        <referenceBlock name="checkout.root">
+            <action method="setTemplate">
+                <argument name="template" xsi:type="string">Payfast_Payfast::checkout/onepage.phtml</argument>
+            </action>
+        </referenceBlock>
+    </referenceContainer>
 </body>
 </page>

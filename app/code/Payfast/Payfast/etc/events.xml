@@ -10,4 +10,10 @@
     <event name="sales_order_save_before">
         <observer name="payfast_sales_order_save_before" instance="Payfast\Payfast\Observer\SalesOrderBeforeSaveObserver" />
     </event>
+    <event name="controller_action_predispatch_checkout_cart_add">
+        <observer name="payfast_controller_action_predispatch_checkout_cart_add_observer" instance="Payfast\Payfast\Observer\AllowToAddOnlyOneRecurringPaymentProductToCart" />
+    </event>
+    <event name="sales_quote_item_set_product">
+        <observer name="payfast_sales_quote_item_set_product_observer" instance="Payfast\Payfast\Observer\SetIsPayfastRecurringToQuote" />
+    </event>
 </config>

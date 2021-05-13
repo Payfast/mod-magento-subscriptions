@@ -164,4 +164,9 @@
             <argument name="config" xsi:type="object">PayfastPayfastConfig</argument>
         </arguments>
     </type>
+
+    <type name="Magento\Catalog\Model\Product\Type\AbstractType">
+        <plugin name="abstract_type_payfast_recurring_payment_plugin" type="Payfast\Payfast\Plugin\ProductTypeOptions"/>
+    </type>
+
 </config>

@@ -9,19 +9,11 @@ namespace Payfast\Payfast\Model;
 
 require_once dirname(__FILE__) . '/../Model/payfast_common.inc';
 
-use JetBrains\PhpStorm\Pure;
+
+use Magento\Catalog\Model\ProductRepository;
 use Magento\Checkout\Model\Session;
-use Magento\Framework\Api\AttributeValueFactory;
-use Magento\Framework\Api\ExtensionAttributesFactory;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Framework\Exception\LocalizedExceptionFactory;
-use Magento\Framework\Model\Context;
-use Magento\Framework\Model\ResourceModel\AbstractResource;
-use Magento\Framework\Registry;
 use Magento\Framework\UrlInterface;
-use Magento\Payment\Helper\Data;
-use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
@@ -31,6 +23,8 @@ use Magento\Sales\Model\Order\Payment\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
+use Payfast\Payfast\Model\Config\Source\SubscriptionType;
+
 
  /**
   * PayFast Module.
@@ -121,6 +115,11 @@ class Payfast
     protected $transactionBuilder;
 
     /**
+     * @var ProductRepository
+     */
+    private $productRepository;
+
+    /**
      * @param ConfigFactory $configFactory
      * @param StoreManagerInterface $storeManager
      * @param UrlInterface $urlBuilder
@@ -137,7 +136,8 @@ class Payfast
         Session $checkoutSession,
         LocalizedExceptionFactory $exception,
         TransactionRepositoryInterface $transactionRepository,
-        BuilderInterface $transactionBuilder
+        BuilderInterface $transactionBuilder,
+        ProductRepository $productRepository
     ) {
         $this->_storeManager = $storeManager;
         $this->_urlBuilder = $urlBuilder;
@@ -145,7 +145,7 @@ class Payfast
         $this->_exception = $exception;
         $this->transactionRepository = $transactionRepository;
         $this->transactionBuilder = $transactionBuilder;
-
+        $this->productRepository = $productRepository;
         $parameters = [ 'params' => [ $this->_code ] ];
 
         $this->_config = $configFactory->create($parameters);
@@ -285,7 +285,13 @@ class Payfast
              //this html special characters breaks signature.
             //'item_description' => $pfDescription,
         ];
+        $data = array_merge($data, $this->subscriptionData());
+        $passPhrase = trim($this->_config->getValue('passphrase'));
+        if (!empty($passPhrase) && $this->_config->getValue('server') !== 'test') {
+            $data["passphrase"] = $passPhrase;
+        }
 
+        ksort($data);
         $pfOutput = '';
         // Create output string
         foreach ($data as $key => $val) {
@@ -294,12 +300,7 @@ class Payfast
             }
         }
 
-        $passPhrase = $this->_config->getValue('passphrase');
         $pfOutput = substr($pfOutput, 0, -1);
-
-        if (!empty($passPhrase) && $this->_config->getValue('server') !== 'test') {
-            $pfOutput = $pfOutput . "&passphrase=" . urlencode($passPhrase);
-        }
 
         pflog($pre . 'pfOutput for signature is : ' . $pfOutput);
 
@@ -312,6 +313,37 @@ class Payfast
         return($data);
     }
 
+    private function subscriptionData()
+    {
+        $pre = __METHOD__ . ' : ';
+        pflog($pre. 'load recurring data if product is of type recurring');
+
+        /** @var \Magento\Sales\Model\Order $order */
+        $order = $this->_checkoutSession->getLastRealOrder();
+        $data = [];
+
+        foreach ($order->getAllItems() as $item) {
+            /** @var \Magento\Catalog\Model\Product $product */
+            $product = $this->productRepository->getById($item->getProductId(), false, $this->_storeManager->getStore()->getId());
+            if ($product->getIsPayfastRecurring()) {
+                $data['subscription_type'] = (int) $product->getSubscriptionType();
+                $data['item_name'] = trim(substr($product->getName(), 0,254));
+                $data['item_description'] = trim(substr($product->getPfScheduleDescription(), 0, 256));
+
+                if ($data['subscription_type'] === SubscriptionType::RECURRING_SUBSCRIPTION) {
+                    $data['frequency'] = $product->getPfBillingPeriodFrequency();
+                    $data['cycles'] = $product->getPfBillingPeriodMaxCycles();
+                    $data['amount'] =  $this->getTotalAmount($order);
+                    $data['recurring_amount'] = $this->getNumberFormat($product->getPfRecurringAmount());
+//                    $data['billing_date'] = $product->getPfBillingDate();
+                }
+            }
+        }
+
+        pflog($pre . 'subscription data is '. print_r($data, true));
+
+        return $data;
+    }
     /**
      * getAppVersion
      *
