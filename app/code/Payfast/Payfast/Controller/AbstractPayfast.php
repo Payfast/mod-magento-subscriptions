@@ -26,6 +26,7 @@ use Magento\Framework\Session\Generic;
 use Magento\Framework\Url\Helper\Data;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Model\QuoteRepository;
 use Magento\Sales\Model\Order\Email\Sender\InvoiceSender;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
@@ -35,6 +36,8 @@ use Magento\Sales\Model\ResourceModel\Order\Payment\Transaction;
 use Payfast\Payfast\Model\Config;
 use Payfast\Payfast\Model\Payfast;
 use Psr\Log\LoggerInterface;
+use Payfast\Payfast\Model\PaymentFactory;
+
 
 /**
  * Abstract PayFast Checkout Controller
@@ -174,6 +177,13 @@ abstract class AbstractPayfast implements ActionInterface, HttpGetActionInterfac
     protected $messageManager;
 
     /**
+     * @var PaymentFactory
+     */
+    protected $paymentFactory;
+
+    protected $quoteFactory;
+
+    /**
      * @param Context $context
      * @param PageFactory $pageFactory
      * @param Session $customerSession
@@ -188,6 +198,8 @@ abstract class AbstractPayfast implements ActionInterface, HttpGetActionInterfac
      * @param OrderSender $orderSender
      * @param InvoiceSender $invoiceSender
      * @param Transaction $salesTransactionResourceModel
+     * @param QuoteFactory $quoteFactory
+     * @param PaymentFactory $paymentFactory
      */
     public function __construct(
         Context $context,
@@ -204,6 +216,8 @@ abstract class AbstractPayfast implements ActionInterface, HttpGetActionInterfac
         OrderSender $orderSender,
         InvoiceSender $invoiceSender,
         Transaction $salesTransactionResourceModel,
+        PaymentFactory $paymentFactory,
+        QuoteFactory $quoteFactory,
         Raw $rawResult
     ) {
         $pre = __METHOD__ . " : ";
@@ -211,6 +225,9 @@ abstract class AbstractPayfast implements ActionInterface, HttpGetActionInterfac
         $this->_logger = $logger;
 
         $this->_logger->debug($pre . 'bof');
+        $this->quoteFactory = $quoteFactory;
+        $this->paymentFactory = $paymentFactory;
+
         $this->_request = $context->getRequest();
         $this->_response = $context->getResponse();
         $this->customerSession = $customerSession;

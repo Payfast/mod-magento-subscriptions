@@ -6,8 +6,10 @@
  * Except as expressly indicated in this licence, you may not use, copy, modify or distribute this plugin / code or part thereof in any way.
  */
 
+use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\App\ObjectManager;
 use Magento\Payment\Gateway\ConfigInterface;
+use Magento\Payment\Gateway\Data\OrderAdapterInterface;
 use Magento\Payment\Gateway\Data\PaymentDataObjectInterface;
 use Magento\Payment\Gateway\Request\BuilderInterface;
 use Payfast\Payfast\Model\Config;
@@ -31,18 +33,25 @@ class AuthorizationRequest implements BuilderInterface
      */
     private $logger;
 
+    private $productRepository;
     /**
      * @param ConfigInterface $config
      * @param LoggerInterface $logger
      * @param Config          $payfastConfig
      */
-    public function __construct(ConfigInterface $config, LoggerInterface $logger, Config $payfastConfig)
-    {
+    public function __construct(
+        ConfigInterface $config,
+        LoggerInterface $logger,
+        Config $payfastConfig,
+        ProductRepository $productRepository
+    ) {
         $this->config = $config;
 
         $this->logger = $logger;
 
         $this->payfastConfig = $payfastConfig;
+
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -95,6 +104,8 @@ class AuthorizationRequest implements BuilderInterface
                 'currency' => $order->getCurrencyCode(),
 
             ];
+            // handle recurring data
+            $data = array_merge($data, $this->recurringData($order));
             $pfOutput = '';
             // Create output string
             foreach ($data as $key => $val) {
@@ -128,6 +139,22 @@ class AuthorizationRequest implements BuilderInterface
         return $data;
     }
 
+    /**
+     * Append recurring data of a product
+     * @param OrderAdapterInterface $order
+     * @return array
+     */
+    public function recurringData(OrderAdapterInterface $order):array
+    {
+        if (count($order->getItems()) == 1){
+            /** @var \Magento\Catalog\Model\Product $product */
+            $item = array_first($order->getItems());
+
+//            $product = $this->productRepository->getById($productId, false, $this->storeManager->getStore()->getId());
+
+        }
+        return [];
+    }
     /**
      * getAppVersion
      *

@@ -168,5 +168,5 @@
     <type name="Magento\Catalog\Model\Product\Type\AbstractType">
         <plugin name="abstract_type_payfast_recurring_payment_plugin" type="Payfast\Payfast\Plugin\ProductTypeOptions"/>
     </type>
-
+    <preference for="Payfast\Payfast\Model\ManagerInterface" type="Payfast\Payfast\Model\Payfast" />
 </config>

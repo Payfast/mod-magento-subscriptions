@@ -20,7 +20,7 @@
                 default="0.0000" comment="Billing Amount"/>
         <column xsi:type="varchar" name="currency_code" length="3" comment="Currency Code" />
         <column xsi:type="decimal" name="shipping_amount" scale="4" precision="12" comment="Shipping Amount" />
-        <column xsi:type="decimal" name="recurring_amount" scale="4" precision="12" comment="Recurring Amount" />
+        <column xsi:type="decimal" name="initial_amount" scale="4" precision="12" comment="Initial Amount" onCreate="migrateDataFrom(recurring_amount)" />
         <column xsi:type="text" name="order_info" nullable="false" comment="Order Info" />
         <column xsi:type="text" name="order_item_info" nullable="false" comment="Order Item Info" />
         <column xsi:type="text" name="billing_address_info" nullable="false" comment="Billing Address Info" />

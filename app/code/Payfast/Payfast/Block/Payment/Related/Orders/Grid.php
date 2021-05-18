@@ -79,7 +79,7 @@ class Grid extends View
      *
      * @param \Magento\Framework\View\Element\Template\Context                 $context                   context
      * @param \Magento\Framework\Registry                                      $registry                  registry
-     * @param \Payfast\Payfast\Model\Payfast                     $paymentModel              paymentModel
+     * @param \Payfast\Payfast\Model\Payment                     $paymentModel              paymentModel
      * @param \Magento\Store\Model\StoreManagerInterface                       $storeManager              storeManager
      * @param \Magento\Sales\Model\ResourceModel\Order\Collection              $collection                collection
      * @param \Magento\Sales\Model\Order\Config                                $config                    config
@@ -91,7 +91,7 @@ class Grid extends View
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Framework\Registry $registry,
-        \Payfast\Payfast\Model\Payfast $paymentModel,
+        \Payfast\Payfast\Model\Payment $paymentModel,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Sales\Model\ResourceModel\Order\Collection $collection,
         \Magento\Sales\Model\Order\Config $config,

@@ -14,15 +14,20 @@ use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Quote\Model\Quote;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 use Payfast\Payfast\Controller\AbstractPayfast;
 use Payfast\Payfast\Model\Config as PayFastConfig;
+use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 use Payfast\Payfast\Model\Info;
+use \Magento\Quote\Model\QuoteFactory;
+
 
 class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPostActionInterface
 {
 
+    protected array $data;
     /**
      * indexAction
      *
@@ -123,6 +128,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
 
             // Successful
             if ($pfData[Info::PAYMENT_STATUS] == "COMPLETE") {
+                $this->data = $pfData;
                 $this->setPaymentAdditionalInformation($pfData);
                 // Save invoice
                 $this->saveInvoice();
@@ -159,8 +165,14 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
 
             $invoice = $this->_order->prepareInvoice();
 
-            /** @var \Magento\Sales\Model\Order $order */
             $order = $invoice->getOrder();
+            $order->setTotalPaid($this->data['amount_gross']);
+            $order->setBaseTotalPaid($this->data['amount_gross']);
+
+            $quote = $this->quoteFactory->create()->load($order->getQuoteId());
+            /** handle subscription data if it exists */
+            $this->handleSubscriptionData($quote, $order->getId());
+
             $order->setIsInProcess(true);
             $transaction = $this->transactionFactory->create();
             $transaction->addObject($order)->save();
@@ -202,6 +214,43 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
         pflog(__METHOD__ . ' : eof');
     }
 
+    private function handleSubscriptionData(Quote $quote, $orderId)
+    {
+        $pre = __METHOD__ . ' : ';
+        pflog($pre . 'bof');
+        try {
+
+            $allVisibleItems = $quote->getAllVisibleItems();
+            foreach ($allVisibleItems as $item) {
+                $product = $this->paymentMethod->getProductRepository()->getById($item->getProduct()->getId());
+                if ($product->getIsPayfastRecurring()) {
+                    /** @var \Payfast\Payfast\Model\Payment $payment */
+                    $payment =  $this->paymentFactory->create()->importProduct($product);
+                    $payment->importQuote($quote);
+                    $payment->importQuoteItem($item);
+                    $payment->setData('reference_id', $this->data['token']);
+                    $payment->setData('subscription_type', $product->getSubscriptionType());
+                    $payment->setData('amount_gross', $this->data['amount_gross']);
+                    if ((int)$product->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION) {
+                        pflog($pre. 'adding subscription data');
+                        $payment->setData('recurring_payment_start_date', $this->data['billing_date']);
+                        $payment->setData('pf_billing_period_frequency', $product->getPfBillingPeriodFrequency());
+                        $payment->setData('pf_billing_period_max_cycles', $product->getPfBillingPeriodMaxCycles());
+                        $payment->setData('pf_initial_amount', $product->getPfInitialAmount());
+                    }
+
+                    $payment->submit();
+                    $payment->addOrderRelation($orderId);
+                }
+            }
+
+        } catch (LocalizedException $e) {
+            $this->_logger->error($pre. $e->getMessage(). PHP_EOL . $e->getTraceAsString());
+            throw $e;
+        }
+
+        pflog($pre . 'eof');
+    }
     /**
      * @param  $pfData
      * @throws LocalizedException

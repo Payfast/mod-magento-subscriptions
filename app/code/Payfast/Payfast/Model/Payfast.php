@@ -12,10 +12,14 @@ require_once dirname(__FILE__) . '/../Model/payfast_common.inc';
 
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Checkout\Model\Session;
+use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedExceptionFactory;
 use Magento\Framework\UrlInterface;
+use Magento\Payment\Model\Info as PaymentInfo;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteFactory;
+use Magento\QuoteGraphQl\Model\Cart\QuoteAddressFactory;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
@@ -34,7 +38,7 @@ use Payfast\Payfast\Model\Config\Source\SubscriptionType;
   * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
   */
 
-class Payfast
+class Payfast implements ManagerInterface
 {
     /**
      * @var string
@@ -120,6 +124,11 @@ class Payfast
     private $productRepository;
 
     /**
+     * @var QuoteFactory $quoteFactory
+     */
+    protected $quoteFactory;
+
+    /**
      * @param ConfigFactory $configFactory
      * @param StoreManagerInterface $storeManager
      * @param UrlInterface $urlBuilder
@@ -137,7 +146,8 @@ class Payfast
         LocalizedExceptionFactory $exception,
         TransactionRepositoryInterface $transactionRepository,
         BuilderInterface $transactionBuilder,
-        ProductRepository $productRepository
+        ProductRepository $productRepository,
+        QuoteFactory $quoteFactory
     ) {
         $this->_storeManager = $storeManager;
         $this->_urlBuilder = $urlBuilder;
@@ -146,6 +156,8 @@ class Payfast
         $this->transactionRepository = $transactionRepository;
         $this->transactionBuilder = $transactionBuilder;
         $this->productRepository = $productRepository;
+        $this->quoteFactory = $quoteFactory;
+
         $parameters = [ 'params' => [ $this->_code ] ];
 
         $this->_config = $configFactory->create($parameters);
@@ -174,6 +186,14 @@ class Payfast
         $this->_config->setStoreId(is_object($store) ? $store->getId() : $store);
 
         return $this;
+    }
+
+    /**
+     * @return ProductRepository
+     */
+    public function getProductRepository()
+    {
+        return $this->productRepository;
     }
 
     /**
@@ -291,6 +311,7 @@ class Payfast
             $data["passphrase"] = $passPhrase;
         }
 
+//        $pfOutput = http_build_query($pfOutput);
         ksort($data);
         $pfOutput = '';
         // Create output string
@@ -333,9 +354,13 @@ class Payfast
                 if ($data['subscription_type'] === SubscriptionType::RECURRING_SUBSCRIPTION) {
                     $data['frequency'] = $product->getPfBillingPeriodFrequency();
                     $data['cycles'] = $product->getPfBillingPeriodMaxCycles();
-                    $data['amount'] =  $this->getTotalAmount($order);
-                    $data['recurring_amount'] = $this->getNumberFormat($product->getPfRecurringAmount());
-//                    $data['billing_date'] = $product->getPfBillingDate();
+
+                    if (!is_null($product->getPfInitialAmount())) {
+//                      $data['amount'] = $this->getTotalAmount($order) - $this->getNumberFormat($product->getPrice()) + $this->getNumberFormat($product->getPfInitialAmount());
+                        $data['amount'] = $this->getOrderItems(round($product->getPfInitialAmount()), $this->quoteFactory->create()->load($order->getQuoteId()));
+                    }
+
+                    $data['recurring_amount'] = $this->getNumberFormat($product->getPrice());
                 }
             }
         }
@@ -344,6 +369,115 @@ class Payfast
 
         return $data;
     }
+
+    /**
+     * @param $quote
+     * @return float|int
+     */
+    protected function getOrderItems($initialAmount, \Magento\Quote\Model\Quote $quote)
+    {
+        $items = [];
+        $useStoreCurrency = $this->_config->getValue('use_store_currency');
+        $tax = 0;
+        $discount = 0;
+        $shipping = 0;
+
+        if ($useStoreCurrency)
+        {
+            $currency = $quote->getQuoteCurrencyCode();
+            if (!$quote->getIsVirtual())
+            {
+                $shippingAddress = $quote->getShippingAddress();
+                $shipping = $shippingAddress->getShippingAmount();
+                $tax += $shippingAddress->getShippingTaxAmount();
+            }
+
+            $discount = $quote->getSubtotal() - $quote->getSubtotalWithDiscount();
+        }
+        else
+        {
+            $currency = $quote->getBaseCurrencyCode();
+            if (!$quote->getIsVirtual())
+            {
+                $shippingAddress = $quote->getShippingAddress();
+                $shipping = $shippingAddress->getBaseShippingAmount();
+                $tax += $shippingAddress->getBaseShippingTaxAmount();
+            }
+
+            $discount = $quote->getBaseSubtotal() - $quote->getBaseSubtotalWithDiscount();
+        }
+
+        $cents = 100;
+
+        $quoteItems = $quote->getAllVisibleItems();
+        foreach ($quoteItems as $item)
+        {
+            if ($useStoreCurrency)
+            {
+                $amount = $item->getRowTotal();
+                $tax += $item->getTaxAmount();
+            }
+            else
+            {
+                $amount = $item->getBaseRowTotal();
+                $tax += $item->getBaseTaxAmount();
+            }
+
+            if ($item->getIsPayfastRecurring()) {
+                $items[] = [
+                  'type' => 'sku',
+                  'parent' => $item->getSku(),
+                  'description' => trim($item->getPfScheduleDescription()),
+                  "quantity" => $item->getQty(),
+                  "currency" => $currency,
+                  "amount" => round($initialAmount)
+                ];
+            } else {
+                $items[] = [
+                    "type" => "sku",
+                    "parent" => $item->getSku(),
+                    "description" => $item->getName(),
+                    "quantity" => $item->getQty(),
+                    "currency" => $currency,
+                    "amount" => round($amount)
+                ];
+            }
+
+        }
+
+        if ($tax > 0)
+        {
+            $items[] = [
+                "type" => "tax",
+                "description" => "Tax",
+                "currency" => $currency,
+                "amount" => round($tax)
+            ];
+        }
+
+        if ($discount > 0)
+        {
+            $items[] = [
+                "type" => "discount",
+                "description" => "Discount",
+                "currency" => $currency,
+                "amount" => -round($discount)
+            ];
+        }
+
+        if ($shipping > 0)
+        {
+            $items[] = [
+                "type" => "shipping",
+                "description" => "Shipping",
+                "currency" => $currency,
+                "amount" => round($shipping)
+            ];
+        }
+
+        return array_sum(array_column($items, 'amount'));
+    }
+
     /**
      * getAppVersion
      *
@@ -463,5 +597,54 @@ class Payfast
         }
 
         return $pfHost;
+    }
+
+    public function validate(PayfastRecurringPayment $payment)
+    {
+        $errors = [];
+        if (strlen($payment->getSubscriberName()) > 32) { // up to 32 single-byte chars
+            $errors[] = __('The subscriber name is too long.');
+        }
+        $refId = $payment->getInternalReferenceId(); // up to 127 single-byte alphanumeric
+        if (strlen($refId) > 127) {
+            $errors[] = __('The merchant\'s reference ID format is not supported.');
+        }
+        $scheduleDescription = $payment->getScheduleDescription(); // up to 127 single-byte alphanumeric
+        if (strlen($scheduleDescription) > 127) {
+            $errors[] = __('The schedule description is too long');
+        }
+        if ($errors) {
+            throw new \Magento\Framework\Exception\LocalizedException(__('%1', implode(' ', $errors)));
+        }
+    }
+
+    public function submit(PayfastRecurringPayment $payment, PaymentInfo $paymentInfo)
+    {
+        return true;
+    }
+
+    public function getDetails($referenceId, DataObject $result)
+    {
+        // TODO: Implement getDetails() method.
+    }
+
+    public function canGetDetails()
+    {
+        // TODO: Implement canGetDetails() method.
+    }
+
+    public function update(PayfastRecurringPayment $payment)
+    {
+        return true;
+    }
+
+    public function updateStatus(PayfastRecurringPayment $payment)
+    {
+        return true;
+    }
+
+    public function getPaymentMethodCode()
+    {
+        return $this->_code;
     }
 }

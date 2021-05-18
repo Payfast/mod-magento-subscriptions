@@ -14,7 +14,7 @@ namespace Payfast\Payfast\Block\Payment;
 
 use Magento\Customer\Controller\RegistryConstants;
 use Payfast\Payfast\Block\Payments;
-use Payfast\RecurringPayment\Model\Payment;
+use Payfast\Payfast\Model\Payment;
 /**
  * Class Grid
  *
@@ -66,7 +66,7 @@ class Grid extends Payments
      *
      * @param \Magento\Framework\View\Element\Template\Context $context         context
      * @param \Magento\Framework\Registry                      $registry        registry
-     * @param \Payfast\Payfast\Model\Payfast $paymentModel    paymentModel
+     * @param \Payfast\Payfast\Model\Payment $paymentModel    paymentModel
      * @param \Payfast\Payfast\Block\Fields  $fields          fields
      * @param \Magento\Customer\Model\Session                  $customerSession customerSession
      * @param array                                            $data            data
@@ -74,7 +74,7 @@ class Grid extends Payments
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Framework\Registry $registry,
-        \Payfast\Payfast\Model\PayfastRecurringPayment $paymentModel,
+        \Payfast\Payfast\Model\Payment $paymentModel,
         \Payfast\Payfast\Block\Fields $fields,
         \Magento\Customer\Model\Session $customerSession,
         array $data = []
@@ -126,7 +126,7 @@ class Grid extends Payments
     protected function _prepareLayout()
     {
         parent::_prepareLayout();
-        if ($this->getPayfastRecurringPayments(['reference_id', 'schedule_description', 'state', 'payfast_recurring_payment_start_date', 'method_code'])) {
+        if ($this->getPayfastRecurringPayments(['reference_id', 'schedule_description', 'state', 'recurring_payment_start_date', 'method_code'])) {
             $pager = $this->getLayout()->createBlock(
                 \Magento\Theme\Block\Html\Pager::class,
                 'sales.payfast_recurring_payment.payments.grid.pager'
@@ -161,8 +161,8 @@ class Grid extends Payments
                 ),
                 new \Magento\Framework\DataObject(
                     [
-                        'index' => 'payfast_recurring_payment_start_date',
-                        'title' => $this->_fields->getFieldLabel('payfast_recurring_payment_start_date'),
+                        'index' => 'recurring_payment_start_date',
+                        'title' => $this->_fields->getFieldLabel('recurring_payment_start_date'),
                         'is_nobr' => true
                     ]
                 ),
@@ -185,7 +185,7 @@ class Grid extends Payments
                     'reference_id' => $payment->getReferenceId(),
                     'state' => $payment->renderData('state'),
                     'schedule_description' => $payment->renderData('schedule_description'),
-                    'payfast_recurring_payment_start_date' => $payment->getData('payfast_recurring_payment_start_date') ? $this->formatDate($payment->getData('payfast_recurring_payment_start_date')) : '',
+                    'recurring_payment_start_date' => $payment->getData('recurring_payment_start_date') ? $this->formatDate($payment->getData('recurring_payment_start_date')) : '',
                     'method_code' => $payment->renderData('method_code'),
                     'reference_id_link_url' => $this->getUrl('sales/payfast_recurring_payment/view/', ['payment' => $payment->getId()])
                 ]

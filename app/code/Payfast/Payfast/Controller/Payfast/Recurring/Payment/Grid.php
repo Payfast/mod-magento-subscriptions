@@ -12,9 +12,14 @@
  */
 namespace Payfast\Payfast\Controller\Payfast\Recurring\Payment;
 
+use Magento\Customer\Model\Session;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\LocalizedException as LocalizedException;
+use Magento\Framework\Registry;
+use Magento\Framework\View\Result\PageFactory;
+use Payfast\Payfast\Model\Payment;
 
 /**
  * Class Grid
@@ -30,14 +35,14 @@ class Grid extends \Magento\Framework\App\Action\Action
     /**
      * Session
      *
-     * @var \Magento\Customer\Model\Session|null
+     * @var Session|null
      */
     protected $customerSession = null;
 
     /**
      * Registry
      *
-     * @var \Magento\Framework\Registry|null
+     * @var Registry|null
      */
     protected $coreRegistry = null;
 
@@ -51,7 +56,7 @@ class Grid extends \Magento\Framework\App\Action\Action
     /**
      * PageFactory
      *
-     * @var \Magento\Framework\View\Result\PageFactory
+     * @var PageFactory
      */
     protected $resultPageFactory;
 
@@ -65,27 +70,27 @@ class Grid extends \Magento\Framework\App\Action\Action
     /**
      * Payment
      *
-     * @var \Payfast\Payfast\Model\Payment
+     * @var Payment
      */
     protected $paymentModel;
 
     /**
      * Grid constructor.
      *
-     * @param \Magento\Framework\App\Action\Context            $context           context
-     * @param \Magento\Framework\Registry                      $coreRegistry      coreRegistry
-     * @param \Magento\Framework\View\Result\PageFactory       $resultPageFactory resultPageFactory
+     * @param Context            $context           context
+     * @param Registry                      $coreRegistry      coreRegistry
+     * @param PageFactory       $resultPageFactory resultPageFactory
      * @param ResultFactory                                    $resultFactory     resultFactory
-     * @param \Payfast\Payfast\Model\Payment $paymentModel      paymentModel
-     * @param \Magento\Customer\Model\Session                  $customerSession   customerSession
+     * @param Payment $paymentModel      paymentModel
+     * @param Session                  $customerSession   customerSession
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory,
+        Context $context,
+        Registry $coreRegistry,
+        PageFactory $resultPageFactory,
         ResultFactory $resultFactory,
-        \Payfast\Payfast\Model\Payment $paymentModel,
-        \Magento\Customer\Model\Session $customerSession
+        Payment $paymentModel,
+        Session $customerSession
     ) {
         $this->coreRegistry = $coreRegistry;
         $this->resultPageFactory = $resultPageFactory;
@@ -224,7 +229,7 @@ class Grid extends \Magento\Framework\App\Action\Action
     /**
      * InitPayment
      *
-     * @return \Payfast\Payfast\Model\Payment
+     * @return Payment
      * @throws LocalizedException
      */
     protected function _initPayment()

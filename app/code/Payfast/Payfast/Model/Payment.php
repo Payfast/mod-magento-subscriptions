@@ -12,8 +12,10 @@
  */
 namespace Payfast\Payfast\Model;
 
+use Magento\Framework\Pricing\Helper\Data as AmountRenderer;
 use Magento\Framework\Serialize\SerializerInterface;
 use Payfast\Payfast\Model\Config\Source\Frequency;
+use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 
 /**
  * Class Payment
@@ -89,6 +91,9 @@ class Payment extends PayfastRecurringPayment
      */
     private $serializer;
 
+    /** @var AmountRenderer $amountRenderer */
+    protected $amountRenderer;
+
     /**
      * Payment constructor.
      * @param \Magento\Framework\Model\Context $context
@@ -110,6 +115,7 @@ class Payment extends PayfastRecurringPayment
      * @param SerializerInterface $serializer
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
+     * @param AmountRenderer $amountRenderer
      * @param array $data
      */
     public function __construct(
@@ -133,6 +139,7 @@ class Payment extends PayfastRecurringPayment
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         Frequency $frequency,
+        AmountRenderer $amountRenderer,
         array $data = []
     ) {
         $this->_orderFactory = $orderFactory;
@@ -143,7 +150,7 @@ class Payment extends PayfastRecurringPayment
         $this->states = $states;
         $this->messageManager = $messageManager;
         $this->serializer = $serializer;
-
+        $this->amountRenderer = $amountRenderer;
         parent::__construct(
             $context,
             $registry,
@@ -158,6 +165,7 @@ class Payment extends PayfastRecurringPayment
             $resource,
             $resourceCollection,
             $frequency,
+            $amountRenderer,
             $data
         );
     }
@@ -181,15 +189,30 @@ class Payment extends PayfastRecurringPayment
      */
     public function submit()
     {
+        $pre = __METHOD__ . ' : ';
         $this->_getResource()->beginTransaction();
         try {
             $this->setInternalReferenceId($this->mathRandom->getUniqueHash($this->getId() . '-'));
             $this->setProfileId($this->mathRandom->getUniqueHash($this->getId() . '-'));
             $this->setOrderId($this->getQuote()->getReservedOrderId());
 
+            $this->setSubscriptionType($this->getData('subscription_type'));
+            $this->setReferenceId($this->getData('reference_id'));
+            $this->_logger->debug($pre . 'subscription type is '. SubscriptionType::RECURRING_LABEL[$this->getSubscriptionType()]);
+
+            if ((int)$this->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION) {
+                $this->_logger->debug($pre. 'preparing Setting subscription data for db');
+                $this->setRecurringPaymentStartDate($this->getData('recurring_payment_start_date'));
+                $this->setBillingPeriodMaxCycles($this->getData('pf_billing_period_max_cycles'));
+                $this->setBillingPeriodFrequency($this->getData('pf_billing_period_frequency'));
+                $this->setInitialAmount($this->getData('pf_initial_amount'));
+            }
+
             $this->getManager()->submit($this, $this->getQuote()->getPayment());
             $this->save();
             $this->_getResource()->commit();
+
+            $this->activate();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->_getResource()->rollBack();
             $this->messageManager->addExceptionMessage($e, $e->getMessage());
@@ -456,6 +479,7 @@ class Payment extends PayfastRecurringPayment
     public function importQuoteItem(\Magento\Quote\Model\Quote\Item\AbstractItem $item)
     {
         $this->setQuoteItemInfo($item);
+
         $this->setBillingAmount($item->getBaseRowTotal())
             ->setTaxAmount($item->getBaseTaxAmount())
             ->setShippingAmount($item->getBaseShippingAmount());
@@ -626,7 +650,7 @@ class Payment extends PayfastRecurringPayment
     {
         $paymentType = $itemInfo->getPaymentType();
         if (!$paymentType) {
-            throw new \Exception("PayPal Recurring payment type is not specified.");
+            throw new \Exception("PayFast Recurring payment type is not specified.");
         }
 
         switch ($paymentType) {
@@ -637,7 +661,7 @@ class Payment extends PayfastRecurringPayment
             case PaymentTypeInterface::INITIAL:
                 return $this->_getInitialItem($itemInfo);
             default:
-                new \Exception("Invalid PayPal recurring payment type '{$paymentType}'.");
+                new \Exception("Invalid PayFast recurring payment type '{$paymentType}'.");
         }
     }
 
@@ -710,7 +734,7 @@ class Payment extends PayfastRecurringPayment
             ->setProductType(\Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL)
             ->setIsVirtual(1)
             ->setSku('initial_fee')
-            ->setName(__('PayPal Recurring Payment Initial Fee'))
+            ->setName(__('PayFast Recurring Payment Initial Fee'))
             ->setDescription('')
             ->setWeight(0)
             ->setQtyOrdered(1)

@@ -12,6 +12,16 @@
  */
 namespace Payfast\Payfast\Block\Payment\View;
 
+use Magento\Catalog\Model\Product;
+use Magento\Catalog\Model\Product\Option;
+use Magento\Framework\Registry;
+use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Quote\Model\Quote\Item\OptionFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use Payfast\Payfast\Block\Payment\View;
+use Payfast\Payfast\Model\Payment;
+
 /**
  * Class Item
  *
@@ -21,33 +31,33 @@ namespace Payfast\Payfast\Block\Payment\View;
  * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
  * @link     https://www.payfast.co.za
  */
-class Item extends \Payfast\Payfast\Block\Payment\View
+class Item extends View
 {
     /**
      * Option
 
-     * @var \Magento\Catalog\Model\Product\Option
+     * @var Option
      */
     protected $option;
 
     /**
      * Product
      *
-     * @var \Magento\Catalog\Model\Product
+     * @var Product
      */
     protected $product;
 
     /**
      * OptionFactory
 
-     * @var \Magento\Quote\Model\Quote\Item\OptionFactory
+     * @var OptionFactory
      */
     protected $quoteItemOptionFactory;
 
     /**
      * Json
      *
-     * @var \Magento\Framework\Serialize\Serializer\Json
+     * @var Json
      */
     protected $serialize;
 
@@ -68,25 +78,25 @@ class Item extends \Payfast\Payfast\Block\Payment\View
     /**
      * Item constructor.
      *
-     * @param \Magento\Framework\View\Element\Template\Context $context                context
-     * @param \Magento\Framework\Registry                      $registry               registry
-     * @param \Payfast\Payfast\Model\Payfast $paymentModel           paymentModel
-     * @param \Magento\Store\Model\StoreManagerInterface       $storeManager           storeManager
-     * @param \Magento\Catalog\Model\Product\Option            $option                 option
-     * @param \Magento\Catalog\Model\Product                   $product                product
-     * @param \Magento\Quote\Model\Quote\Item\OptionFactory    $quoteItemOptionFactory quoteItemOptionFactory
-     * @param \Magento\Framework\Serialize\Serializer\Json     $serialize              serialize
+     * @param Context $context                context
+     * @param Registry                      $registry               registry
+     * @param Payment $paymentModel           paymentModel
+     * @param StoreManagerInterface       $storeManager           storeManager
+     * @param Option            $option                 option
+     * @param Product                   $product                product
+     * @param OptionFactory    $quoteItemOptionFactory quoteItemOptionFactory
+     * @param Json     $serialize              serialize
      * @param array                                            $data                   data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Payfast\Payfast\Model\Payfast $paymentModel,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Catalog\Model\Product\Option $option,
-        \Magento\Catalog\Model\Product $product,
-        \Magento\Quote\Model\Quote\Item\OptionFactory $quoteItemOptionFactory,
-        \Magento\Framework\Serialize\Serializer\Json $serialize,
+        Context $context,
+        Registry $registry,
+        Payment $paymentModel,
+        StoreManagerInterface $storeManager,
+        Option $option,
+        Product $product,
+        OptionFactory $quoteItemOptionFactory,
+        Json $serialize,
         array $data = []
     ) {
         parent::__construct($context, $registry, $paymentModel, $storeManager, $data);
@@ -99,7 +109,7 @@ class Item extends \Payfast\Payfast\Block\Payment\View
     /**
      * PrepareLayout
      *
-     * @return \Payfast\Payfast\Block\Payment\View|void
+     * @return View|void
      */
     protected function _prepareLayout()
     {

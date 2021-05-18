@@ -12,8 +12,13 @@
  */
 namespace Payfast\Payfast\Controller\Adminhtml\Payfast\Recurring\Payment;
 
+use Magento\Backend\App\Action\Context;
 use \Magento\Framework\Exception\LocalizedException as LocalizedException;
 use Magento\Customer\Controller\RegistryConstants;
+use Magento\Framework\Registry;
+use Magento\Framework\View\Result\PageFactory;
+use Payfast\Payfast\Model\Payment;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class UpdateState
@@ -29,25 +34,25 @@ class UpdateState extends Index
     /**
      * LoggerInterface
      *
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     protected $logger;
 
     /**
      * UpdateState constructor.
      *
-     * @param \Magento\Backend\App\Action\Context              $context           context
-     * @param \Magento\Framework\Registry                      $coreRegistry      coreRegistry
-     * @param \Psr\Log\LoggerInterface                         $logger            logger
-     * @param \Magento\Framework\View\Result\PageFactory       $resultPageFactory resultPageFactory
-     * @param \Payfast\Payfast\Model\Payfast $paymentModel      paymentModel
+     * @param Context              $context           context
+     * @param Registry                      $coreRegistry      coreRegistry
+     * @param LoggerInterface                         $logger            logger
+     * @param PageFactory       $resultPageFactory resultPageFactory
+     * @param Payfast $paymentModel      paymentModel
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory,
-        \Payfast\Payfast\Model\Payfast $paymentModel
+        Context $context,
+        Registry $coreRegistry,
+        LoggerInterface $logger,
+        PageFactory $resultPageFactory,
+        Payment $paymentModel
     ) {
         $this->logger = $logger;
         parent::__construct($context, $coreRegistry, $logger, $resultPageFactory, $paymentModel);

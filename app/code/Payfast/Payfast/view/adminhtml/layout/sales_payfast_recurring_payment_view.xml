@@ -9,7 +9,7 @@
             </block>
         </referenceContainer>
 
-        <referenceContainer name="left">
+        <referenceContainer name="content">
             <block class="Magento\Backend\Block\Widget\Tabs" name="sales.payfast.recurring.payment.view.tabs" cacheable="false">
                 <action method="setDestElementId">
                     <argument name="value" xsi:type="string">sales_payfast_recurring_payment_view</argument>

@@ -3,7 +3,7 @@
     <referenceContainer name="content">
         <block class="Magento\Review\Block\Adminhtml\Product\Edit\Tab" name="payfast-recurring-payment" template="Payfast_Payfast::payfast/recurring/payment/show_hide_fields.phtml">
             <arguments>
-                <argument name="label" xsi:type="string" translate="true">PayFast Recurring Paymentss</argument>
+                <argument name="label" xsi:type="string" translate="true">PayFast Recurring Payments</argument>
             </arguments>
             <argument name="group_code" xsi:type="string">advanced</argument>
         </block>

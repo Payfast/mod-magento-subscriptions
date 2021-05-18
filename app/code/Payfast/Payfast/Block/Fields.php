@@ -43,7 +43,7 @@ class Fields extends \Magento\Backend\Block\AbstractBlock
                 return __('Updated Date');
             case 'subscriber_name':
                 return __('Subscriber Name');
-            case 'paypal_recurring_payment_start_date':
+            case 'recurring_payment_start_date':
                 return __('Recurring Start Date');
             case 'internal_reference_id':
                 return __('Internal Reference ID');
@@ -63,14 +63,6 @@ class Fields extends \Magento\Backend\Block\AbstractBlock
                 return __('Maximum Billing Cycles');
             case 'billing_amount':
                 return __('Billing Amount');
-            case 'trial_period_unit':
-                return __('Trial Period Unit');
-            case 'trial_period_frequency':
-                return __('Trial Period Frequency');
-            case 'trial_period_max_cycles':
-                return __('Maximum Trial Cycles');
-            case 'trial_period_amount':
-                return __('Trial Period Amount');
             case 'currency_code':
                 return __('Currency');
             case 'shipping_amount':
@@ -79,12 +71,10 @@ class Fields extends \Magento\Backend\Block\AbstractBlock
                 return __('Tax Amount');
             case 'initial_amount':
                 return __('Initial Amount');
-            case 'allow_initial_amount_failure':
-                return __('Allow Initial Amount Failure');
             case 'method_code':
                 return __('Payment Method');
             case 'reference_id':
-                return __('Paypal Reference #');
+                return __('PayFast Reference #');
         }
     }
 

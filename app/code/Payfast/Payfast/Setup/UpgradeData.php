@@ -139,12 +139,12 @@ class UpgradeData implements UpgradeDataInterface
                 'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
                 'sort_order'                => 3,
             ],
-            'pf_recurring_amount'       => [
+            'pf_initial_amount'       => [
                 'group'                     => $groupName,
                 'type'                      => 'decimal',
                 'input'                     => 'price',
-                'label'                     => 'Recurring Amount',
-                'note'                      => 'The recurring amount payment amount is due immediately when the payment is created.',
+                'label'                     => 'Initial Amount',
+                'note'                      => 'The Initial amount payment amount is due immediately when the payment is created.',
                 'required'                  => false,
                 'backend'                   => \Magento\Catalog\Model\Product\Attribute\Backend\Price::class,
                 'attribute_model'           => \Magento\Catalog\Model\ResourceModel\Eav\Attribute::class,
@@ -169,8 +169,7 @@ class UpgradeData implements UpgradeDataInterface
 
         $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'is_payfast_recurring');
         $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'schedule_description');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'schedule_description');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_recurring_amount');
+        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_initial_amount');
         $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_billing_period_frequency');
         $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_billing_period_max_cycles');
         $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'is_start_date_editable');

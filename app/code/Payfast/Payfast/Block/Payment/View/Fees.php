@@ -12,6 +12,14 @@
  */
 namespace Payfast\Payfast\Block\Payment\View;
 
+use Magento\Framework\Registry;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Store\Model\StoreManagerInterface;
+use Payfast\Payfast\Block\Fields;
+use Payfast\Payfast\Block\Payment\View;
+use Payfast\Payfast\Model\Payfast;
+use Payfast\Payfast\Model\Payment;
+
 /**
  * Class Fees
  *
@@ -21,7 +29,7 @@ namespace Payfast\Payfast\Block\Payment\View;
  * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
  * @link     https://www.payfast.co.za
  */
-class Fees extends \Payfast\Payfast\Block\Payment\View
+class Fees extends View
 {
     /**
      * Data
@@ -33,7 +41,7 @@ class Fees extends \Payfast\Payfast\Block\Payment\View
     /**
      * Fields
      *
-     * @var \Payfast\Payfast\Block\Fields
+     * @var Fields
      */
     protected $fields;
 
@@ -54,33 +62,33 @@ class Fees extends \Payfast\Payfast\Block\Payment\View
     /**
      * Fees constructor.
      *
-     * @param \Magento\Framework\View\Element\Template\Context $context        context
-     * @param \Magento\Framework\Registry                      $registry       registry
-     * @param \Payfast\Payfast\Model\Payfast $paymentModel   paymentModel
-     * @param \Magento\Store\Model\StoreManagerInterface       $storeManager   storeManager
-     * @param \Magento\Framework\Pricing\Helper\Data           $amoutnRenderer amoutnRenderer
-     * @param \Payfast\Payfast\Block\Fields  $fields         fields
+     * @param Context $context        context
+     * @param Registry                      $registry       registry
+     * @param Payment $paymentModel   paymentModel
+     * @param StoreManagerInterface       $storeManager   storeManager
+     * @param \Magento\Framework\Pricing\Helper\Data           $amountRenderer amoutnRenderer
+     * @param Fields  $fields         fields
      * @param array                                            $data           data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Payfast\Payfast\Model\Payfast $paymentModel,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Pricing\Helper\Data $amoutnRenderer,
-        \Payfast\Payfast\Block\Fields $fields,
+        Context $context,
+        Registry $registry,
+        Payment $paymentModel,
+        StoreManagerInterface $storeManager,
+        \Magento\Framework\Pricing\Helper\Data $amountRenderer,
+        Fields $fields,
         array $data = []
     ) {
         parent::__construct($context, $registry, $paymentModel, $storeManager, $data);
         ;
-        $this->amoutnRenderer = $amoutnRenderer;
+        $this->amoutnRenderer = $amountRenderer;
         $this->fields = $fields;
     }
 
     /**
      * PrepareLayout
      *
-     * @return \Payfast\Payfast\Block\Payment\View|void
+     * @return View|void
      */
     protected function _prepareLayout()
     {

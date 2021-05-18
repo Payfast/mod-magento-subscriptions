@@ -12,8 +12,13 @@
  */
 namespace Payfast\Payfast\Controller\Payfast\Recurring\Payment;
 
+use Magento\Customer\Model\Session;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
 use \Magento\Framework\Exception\LocalizedException as LocalizedException;
+use Magento\Framework\Registry;
+use Magento\Framework\View\Result\PageFactory;
+use Payfast\Payfast\Model\Payment;
 
 /**
  * Class View
@@ -29,21 +34,21 @@ class View extends Grid
     /**
      * Session
      *
-     * @var \Magento\Customer\Model\Session
+     * @var Session
      */
     protected $customerSession = null;
 
     /**
      * Registry
      *
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     protected $coreRegistry = null;
 
     /**
      * PageFactory
      *
-     * @var \Magento\Framework\View\Result\PageFactory
+     * @var PageFactory
      */
     protected $resultPageFactory;
 
@@ -57,7 +62,7 @@ class View extends Grid
     /**
      * Payment
      *
-     * @var \Payfast\Payfast\Model\Payment
+     * @var Payment
      */
     protected $paymentModel;
 
@@ -71,21 +76,21 @@ class View extends Grid
     /**
      * View constructor.
      *
-     * @param \Magento\Framework\App\Action\Context            $context           context
-     * @param \Magento\Framework\Registry                      $coreRegistry      coreRegistry
-     * @param \Magento\Framework\View\Result\PageFactory       $resultPageFactory resultPageFactory
+     * @param Context            $context           context
+     * @param Registry                      $coreRegistry      coreRegistry
+     * @param PageFactory       $resultPageFactory resultPageFactory
      * @param ResultFactory                                    $resultFactory     resultFactory
-     * @param \Payfast\Payfast\Model\Payment $paymentModel      paymentModel
-     * @param \Magento\Customer\Model\Session                  $customerSession   customerSession
+     * @param Payment $paymentModel      paymentModel
+     * @param Session                  $customerSession   customerSession
      * @param \Zend\Log\Logger                                 $logger            logger
      */
     public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory,
+        Context $context,
+        Registry $coreRegistry,
+        PageFactory $resultPageFactory,
         ResultFactory $resultFactory,
-        \Payfast\Payfast\Model\Payment $paymentModel,
-        \Magento\Customer\Model\Session $customerSession,
+        Payment $paymentModel,
+        Session $customerSession,
         \Zend\Log\Logger $logger
     ) {
         $this->resultPageFactory = $resultPageFactory;
@@ -113,7 +118,7 @@ class View extends Grid
                 return $resultRedirect;
             }
         } catch (LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
             $this->logger->err($e);
         }

@@ -10,10 +10,15 @@
  * @license  https://www.sparsh-technologies.com  Open Software License (OSL 3.0)
  * @link     https://www.sparsh-technologies.com
  */
-namespace Payfast\Payfast\Controller\Adminhtml\Paypal\Recurring\Payment;
+namespace Payfast\Payfast\Controller\Adminhtml\Payfast\Recurring\Payment;
 
+use Magento\Backend\App\Action\Context;
 use Magento\Framework\Exception\LocalizedException as LocalizedException;
 use Magento\Customer\Controller\RegistryConstants;
+use Magento\Framework\Registry;
+use Magento\Framework\View\Result\PageFactory;
+use Payfast\Payfast\Model\Payment;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Orders
@@ -24,37 +29,37 @@ use Magento\Customer\Controller\RegistryConstants;
  * @license  https://www.sparsh-technologies.com  Open Software License (OSL 3.0)
  * @link     https://www.sparsh-technologies.com
  */
-class Orders extends \Payfast\Payfast\Controller\Adminhtml\Payfast\Recurring\Payment\Index
+class Orders extends Index
 {
     /**
      * LoggerInterface
      *
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     protected $logger;
 
     /**
      * PageFactory
      *
-     * @var \Magento\Framework\View\Result\PageFactory
+     * @var PageFactory
      */
     protected $resultPageFactory;
 
     /**
      * Orders constructor.
      *
-     * @param \Magento\Backend\App\Action\Context              $context           context
-     * @param \Magento\Framework\Registry                      $coreRegistry      coreRegistry
-     * @param \Psr\Log\LoggerInterface                         $logger            logger
-     * @param \Magento\Framework\View\Result\PageFactory       $resultPageFactory resultPageFactory
-     * @param \Payfast\Payfast\Model\Payfast $paymentModel      paymentModel
+     * @param Context              $context           context
+     * @param Registry                      $coreRegistry      coreRegistry
+     * @param LoggerInterface                         $logger            logger
+     * @param PageFactory       $resultPageFactory resultPageFactory
+     * @param Payment $paymentModel      paymentModel
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Framework\Registry $coreRegistry,
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Framework\View\Result\PageFactory $resultPageFactory,
-        \Payfast\Payfast\Model\Payfast $paymentModel
+        Context $context,
+        Registry $coreRegistry,
+        LoggerInterface $logger,
+        PageFactory $resultPageFactory,
+        Payment $paymentModel
     ) {
         $this->logger = $logger;
         $this->resultPageFactory = $resultPageFactory;

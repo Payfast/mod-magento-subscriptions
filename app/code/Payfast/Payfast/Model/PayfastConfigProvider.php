@@ -38,7 +38,7 @@ class PayfastConfigProvider implements ConfigProviderInterface
     protected $_logger;
 
     /**
-     * @var PayfastHelper 
+     * @var PayfastHelper
      */
     protected $payfastHelper;
 
@@ -139,6 +139,7 @@ class PayfastConfigProvider implements ConfigProviderInterface
         $this->_logger->debug($pre . 'eof');
         return $methodUrl;
     }
+
 
     /**
      * Return billing agreement code for method

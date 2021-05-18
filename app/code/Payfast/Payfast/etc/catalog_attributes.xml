@@ -4,19 +4,12 @@
         <attribute name="is_payfast_recurring"/>
         <attribute name="schedule_description"/>
         <attribute name="is_start_date_editable"/>
-        <attribute name="billing_period_unit"/>
-        <attribute name="billing_period_frequency"/>
-        <attribute name="billing_period_max_cycles"/>
-        <attribute name="is_trial_available"/>
-        <attribute name="trial_period_unit"/>
-        <attribute name="trial_period_frequency"/>
-        <attribute name="trial_period_amount"/>
-        <attribute name="trial_period_max_cycles"/>
-        <attribute name="initial_amount"/>
+        <attribute name="pf_billing_period_frequency"/>
+        <attribute name="pf_billing_period_max_cycles"/>
+        <attribute name="pf_initial_amount"/>
         <attribute name="allow_initial_amount_failure"/>
         <attribute name="max_allowed_payment_failures"/>
-        <attribute name="auto_bill_failures"/>
-        <attribute name="payfast_recurring_payment_start_date"/>
+        <attribute name="recurring_payment_start_date"/>
         <attribute name="payment_id"/>
     </group>
 </config>

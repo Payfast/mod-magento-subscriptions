@@ -12,6 +12,8 @@
  */
 namespace Payfast\Payfast\Block\Payment;
 
+use Magento\Framework\View\Element\Template;
+
 /**
  * Class View
  *
@@ -22,7 +24,7 @@ namespace Payfast\Payfast\Block\Payment;
  * @link     https://www.payfast.co.za
  */
 
-class View extends \Magento\Framework\View\Element\Template
+class View extends Template
 {
     /**
      * PayfastRecurringPayment
@@ -78,14 +80,14 @@ class View extends \Magento\Framework\View\Element\Template
      *
      * @param \Magento\Framework\View\Element\Template\Context $context      context
      * @param \Magento\Framework\Registry                      $registry     registry
-     * @param \Payfast\Payfast\Model\Payfast $paymentModel paymentModel
+     * @param \Payfast\Payfast\Model\Payment $paymentModel paymentModel
      * @param \Magento\Store\Model\StoreManagerInterface       $storeManager storeManager
      * @param array                                            $data         data
      */
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Framework\Registry $registry,
-        \Payfast\Payfast\Model\Payfast $paymentModel,
+        \Payfast\Payfast\Model\Payment $paymentModel,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         array $data = []
     ) {
@@ -118,9 +120,9 @@ class View extends \Magento\Framework\View\Element\Template
         if (is_array($value)) {
             $value = implode("\n", $value);
         }
-        if (!$row->getSkipHtmlEscaping()) {
-            $value = $this->escapeHtml($value);
-        }
+//        if (!$row->getSkipHtmlEscaping()) {
+//            $value = $this->escapeHtml($value);
+//        }
         return nl2br($value);
     }
 
@@ -145,7 +147,7 @@ class View extends \Magento\Framework\View\Element\Template
     /**
      * PrepareLayout
      *
-     * @return \Magento\Framework\View\Element\Template
+     * @return Template
      *
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */

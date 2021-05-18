@@ -11,6 +11,12 @@
  */
 namespace Payfast\Payfast\Block\Payment\View;
 
+use Magento\Framework\Registry;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Store\Model\StoreManagerInterface;
+use Payfast\Payfast\Block\Fields;
+use Payfast\Payfast\Model\Payment;
+
 /**
  * Class Reference
  *
@@ -25,40 +31,40 @@ class Reference extends \Payfast\Payfast\Block\Payment\View
     /**
      * Fields
      *
-     * @var \Payfast\Payfast\Block\Fields
+     * @var Fields
      */
     protected $fields;
 
     /**
      * Payment
      *
-     * @var \Payfast\Payfast\Model\Payment
+     * @var Payment
      */
     protected $paymentModel;
 
     /**
      * StoreManagerInterface
      *
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreManagerInterface
      */
     protected $storeManager;
 
     /**
      * Reference constructor.
      *
-     * @param \Magento\Framework\View\Element\Template\Context $context      context
-     * @param \Magento\Framework\Registry                      $registry     registry
-     * @param \Payfast\Payfast\Model\Payfast $paymentModel paymentModel
-     * @param \Magento\Store\Model\StoreManagerInterface       $storeManager storeManager
-     * @param \Payfast\Payfast\Block\Fields  $fields       fields
+     * @param Context $context      context
+     * @param Registry                      $registry     registry
+     * @param Payment $paymentModel paymentModel
+     * @param StoreManagerInterface       $storeManager storeManager
+     * @param Fields  $fields       fields
      * @param array                                            $data         data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Payfast\Payfast\Model\Payfast $paymentModel,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Payfast\Payfast\Block\Fields $fields,
+        Context $context,
+        Registry $registry,
+        Payment $paymentModel,
+        StoreManagerInterface $storeManager,
+        Fields $fields,
         array $data = []
     ) {
         parent::__construct($context, $registry, $paymentModel, $storeManager, $data);

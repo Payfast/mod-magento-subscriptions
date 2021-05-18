@@ -13,6 +13,7 @@
 namespace Payfast\Payfast\Model;
 
 use Magento\Catalog\Model\Product;
+use Magento\Framework\Pricing\Helper\Data as AmountRenderer;
 use Payfast\Payfast\Model\Config\Source\BillingPeriodUnitsOptions;
 use Magento\Framework\Serialize\SerializerInterface;
 use Payfast\Payfast\Model\Config\Source\Frequency;
@@ -34,7 +35,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
     /**
      * PAYPAL_RECURRING_PAYMENT_START_DATE
      */
-    const PAYFAST_RECURRING_PAYMENT_START_DATE = 'payfast_recurring_payment_start_date';
+    const RECURRING_PAYMENT_START_DATE = 'recurring_payment_start_date';
     /**
      * PRODUCT_OPTIONS_KEY
      */
@@ -53,6 +54,8 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
      * @var manager
      */
     protected $_manager = null;
+
+
 
     /**
      * Store
@@ -127,6 +130,8 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
      */
     private $serializer;
 
+    /** @var AmountRenderer $amountRenderer */
+    protected $amountRenderer;
 
     /**
      * PaypalRecurringPayment constructor.
@@ -143,6 +148,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
      * @param Magento\Framework\Serialize\SerializerInterface              $serializer                serializer
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource                  resource
      * @param \Magento\Framework\Data\Collection\AbstractDb|null           $resourceCollection        resourceCollection
+     * @param AmountRenderer $amountRender
      * @param array                                                        $data                      data
      */
     public function __construct(
@@ -159,6 +165,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         Frequency $frequency,
+        AmountRenderer $amountRender,
         array $data = []
     ) {
         $this->_paymentData = $paymentData;
@@ -170,6 +177,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
         $this->_dateTime = $dateTime;
         $this->serializer = $serializer;
         $this->_frequency = $frequency;
+        $this->amountRenderer = $amountRender;
 
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
@@ -185,7 +193,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
         $this->_filterValues();
         $this->_errors = [];
 
-        if (!$this->getPaypalRecurringPaymentStartDate()) {
+        if (!$this->getRecurringPaymentStartDate()) {
             $this->_errors['payfast_recurring_payment_start_date'][] = __('PayFast Recurring Payment Start date is undefined.');
         } elseif (!\Zend_Date::isDate($this->getPaypalRecurringPaymentStartDate(), \Magento\Framework\Stdlib\DateTime::DATETIME_INTERNAL_FORMAT)) {
             $this->_errors['payfast_recurring_payment_start_date'][] = __('PayFast Recurring Payment Start date has an invalid format.');
@@ -226,11 +234,6 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
             $this->_errors['billing_amount'][] = __('We found a wrong or empty billing amount specified.');
         }
 
-        foreach (['trial_period_amount', 'shipping_amount', 'tax_amount', 'init_amount'] as $key) {
-            if ($this->hasData($key) && 0 >= $this->getData($key)) {
-                $this->_errors[$key][] = __('The wrong %1 is specified.', $this->_fields->getFieldLabel($key));
-            }
-        }
 
         if (!$this->getCurrencyCode()) {
             $this->_errors['currency_code'][] = __('The currency code is undefined.');
@@ -297,7 +300,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
      */
     public function importBuyRequest(\Magento\Framework\DataObject $buyRequest)
     {
-        $recurringPaymentStartDate = $buyRequest->getData(self::PAYFAST_RECURRING_PAYMENT_START_DATE);
+        $recurringPaymentStartDate = $buyRequest->getData(self::RECURRING_PAYMENT_START_DATE);
         if ($recurringPaymentStartDate) {
             if (!$this->_localeDate || !$this->_store) {
                 throw new \Exception('Locale and store instances must be set for this operation.');
@@ -337,7 +340,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
             $this->setIsStartDateEditable($product->getPfIsStartDateEditable());
             $this->setBillingPeriodFrequency($product->getPfBillingPeriodFrequency());
             $this->setBillingPeriodMaxCycles($product->getPfBillingPeriodMaxCycles());
-            $this->setPfRecurringAmount($product->getPfRecurringAmount());
+            $this->setPfInitialAmount($product->getPfInitialAmount());
             $this->setSubscriptionType($product->getSubscriptionType());
 
             // automatically set product name if there is no schedule description
@@ -350,8 +353,8 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
             if ($options) {
                 $options = $this->serializer->unserialize($options->getValue());
                 if (is_array($options)) {
-                    if (isset($options['payfast_recurring_payment_start_date'])) {
-                        $paypalRecurringPaymentStartDate = $this->_dateTime->formatDate($options['payfast_recurring_payment_start_date']);
+                    if (isset($options['recurring_payment_start_date'])) {
+                        $paypalRecurringPaymentStartDate = $this->_dateTime->formatDate($options['recurring_payment_start_date']);
                         $this->setNearestPayfastRecurringPaymentStartDate($this->_dateTime, $paypalRecurringPaymentStartDate);
                     }
                 }
@@ -490,7 +493,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
         return $this->_manager;
     }
     /**
-     * IsActivePaypalExpressPaymentMethod
+     * IsActiveMethod
      *
      * @return bool
      */
@@ -544,12 +547,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
 
         $period = $this->_getData($periodKey);
         $frequency = (int)$this->_getData($frequencyKey);
-//        if (!$period || !$frequency) {
-//            return $result;
-//        }
-//        if (BillingPeriodUnitsOptions::SEMI_MONTH == $period) {
-//            $frequency = '';
-//        }
+
 
         $result[] = __('%1', $this->_getData('schedule_description'));
 
@@ -559,9 +557,12 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
             if ($cycles) {
                 $result[] = __('Repeats %1 time(s)', $cycles);
             } else {
-                $result[] = __('Repeats until suspended or canceled.');
+                $result[] = __('Repeats until Paused or canceled.');
             }
-            $result[] = __('Recurring Amount : %1', number_format($this->_getData('pf_recurring_amount'), 2, '.', ''));
+            if (empty($this->_getData('pf_initial_amount')) && !empty($this->storedData['initial_amount'])) {
+                $this->setPfInitialAmount($this->storedData['initial_amount']);
+            }
+            $result[] = __('Initial Amount : %1', $this->amountRenderer->currency($this->_getData('pf_initial_amount'),true, false));
         }
 
         $this->_logger->debug(__METHOD__ . ' : results is ', $result);

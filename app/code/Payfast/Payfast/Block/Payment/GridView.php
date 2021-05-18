@@ -12,6 +12,11 @@
  */
 namespace Payfast\Payfast\Block\Payment;
 
+use Magento\Framework\Registry;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Store\Model\StoreManagerInterface;
+use Payfast\Payfast\Model\Payment;
+
 /**
  * Class View
  *
@@ -55,38 +60,38 @@ class GridView extends \Magento\Framework\View\Element\Template
     /**
      * Registry
      *
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     protected $registry;
 
     /**
      * Payment
      *
-     * @var \Payfast\Payfast\Model\Payment
+     * @var Payment
      */
     protected $paymentModel;
 
     /**
      * StoreManagerInterface
      *
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreManagerInterface
      */
     protected $storeManager;
 
     /**
      * View constructor.
      *
-     * @param \Magento\Framework\View\Element\Template\Context $context      context
-     * @param \Magento\Framework\Registry                      $registry     registry
-     * @param \Payfast\Payfast\Model\Payfast $paymentModel paymentModel
-     * @param \Magento\Store\Model\StoreManagerInterface       $storeManager storeManager
+     * @param Context $context      context
+     * @param Registry                      $registry     registry
+     * @param Payment $paymentModel paymentModel
+     * @param StoreManagerInterface       $storeManager storeManager
      * @param array                                            $data         data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Payfast\Payfast\Model\Payfast $paymentModel,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        Context $context,
+        Registry $registry,
+        Payment $paymentModel,
+        StoreManagerInterface $storeManager,
         array $data = []
     ) {
         $this->registry = $registry;

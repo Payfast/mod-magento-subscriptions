@@ -54,14 +54,14 @@ class View extends Index
      * @param \Magento\Framework\Registry                      $coreRegistry      coreRegistry
      * @param \Psr\Log\LoggerInterface                         $logger            logger
      * @param \Magento\Framework\View\Result\PageFactory       $resultPageFactory resultPageFactory
-     * @param \Payfast\Payfast\Model\Payfast $paymentModel      paymentModel
+     * @param \Payfast\Payfast\Model\Payment $paymentModel      paymentModel
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\Registry $coreRegistry,
         \Psr\Log\LoggerInterface $logger,
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
-        \Payfast\Payfast\Model\Payfast $paymentModel
+        \Payfast\Payfast\Model\Payment $paymentModel
     ) {
         $this->logger = $logger;
         $this->resultPageFactory = $resultPageFactory;

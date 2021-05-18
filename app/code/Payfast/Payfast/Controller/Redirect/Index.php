@@ -7,9 +7,7 @@
 namespace Payfast\Payfast\Controller\Redirect;
 
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\View\Result\PageFactory;
 use Payfast\Payfast\Controller\AbstractPayfast;
-use Payfast\Payfast\Model\Config;
 
 /**
  * Responsible for loading page content.

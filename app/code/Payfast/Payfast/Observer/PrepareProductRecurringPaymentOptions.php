@@ -15,6 +15,7 @@ namespace Payfast\Payfast\Observer;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Serialize\SerializerInterface;
+use Payfast\Payfast\Model\PayfastRecurringPayment;
 
 /**
  * Class PrepareProductRecurringPaymentOptions
@@ -105,7 +106,7 @@ class PrepareProductRecurringPaymentOptions implements ObserverInterface
 
         $activePaymentMethods = $this->paymentconfig->getActiveMethods();
 
-        if (!$product->getIsPaypalRecurring() || !isset($activePaymentMethods['paypal_express'])) {
+        if (!$product->getIsPaypalRecurring() || !isset($activePaymentMethods['payfast'])) {
             return;
         }
 
@@ -120,7 +121,7 @@ class PrepareProductRecurringPaymentOptions implements ObserverInterface
 
         // add the start datetime as product custom option
         $product->addCustomOption(
-            \Sparsh\PaypalRecurringPayment\Model\PayfastRecurringPayment::PRODUCT_OPTIONS_KEY,
+            PayfastRecurringPayment::PRODUCT_OPTIONS_KEY,
             $this->serializer
                 ->serialize(['paypal_recurring_payment_start_date' => $payment->getPaypalRecurringPaymentStartDate()])
         );

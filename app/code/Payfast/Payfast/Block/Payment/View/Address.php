@@ -12,6 +12,13 @@
  */
 namespace Payfast\Payfast\Block\Payment\View;
 
+use Magento\Framework\Registry;
+use Magento\Framework\View\Element\Template\Context;
+use Magento\Sales\Model\Order\Address\Renderer;
+use Magento\Sales\Model\Order\AddressFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use Payfast\Payfast\Model\Payment;
+
 /**
  * Class Address
  *
@@ -26,14 +33,14 @@ class Address extends \Payfast\Payfast\Block\Payment\View
     /**
      * AddressFactory
      *
-     * @var \Magento\Sales\Model\Order\AddressFactory
+     * @var AddressFactory
      */
     protected $_addressFactory;
 
     /**
      * Renderer
      *
-     * @var \Magento\Sales\Model\Order\Address\Renderer
+     * @var Renderer
      */
     protected $addressRenderer;
 
@@ -54,21 +61,21 @@ class Address extends \Payfast\Payfast\Block\Payment\View
     /**
      * Address constructor.
      *
-     * @param \Magento\Framework\View\Element\Template\Context $context         context
-     * @param \Magento\Framework\Registry                      $registry        registry
-     * @param \Payfast\Payfast\Model\Payfast $paymentModel    paymentModel
-     * @param \Magento\Store\Model\StoreManagerInterface       $storeManager    storeManager
-     * @param \Magento\Sales\Model\Order\AddressFactory        $addressFactory  addressFactory
-     * @param \Magento\Sales\Model\Order\Address\Renderer      $addressRenderer addressRenderer
+     * @param Context $context         context
+     * @param Registry                      $registry        registry
+     * @param Payment $paymentModel    paymentModel
+     * @param StoreManagerInterface       $storeManager    storeManager
+     * @param AddressFactory        $addressFactory  addressFactory
+     * @param Renderer      $addressRenderer addressRenderer
      * @param array                                            $data            data
      */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Payfast\Payfast\Model\Payfast $paymentModel,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Sales\Model\Order\AddressFactory $addressFactory,
-        \Magento\Sales\Model\Order\Address\Renderer $addressRenderer,
+        Context $context,
+        Registry $registry,
+        Payment $paymentModel,
+        StoreManagerInterface $storeManager,
+        AddressFactory $addressFactory,
+        Renderer $addressRenderer,
         array $data = []
     ) {
         parent::__construct($context, $registry, $paymentModel, $storeManager, $data);

@@ -5,7 +5,7 @@
  * Copyright (c) 2008 PayFast (Pty) Ltd
  * You (being anyone who is not PayFast (Pty) Ltd) may download and use this plugin / code in your own website in conjunction with a registered and active PayFast account. If your PayFast account is terminated for any reason, you may not use this plugin / code or part thereof.
  * Except as expressly indicated in this licence, you may not use, copy, modify or distribute this plugin / code or part thereof in any way.
- * 
+ *
  * @author Jonathan Smit
  */
 
@@ -62,7 +62,7 @@ define(
     'PF_MSG_PENDING',
     'The payment is pending. Please note, you will receive another Instant'.
     ' Transaction Notification when the payment status changes to'.
-    ' "Completed", or "Failed"' 
+    ' "Completed", or "Failed"'
 );
 
 // {{{ pfLog
@@ -106,7 +106,7 @@ function pflog( $msg = '', $close = false )
 // {{{ pfGetData
 /**
  * pfGetData
- *  
+ *
  * @author Jonathan Smit
  */
 function pfGetData()
@@ -130,7 +130,7 @@ function pfGetData()
 // {{{ pfValidSignature
 /**
  * pfValidSignature
- * 
+ *
  * @author Jonathan Smit
  */
 function pfValidSignature( $pfData = null, &$pfParamString = null, $pfPassphrase = null, $serverMode=null )
@@ -171,7 +171,7 @@ function pfValidSignature( $pfData = null, &$pfParamString = null, $pfPassphrase
  * pfValidData
  *
  * @author Jonathan Smit
- * @param  $pfHost        String Hostname to use 
+ * @param  $pfHost        String Hostname to use
  * @param  $pfParamString String
  */
 function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '' )
@@ -186,7 +186,7 @@ function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '' )
         pflog('full url is : ' . $url);
         // Create default cURL object
         $ch = curl_init();
-    
+
         // Set cURL options - Use curl_setopt for freater PHP compatibility
         // Base settings
         curl_setopt($ch, CURLOPT_USERAGENT, PF_USER_AGENT);  // Set user agent
@@ -194,13 +194,13 @@ function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '' )
         curl_setopt($ch, CURLOPT_HEADER, false);             // Don't include header in output
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
+
         // Standard settings
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $pfParamString);
         curl_setopt($ch, CURLOPT_TIMEOUT, PF_TIMEOUT);
-    
+
         // Execute CURL
         $response = curl_exec($ch);
         curl_close($ch);
@@ -212,25 +212,25 @@ function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '' )
         $header = '';
         $res = '';
         $headerDone = false;
-         
+
         // Construct Header
         $header = "POST /eng/query/validate HTTP/1.0\r\n";
-           $header .= "Host: ". $pfHost ."\r\n";
+        $header .= "Host: ". $pfHost ."\r\n";
         $header .= "User-Agent: ". PF_USER_AGENT ."\r\n";
         $header .= "Content-Type: application/x-www-form-urlencoded\r\n";
         $header .= "Content-Length: " . strlen($pfParamString) . "\r\n\r\n";
- 
+
         // Connect to server
         $socket = fsockopen('ssl://'. $pfHost, 443, $errno, $errstr, PF_TIMEOUT);
- 
+
         // Send command to server
         fputs($socket, $header . $pfParamString);
- 
+
         // Read the response from the server
         while( !feof($socket) )
         {
             $line = fgets($socket, 1024);
- 
+
             // Check if we are finished reading the header yet
             if(strcmp($line, "\r\n") == 0 ) {
                 // read the header
@@ -242,7 +242,7 @@ function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '' )
                 $response .= $line;
             }
         }
-        
+
     }
 
     pflog("Response:\n". print_r($response, true));
@@ -308,15 +308,15 @@ function pfValidIP( $sourceIP, $serverMode = '' )
 // {{{ pfAmountsEqual
 /**
  * pfAmountsEqual
- * 
+ *
  * Checks to see whether the given amounts are equal using a proper floating
  * point comparison with an Epsilon which ensures that insignificant decimal
  * places are ignored in the comparison.
- * 
+ *
  * eg. 100.00 is equal to 100.0001
  *
  * @author Jonathan Smit
- * @param  $amount1 Float 1st amount for comparison 
+ * @param  $amount1 Float 1st amount for comparison
  * @param  $amount2 Float 2nd amount for comparison
  */
 function pfAmountsEqual( $amount1, $amount2 )
