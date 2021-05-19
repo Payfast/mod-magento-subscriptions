@@ -9,7 +9,6 @@ class SubscriptionType extends AbstractSource
 {
     const RECURRING_SUBSCRIPTION = 1; // Recurring Subscription
     const RECURRING_ADHOC = 2; // Ad hoc
-
     const RECURRING_LABEL = [
         self::RECURRING_SUBSCRIPTION => 'Recurring Subscription',
         self::RECURRING_ADHOC => 'Recurring Adhoc'

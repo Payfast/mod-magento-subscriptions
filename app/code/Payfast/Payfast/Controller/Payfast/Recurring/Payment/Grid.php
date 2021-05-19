@@ -1,14 +1,8 @@
 <?php
 /**
- * Class Grid
- *
- * PHP version 7
- *
- * @category Sparsh
- * @package  Sparsh_PayfastRecurringPayment
- * @author   Sparsh <magento@sparsh-technologies.com>
- * @license  https://www.sparsh-technologies.com  Open Software License (OSL 3.0)
- * @link     https://www.sparsh-technologies.com
+ * Copyright (c) 2008 PayFast (Pty) Ltd
+ * You (being anyone who is not PayFast (Pty) Ltd) may download and use this plugin / code in your own website in conjunction with a registered and active PayFast account. If your PayFast account is terminated for any reason, you may not use this plugin / code or part thereof.
+ * Except as expressly indicated in this licence, you may not use, copy, modify or distribute this plugin / code or part thereof in any way.
  */
 namespace Payfast\Payfast\Controller\Payfast\Recurring\Payment;
 
@@ -24,11 +18,10 @@ use Payfast\Payfast\Model\Payment;
 /**
  * Class Grid
  *
- * @category Sparsh
- * @package  Sparsh_PayfastRecurringPayment
- * @author   Sparsh <magento@sparsh-technologies.com>
- * @license  https://www.sparsh-technologies.com  Open Software License (OSL 3.0)
- * @link     https://www.sparsh-technologies.com
+ * @category Payfast
+ * @package  Payfast_Payfast
+ * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
+ * @link     https://www.payfast.co.za
  */
 class Grid extends \Magento\Framework\App\Action\Action
 {

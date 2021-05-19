@@ -22,6 +22,7 @@ use Payfast\Payfast\Model\Config as PayFastConfig;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 use Payfast\Payfast\Model\Info;
 use \Magento\Quote\Model\QuoteFactory;
+use Payfast\Payfast\Model\PaymentTypeInterface;
 
 
 class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPostActionInterface
@@ -94,24 +95,6 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             }
         }
 
-        //// Get internal order and verify it hasn't already been processed
-        if (!$pfError) {
-            pflog("Check order hasn't been processed");
-
-            // Load order
-            $orderId = $pfData[Info::M_PAYMENT_ID];
-
-            $this->_order = $this->orderFactory->create()->loadByIncrementId($orderId);
-
-            pflog('order status is : ' . $this->_order->getStatus());
-
-            // Check order is in "pending payment" state
-            if ($this->_order->getState() !== Order::STATE_PENDING_PAYMENT) {
-                $pfError = true;
-                $pfErrMsg = PF_ERR_ORDER_PROCESSED;
-            }
-        }
-
         //// Verify data received
         if (!$pfError) {
             pflog('Verify data received');
@@ -122,16 +105,41 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             }
         }
 
-        //// Check status and update order
+        //// Get internal order and verify it hasn't already been processed
         if (!$pfError) {
+            $this->data = $pfData;
+            pflog("Check order hasn't been processed");
+
+            // Load order
+            $orderId = $pfData[Info::M_PAYMENT_ID];
+
+            $this->_order = $this->orderFactory->create()->loadByIncrementId($orderId);
+
+            pflog('order status is : ' . $this->_order->getStatus());
+
+            // Check order is in "pending payment" state
+            $isRecurring = ($this->_order->getState() !== Order::STATE_PENDING_PAYMENT && !empty($pfData['token']));
+                // handle recurring subsequent charge
+
+            if ($this->_order->getState() !== Order::STATE_PENDING_PAYMENT && !$isRecurring) {
+                $pfError = true;
+                $pfErrMsg = PF_ERR_ORDER_PROCESSED;
+            }
+        }
+
+        //// Check status and update order
+        if (!$pfError ) {
             pflog('Check status and update order');
 
             // Successful
-            if ($pfData[Info::PAYMENT_STATUS] == "COMPLETE") {
-                $this->data = $pfData;
+            if ($pfData[Info::PAYMENT_STATUS] == "COMPLETE" && !$isRecurring) {
+
                 $this->setPaymentAdditionalInformation($pfData);
                 // Save invoice
                 $this->saveInvoice();
+            } elseif ($isRecurring && false === $this->processRecurringPayment()) {
+                $pfError = true;
+                $pfErrMsg = 'Failed to create subscription subsequent payment order ';
             }
         }
 
@@ -149,6 +157,89 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             ->setHttpResponseCode(200)
             ->setHeader('Content-Type', 'text/html')
             ->setContents('HTTP/1.0 200');
+    }
+
+    /**
+     * processRecurringPayment
+     *
+     * deals with subsequent subscription charge.
+     *
+     */
+    private function processRecurringPayment()
+    {
+        $pre = __METHOD__ . ' : ';
+        pflog($pre . 'bof');
+        $respose = true;
+        try {
+            /** @var \Payfast\Payfast\Model\Payment $paymentFactory */
+            $paymentFactory = $this->paymentFactory->create();
+
+            $recurringPayment = $paymentFactory->loadByReferenceId($this->data['token']);
+            if (!$recurringPayment->getId()) {
+                $this->_logger->error($pre . 'Failed to get recurring payment for token '. $this->data['token']);
+                throw new \Exception($pre . 'Failed to get recurring payment for token '. $this->data['token']);
+            }
+
+            // create Product info Item needed for creating order
+            $productItemInfo = new \Magento\Framework\DataObject;
+            $productItemInfo->setTaxAmount(0);
+            $productItemInfo->setPaymentType(PaymentTypeInterface::RECURRING);
+            $productItemInfo->setShippingAmount(0);
+            $productItemInfo->setPrice($this->data['amount_gross']);
+
+            $this->_order = $recurringPayment->createOrder($productItemInfo);
+
+            $payment = $this->_order->getPayment()
+                ->setTransactionId($this->data['pf_payment_id'])
+                ->setCurrencyCod($recurringPayment->getCurrencyCode())
+                ->setPrepareMessage(__('ITN Recurring payment %1 ', $this->data['payment_status']))
+                ->setIsTransactionClosed(0);
+
+            $this->_order->setIsInProcess(true);
+
+            $transaction = $this->transactionFactory->create();
+            $transaction->addObject($this->_order)->save();
+            $this->setPaymentAdditionalInformation($this->data);
+            $this->orderResourceModel->save($this->_order);
+
+            $recurringPayment->addOrderRelation($this->_order->getId());
+
+            $payment->registerCaptureNotification($this->data['amount_gross']);
+
+//            $result = $this->orderResourceModel->save($this->_order);
+
+            $invoice = $payment->getCreatedInvoice();
+
+            if ($this->_config->getValue(PayFastConfig::KEY_SEND_CONFIRMATION_EMAIL)) {
+                pflog(
+                    'before sending order email, canSendNewEmailFlag is ' . boolval(
+                        $this->_order->getCanSendNewEmailFlag()
+                    )
+                );
+                $this->orderSender->send($this->_order);
+
+                pflog('after sending order email');
+            }
+
+            if ($this->_config->getValue(PayFastConfig::KEY_SEND_INVOICE_EMAIL)) {
+                pflog('before sending invoice email is ' . boolval($this->_order->getCanSendNewEmailFlag()));
+                foreach ($this->_order->getInvoiceCollection() as $invoice) {
+                    pflog('sending invoice #' . $invoice->getId());
+                    if ($invoice->getId()) {
+                        $this->invoiceSender->send($invoice);
+                    }
+                }
+
+                pflog('after sending ' . boolval($invoice->getIncrementId()));
+            }
+
+//            $pro
+        } catch (LocalizedException $exception) {
+            $respose = false;
+            $this->_logger->error($pre . 'Error detected : '. $exception->getMessage(). PHP_EOL . $exception->getTraceAsString());
+        }
+
+        return $respose;
     }
 
     /**
@@ -173,7 +264,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             /** handle subscription data if it exists */
             $this->handleSubscriptionData($quote, $order->getId());
 
-            $order->setIsInProcess(true);
+            $this->_order->setIsInProcess(true);
             $transaction = $this->transactionFactory->create();
             $transaction->addObject($order)->save();
 

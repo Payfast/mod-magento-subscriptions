@@ -12,7 +12,14 @@ use Magento\Framework\View\Element\Template\Context;
 use Payfast\Payfast\Helper\Data;
 use Payfast\Payfast\Model\Config;
 use Payfast\Payfast\Model\PayfastConfigProvider;
-
+/**
+ * Class Form
+ *
+ * @category Payfast
+ * @package  Payfast_Payfast
+ * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
+ * @link     https://www.payfast.co.za
+ */
 class Form extends \Magento\Payment\Block\Form
 {
     /**

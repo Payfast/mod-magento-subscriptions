@@ -3904,3 +3904,365 @@ VALID
     [user_agent] => Magento 2.4.1
 )
 
+2021-05-19 07:31:28 :  PayFast ITN call received
+2021-05-19 07:31:28 : Server = payfast.pf.lefu
+2021-05-19 07:31:28 : Verify security signature
+2021-05-19 07:31:28 : Signature = valid
+2021-05-19 07:31:28 : Check order hasn't been processed
+2021-05-19 07:31:28 : order status is : processing
+2021-05-19 07:31:28 : Error occurred: This order has already been processed
+2021-05-19 07:31:43 :  PayFast ITN call received
+2021-05-19 07:31:43 : Server = payfast.pf.lefu
+2021-05-19 07:31:43 : Verify security signature
+2021-05-19 07:31:43 : Signature = valid
+2021-05-19 07:31:43 : Check order hasn't been processed
+2021-05-19 07:31:43 : order status is : processing
+2021-05-19 07:31:43 : Error occurred: This order has already been processed
+2021-05-19 10:22:01 :  PayFast ITN call received
+2021-05-19 10:22:01 : Server = payfast.pf.lefu
+2021-05-19 10:22:01 : Verify security signature
+2021-05-19 10:22:01 : Signature = valid
+2021-05-19 10:22:01 : Verify data received
+2021-05-19 10:22:01 : Host = payfast.pf.lefu
+2021-05-19 10:22:01 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 10:22:01 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 10:22:01 : Response:
+VALID
+2021-05-19 10:22:01 : Check order hasn't been processed
+2021-05-19 10:22:01 : order status is : processing
+2021-05-19 10:22:01 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 10:23:07 : Error occurred: Failed to create subscription subsequent payment order 
+2021-05-19 10:24:06 :  PayFast ITN call received
+2021-05-19 10:24:06 : Server = payfast.pf.lefu
+2021-05-19 10:24:06 : Verify security signature
+2021-05-19 10:24:06 : Signature = valid
+2021-05-19 10:24:06 : Verify data received
+2021-05-19 10:24:06 : Host = payfast.pf.lefu
+2021-05-19 10:24:06 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 10:24:06 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 10:24:07 : Response:
+VALID
+2021-05-19 10:24:07 : Check order hasn't been processed
+2021-05-19 10:24:07 : order status is : processing
+2021-05-19 10:24:07 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 10:29:02 : Error occurred: This order has already been processed
+2021-05-19 10:29:33 :  PayFast ITN call received
+2021-05-19 10:29:33 : Server = payfast.pf.lefu
+2021-05-19 10:29:33 : Verify security signature
+2021-05-19 10:29:33 : Signature = valid
+2021-05-19 10:29:33 : Verify data received
+2021-05-19 10:29:33 : Host = payfast.pf.lefu
+2021-05-19 10:29:33 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 10:29:33 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 10:29:34 : Response:
+VALID
+2021-05-19 10:29:34 : Check order hasn't been processed
+2021-05-19 10:29:34 : order status is : processing
+2021-05-19 10:29:34 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 10:32:18 : Error occurred: This order has already been processed
+2021-05-19 10:33:33 :  PayFast ITN call received
+2021-05-19 10:33:33 : Server = payfast.pf.lefu
+2021-05-19 10:33:33 : Verify security signature
+2021-05-19 10:33:33 : Signature = valid
+2021-05-19 10:33:33 : Verify data received
+2021-05-19 10:33:33 : Host = payfast.pf.lefu
+2021-05-19 10:33:33 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 10:33:33 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 10:33:33 : Response:
+VALID
+2021-05-19 10:33:33 : Check order hasn't been processed
+2021-05-19 10:33:33 : order status is : processing
+2021-05-19 10:33:33 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 11:07:59 :  PayFast ITN call received
+2021-05-19 11:07:59 : Server = payfast.pf.lefu
+2021-05-19 11:07:59 : Verify security signature
+2021-05-19 11:07:59 : Signature = valid
+2021-05-19 11:07:59 : Verify data received
+2021-05-19 11:07:59 : Host = payfast.pf.lefu
+2021-05-19 11:07:59 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 11:07:59 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 11:07:59 : Response:
+VALID
+2021-05-19 11:07:59 : Check order hasn't been processed
+2021-05-19 11:07:59 : order status is : processing
+2021-05-19 11:07:59 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 11:08:42 :  PayFast ITN call received
+2021-05-19 11:08:42 : Server = payfast.pf.lefu
+2021-05-19 11:08:42 : Verify security signature
+2021-05-19 11:08:42 : Signature = valid
+2021-05-19 11:08:42 : Verify data received
+2021-05-19 11:08:42 : Host = payfast.pf.lefu
+2021-05-19 11:08:42 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 11:08:42 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 11:08:43 : Response:
+VALID
+2021-05-19 11:08:43 : Check order hasn't been processed
+2021-05-19 11:08:43 : order status is : processing
+2021-05-19 11:08:43 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 12:51:38 :  PayFast ITN call received
+2021-05-19 12:51:38 : Server = payfast.pf.lefu
+2021-05-19 12:51:38 : Verify security signature
+2021-05-19 12:51:38 : Signature = valid
+2021-05-19 12:51:38 : Verify data received
+2021-05-19 12:51:38 : Host = payfast.pf.lefu
+2021-05-19 12:51:38 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 12:51:38 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 12:51:39 : Response:
+VALID
+2021-05-19 12:51:39 : Check order hasn't been processed
+2021-05-19 12:51:39 : order status is : processing
+2021-05-19 12:51:39 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 12:53:10 : Error occurred: This order has already been processed
+2021-05-19 13:22:49 :  PayFast ITN call received
+2021-05-19 13:22:49 : Server = payfast.pf.lefu
+2021-05-19 13:22:49 : Verify security signature
+2021-05-19 13:22:49 : Signature = valid
+2021-05-19 13:22:49 : Verify data received
+2021-05-19 13:22:49 : Host = payfast.pf.lefu
+2021-05-19 13:22:49 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 13:22:49 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 13:22:50 : Response:
+VALID
+2021-05-19 13:22:50 : Check order hasn't been processed
+2021-05-19 13:22:50 : order status is : processing
+2021-05-19 13:22:50 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 15:18:21 :  PayFast ITN call received
+2021-05-19 15:18:21 : Server = payfast.pf.lefu
+2021-05-19 15:18:21 : Verify security signature
+2021-05-19 15:18:21 : Signature = valid
+2021-05-19 15:18:21 : Verify data received
+2021-05-19 15:18:21 : Host = payfast.pf.lefu
+2021-05-19 15:18:21 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 15:18:21 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 15:18:21 : Response:
+VALID
+2021-05-19 15:18:21 : Check order hasn't been processed
+2021-05-19 15:18:21 : order status is : processing
+2021-05-19 15:18:21 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 15:19:24 :  PayFast ITN call received
+2021-05-19 15:19:24 : Server = payfast.pf.lefu
+2021-05-19 15:19:24 : Verify security signature
+2021-05-19 15:19:24 : Signature = valid
+2021-05-19 15:19:24 : Verify data received
+2021-05-19 15:19:24 : Host = payfast.pf.lefu
+2021-05-19 15:19:24 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 15:19:24 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 15:19:24 : Response:
+VALID
+2021-05-19 15:19:24 : Check order hasn't been processed
+2021-05-19 15:19:24 : order status is : processing
+2021-05-19 15:19:24 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 15:34:46 :  PayFast ITN call received
+2021-05-19 15:34:46 : Server = payfast.pf.lefu
+2021-05-19 15:34:46 : Verify security signature
+2021-05-19 15:34:46 : Signature = valid
+2021-05-19 15:34:46 : Verify data received
+2021-05-19 15:34:46 : Host = payfast.pf.lefu
+2021-05-19 15:34:46 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 15:34:46 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 15:34:46 : Response:
+VALID
+2021-05-19 15:34:46 : Check order hasn't been processed
+2021-05-19 15:34:46 : order status is : processing
+2021-05-19 15:34:46 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 15:40:49 : Error occurred: This order has already been processed
+2021-05-19 15:49:57 :  PayFast ITN call received
+2021-05-19 15:49:57 : Server = payfast.pf.lefu
+2021-05-19 15:49:57 : Verify security signature
+2021-05-19 15:49:57 : Signature = valid
+2021-05-19 15:49:57 : Verify data received
+2021-05-19 15:49:57 : Host = payfast.pf.lefu
+2021-05-19 15:49:57 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 15:49:57 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 15:49:57 : Response:
+VALID
+2021-05-19 15:49:57 : Check order hasn't been processed
+2021-05-19 15:49:57 : order status is : processing
+2021-05-19 15:49:57 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 17:20:02 : Error occurred: This order has already been processed
+2021-05-19 17:20:07 :  PayFast ITN call received
+2021-05-19 17:20:07 : Server = payfast.pf.lefu
+2021-05-19 17:20:07 : Verify security signature
+2021-05-19 17:20:07 : Signature = valid
+2021-05-19 17:20:07 : Verify data received
+2021-05-19 17:20:07 : Host = payfast.pf.lefu
+2021-05-19 17:20:07 : Params = m_payment_id=000000099&pf_payment_id=2433&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=71f1d76f-49f6-4568-945b-1950397b46c2&billing_date=2021-05-19
+2021-05-19 17:20:07 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 17:20:07 : Response:
+VALID
+2021-05-19 17:20:07 : Check order hasn't been processed
+2021-05-19 17:20:07 : order status is : processing
+2021-05-19 17:20:07 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 17:20:26 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : bof
+2021-05-19 17:20:26 : Order complete
+2021-05-19 17:20:41 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : eof
+2021-05-19 17:20:45 : Error occurred: This order has already been processed
+2021-05-19 17:29:07 :  PayFast ITN call received
+2021-05-19 17:29:07 : Server = payfast.pf.lefu
+2021-05-19 17:29:07 : Verify security signature
+2021-05-19 17:29:07 : Signature = valid
+2021-05-19 17:29:07 : Verify data received
+2021-05-19 17:29:07 : Host = payfast.pf.lefu
+2021-05-19 17:29:07 : Params = m_payment_id=000000092&pf_payment_id=2437&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=452.92&amount_fee=-20.53&amount_net=432.39&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=65561a5b-30a7-48ef-8165-6e4f602b52b2&billing_date=2021-05-19
+2021-05-19 17:29:07 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 17:29:07 : Response:
+VALID
+2021-05-19 17:29:07 : Check order hasn't been processed
+2021-05-19 17:29:07 : order status is : processing
+2021-05-19 17:29:07 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 17:29:07 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : bof
+2021-05-19 17:29:07 : Order complete
+2021-05-19 17:29:07 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : eof
+2021-05-19 17:29:07 : Error occurred: This order has already been processed
+2021-05-19 17:58:59 : Payfast\Payfast\Controller\Redirect\Index::execute : bof
+2021-05-19 17:58:59 : Payfast\Payfast\Model\Payfast::getStandardCheckoutFormFields : serverMode : pf.lefu
+2021-05-19 17:58:59 : Payfast\Payfast\Model\Payfast::subscriptionData : load recurring data if product is of type recurring
+2021-05-19 17:58:59 : Payfast\Payfast\Model\Payfast::subscriptionData : subscription data is Array
+(
+    [subscription_type] => 1
+    [item_name] => Fusion Subs
+    [item_description] => Cats run wild all the time
+    [frequency] => 3
+    [cycles] => 7
+    [amount] => 131
+    [recurring_amount] => 523.00
+)
+
+2021-05-19 17:58:59 : Payfast\Payfast\Model\Payfast::getStandardCheckoutFormFields : pfOutput for signature is : amount=131&cancel_url=https%3A%2F%2Fmagento.pf.lefu%2Fpayfast%2Fredirect%2Fcancel%2F&cycles=7&email_address=roni_cost%40example.com&frequency=3&item_description=Cats+run+wild+all+the+time&item_name=Fusion+Subs&m_payment_id=000000107&merchant_id=10000100&merchant_key=46f0cd694581a&name_first=Veronica&name_last=Costello&notify_url=https%3A%2F%2Fmagento.pf.lefu%2Fpayfast%2Fnotify%2F&passphrase=bumblebee&recurring_amount=523.00&return_url=https%3A%2F%2Fmagento.pf.lefu%2Fpayfast%2Fredirect%2Fsuccess%2F&subscription_type=1
+2021-05-19 17:58:59 : Payfast\Payfast\Model\Payfast::getStandardCheckoutFormFields : data is :Array
+(
+    [amount] => 131
+    [cancel_url] => https://magento.pf.lefu/payfast/redirect/cancel/
+    [cycles] => 7
+    [email_address] => roni_cost@example.com
+    [frequency] => 3
+    [item_description] => Cats run wild all the time
+    [item_name] => Fusion Subs
+    [m_payment_id] => 000000107
+    [merchant_id] => 10000100
+    [merchant_key] => 46f0cd694581a
+    [name_first] => Veronica
+    [name_last] => Costello
+    [notify_url] => https://magento.pf.lefu/payfast/notify/
+    [passphrase] => bumblebee
+    [recurring_amount] => 523.00
+    [return_url] => https://magento.pf.lefu/payfast/redirect/success/
+    [subscription_type] => 1
+    [signature] => 4a5be38889af3a95a17e69d8e83d347e
+    [user_agent] => Magento 2.4.1
+)
+
+2021-05-19 17:59:28 :  PayFast ITN call received
+2021-05-19 17:59:28 : Server = payfast.pf.lefu
+2021-05-19 17:59:28 : Verify security signature
+2021-05-19 17:59:28 : Signature = valid
+2021-05-19 17:59:28 : Verify data received
+2021-05-19 17:59:28 : Host = payfast.pf.lefu
+2021-05-19 17:59:28 : Params = m_payment_id=000000107&pf_payment_id=2438&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=131.00&amount_fee=-7.57&amount_net=123.43&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=eaddc77c-7b57-4c59-817f-73ff15744961&billing_date=2021-05-19
+2021-05-19 17:59:28 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 17:59:28 : Response:
+VALID
+2021-05-19 17:59:28 : Check order hasn't been processed
+2021-05-19 17:59:28 : order status is : pending_payment
+2021-05-19 17:59:28 : Check status and update order
+2021-05-19 17:59:28 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : bof
+2021-05-19 17:59:28 : Order complete
+2021-05-19 17:59:28 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : eof
+2021-05-19 17:59:28 : Payfast\Payfast\Controller\Notify\Index::saveInvoice : bof
+2021-05-19 17:59:28 : Payfast\Payfast\Controller\Notify\Index::handleSubscriptionData : bof
+2021-05-19 17:59:29 : Payfast\Payfast\Controller\Notify\Index::handleSubscriptionData : adding subscription data
+2021-05-19 17:59:29 : Payfast\Payfast\Controller\Notify\Index::handleSubscriptionData : eof
+2021-05-19 17:59:29 : Payfast\Payfast\Controller\Notify\Index::saveInvoice : eof
+2021-05-19 18:00:55 :  PayFast ITN call received
+2021-05-19 18:00:55 : Server = payfast.pf.lefu
+2021-05-19 18:00:55 : Verify security signature
+2021-05-19 18:00:55 : Signature = valid
+2021-05-19 18:00:55 : Verify data received
+2021-05-19 18:00:55 : Host = payfast.pf.lefu
+2021-05-19 18:00:55 : Params = m_payment_id=000000107&pf_payment_id=2439&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=eaddc77c-7b57-4c59-817f-73ff15744961&billing_date=2021-05-19
+2021-05-19 18:00:55 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 18:00:55 : Response:
+VALID
+2021-05-19 18:00:55 : Check order hasn't been processed
+2021-05-19 18:00:55 : order status is : processing
+2021-05-19 18:00:55 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 18:00:55 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : bof
+2021-05-19 18:00:55 : Order complete
+2021-05-19 18:00:55 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : eof
+2021-05-19 18:00:55 : Error occurred: This order has already been processed
+2021-05-19 18:56:44 : Payfast\Payfast\Controller\Redirect\Index::execute : bof
+2021-05-19 18:56:44 : Payfast\Payfast\Model\Payfast::getStandardCheckoutFormFields : serverMode : pf.lefu
+2021-05-19 18:56:44 : Payfast\Payfast\Model\Payfast::subscriptionData : load recurring data if product is of type recurring
+2021-05-19 18:56:44 : Payfast\Payfast\Model\Payfast::subscriptionData : subscription data is Array
+(
+    [subscription_type] => 1
+    [item_name] => Fusion Subs
+    [item_description] => Cats run wild all the time
+    [frequency] => 3
+    [cycles] => 7
+    [amount] => 142
+    [recurring_amount] => 523.00
+)
+
+2021-05-19 18:56:44 : Payfast\Payfast\Model\Payfast::getStandardCheckoutFormFields : pfOutput for signature is : amount=142&cancel_url=https%3A%2F%2Fmagento.pf.lefu%2Fpayfast%2Fredirect%2Fcancel%2F&cycles=7&email_address=roni_cost%40example.com&frequency=3&item_description=Cats+run+wild+all+the+time&item_name=Fusion+Subs&m_payment_id=000000109&merchant_id=10000100&merchant_key=46f0cd694581a&name_first=Veronica&name_last=Costello&notify_url=https%3A%2F%2Fmagento.pf.lefu%2Fpayfast%2Fnotify%2F&passphrase=bumblebee&recurring_amount=523.00&return_url=https%3A%2F%2Fmagento.pf.lefu%2Fpayfast%2Fredirect%2Fsuccess%2F&subscription_type=1
+2021-05-19 18:56:44 : Payfast\Payfast\Model\Payfast::getStandardCheckoutFormFields : data is :Array
+(
+    [amount] => 142
+    [cancel_url] => https://magento.pf.lefu/payfast/redirect/cancel/
+    [cycles] => 7
+    [email_address] => roni_cost@example.com
+    [frequency] => 3
+    [item_description] => Cats run wild all the time
+    [item_name] => Fusion Subs
+    [m_payment_id] => 000000109
+    [merchant_id] => 10000100
+    [merchant_key] => 46f0cd694581a
+    [name_first] => Veronica
+    [name_last] => Costello
+    [notify_url] => https://magento.pf.lefu/payfast/notify/
+    [passphrase] => bumblebee
+    [recurring_amount] => 523.00
+    [return_url] => https://magento.pf.lefu/payfast/redirect/success/
+    [subscription_type] => 1
+    [signature] => b6b560878c72d326b4b78f1bf3cd8123
+    [user_agent] => Magento 2.4.1
+)
+
+2021-05-19 18:59:24 :  PayFast ITN call received
+2021-05-19 18:59:24 : Server = payfast.pf.lefu
+2021-05-19 18:59:24 : Verify security signature
+2021-05-19 18:59:24 : Signature = valid
+2021-05-19 18:59:24 : Verify data received
+2021-05-19 18:59:24 : Host = payfast.pf.lefu
+2021-05-19 18:59:24 : Params = m_payment_id=000000109&pf_payment_id=2440&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=142.00&amount_fee=-8.02&amount_net=133.98&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=7bb94160-38c5-4e26-8722-af2bb25eaba7&billing_date=2021-05-19
+2021-05-19 18:59:24 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 18:59:24 : Response:
+VALID
+2021-05-19 18:59:24 : Check order hasn't been processed
+2021-05-19 18:59:24 : order status is : pending_payment
+2021-05-19 18:59:24 : Check status and update order
+2021-05-19 18:59:24 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : bof
+2021-05-19 18:59:24 : Order complete
+2021-05-19 18:59:24 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : eof
+2021-05-19 18:59:24 : Payfast\Payfast\Controller\Notify\Index::saveInvoice : bof
+2021-05-19 18:59:24 : Payfast\Payfast\Controller\Notify\Index::handleSubscriptionData : bof
+2021-05-19 18:59:24 : Payfast\Payfast\Controller\Notify\Index::handleSubscriptionData : adding subscription data
+2021-05-19 18:59:24 : Payfast\Payfast\Controller\Notify\Index::handleSubscriptionData : eof
+2021-05-19 18:59:24 : Payfast\Payfast\Controller\Notify\Index::saveInvoice : eof
+2021-05-19 19:00:48 :  PayFast ITN call received
+2021-05-19 19:00:48 : Server = payfast.pf.lefu
+2021-05-19 19:00:48 : Verify security signature
+2021-05-19 19:00:48 : Signature = valid
+2021-05-19 19:00:48 : Verify data received
+2021-05-19 19:00:48 : Host = payfast.pf.lefu
+2021-05-19 19:00:48 : Params = m_payment_id=000000109&pf_payment_id=2441&payment_status=COMPLETE&item_name=Fusion+Subs&item_description=Cats+run+wild+all+the+time&amount_gross=523.00&amount_fee=-23.35&amount_net=499.65&custom_str1=&custom_str2=&custom_str3=&custom_str4=&custom_str5=&custom_int1=&custom_int2=&custom_int3=&custom_int4=&custom_int5=&name_first=Veronica&name_last=Costello&email_address=roni_cost%40example.com&merchant_id=10000100&token=7bb94160-38c5-4e26-8722-af2bb25eaba7&billing_date=2021-05-19
+2021-05-19 19:00:48 : full url is : https://payfast.pf.lefu/eng/query/validate
+2021-05-19 19:00:48 : Response:
+VALID
+2021-05-19 19:00:48 : Check order hasn't been processed
+2021-05-19 19:00:48 : order status is : processing
+2021-05-19 19:00:48 : Check status and update order
+2021-05-19 19:00:48 : Payfast\Payfast\Controller\Notify\Index::processRecurringPayment : bof
+2021-05-19 19:00:48 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : bof
+2021-05-19 19:00:48 : Order complete
+2021-05-19 19:00:48 : Payfast\Payfast\Controller\Notify\Index::setPaymentAdditionalInformation : eof

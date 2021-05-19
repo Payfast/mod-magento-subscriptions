@@ -16,6 +16,15 @@ use Magento\Sales\Model\OrderFactory;
 use Payfast\Payfast\Helper\Data;
 use Payfast\Payfast\Model\Payfast;
 
+/**
+ * PayFast Request
+ *
+ * @Request
+ * @category Payfast
+ * @package  Payfast_Payfast
+ * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
+ * @link     https://www.payfast.co.za
+ */
 class Request extends Template
 {
 

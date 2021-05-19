@@ -1,30 +1,25 @@
 <?php
 /**
- * Class Payment
- *
- * PHP version 7
- *
- * @category Sparsh
- * @package  Sparsh_PaypalRecurringPayment
- * @author   Sparsh <magento@sparsh-technologies.com>
- * @license  https://www.sparsh-technologies.com  Open Software License (OSL 3.0)
- * @link     https://www.sparsh-technologies.com
+ * Copyright (c) 2008 PayFast (Pty) Ltd
+ * You (being anyone who is not PayFast (Pty) Ltd) may download and use this plugin / code in your own website in conjunction with a registered and active PayFast account. If your PayFast account is terminated for any reason, you may not use this plugin / code or part thereof.
+ * Except as expressly indicated in this licence, you may not use, copy, modify or distribute this plugin / code or part thereof in any way.
  */
 namespace Payfast\Payfast\Model;
 
 use Magento\Framework\Pricing\Helper\Data as AmountRenderer;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Sales\Model\Order;
 use Payfast\Payfast\Model\Config\Source\Frequency;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 
 /**
  * Class Payment
  *
- * @category Sparsh
- * @package  Sparsh_PaypalRecurringPayment
- * @author   Sparsh <magento@sparsh-technologies.com>
- * @license  https://www.sparsh-technologies.com  Open Software License (OSL 3.0)
- * @link     https://www.sparsh-technologies.com
+ * @category Payfast
+ * @package  Payfast_Payfast
+ * @author   PayFast
+ * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
+ * @link     https://www.payfast.co.za
  */
 class Payment extends PayfastRecurringPayment
 {
@@ -183,6 +178,15 @@ class Payment extends PayfastRecurringPayment
     }
 
     /**
+     * @param string $referenceId Payfast token of subscription.
+     *
+     */
+    public function loadByReferenceId($referenceId)
+    {
+        return $this->load($referenceId, 'reference_id');
+    }
+
+    /**
      * Submit function
      *
      * @return void
@@ -324,7 +328,7 @@ class Payment extends PayfastRecurringPayment
     /**
      * CreateOrder function
      *
-     * @return void
+     * @return Order
      */
     public function createOrder()
     {
@@ -654,7 +658,7 @@ class Payment extends PayfastRecurringPayment
         }
 
         switch ($paymentType) {
-            case PaymentTypeInterface::REGULAR:
+            case PaymentTypeInterface::RECURRING:
                 return $this->_getRegularItem($itemInfo);
             case PaymentTypeInterface::TRIAL:
                 return $this->_getTrialItem($itemInfo);

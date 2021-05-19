@@ -4,22 +4,20 @@
  *
  * PHP version 7
  *
- * @category Sparsh
- * @package  Sparsh_PaypalRecurringPayment
- * @author   Sparsh <magento@sparsh-technologies.com>
- * @license  https://www.sparsh-technologies.com  Open Software License (OSL 3.0)
- * @link     https://www.sparsh-technologies.com
+ * @category Payfast
+ * @package  Payfast_Payfast
+ * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
+ * @link     https://www.payfast.co.za
  */
 namespace Payfast\Payfast\Controller\Adminhtml\Payfast\Recurring\Payment;
 
 /**
  * Class CustomerGrid
  *
- * @category Sparsh
- * @package  Sparsh_PaypalRecurringPayment
- * @author   Sparsh <magento@sparsh-technologies.com>
- * @license  https://www.sparsh-technologies.com  Open Software License (OSL 3.0)
- * @link     https://www.sparsh-technologies.com
+ * @category Payfast
+ * @package  Payfast_Payfast
+ * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
+ * @link     https://www.payfast.co.za
  */
 class CustomerGrid extends \Magento\Customer\Controller\Adminhtml\Index
 {

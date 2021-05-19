@@ -33,7 +33,7 @@ use Payfast\Payfast\Model\Config\Source\SubscriptionType;
  /**
   * PayFast Module.
   *
-  * @method                                         \Magento\Quote\Api\Data\PaymentMethodExtensionInterface getExtensionAttributes()
+  * @method  \Magento\Quote\Api\Data\PaymentMethodExtensionInterface getExtensionAttributes()
   * @SuppressWarnings(PHPMD.TooManyFields)
   * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
   */

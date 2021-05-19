@@ -17,7 +17,6 @@ namespace Payfast\Payfast\Block;
  *
  * @category Payfast
  * @package  Payfast_Payfast
- * @author   PayFast <lefu.ntho@payfast.co.za>
  * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
  * @link     https://www.payfast.co.za
  */
