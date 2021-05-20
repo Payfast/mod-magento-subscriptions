@@ -9,6 +9,7 @@ namespace Payfast\Payfast\Block\Payment;
 use Magento\Customer\Controller\RegistryConstants;
 use Payfast\Payfast\Block\Payments;
 use Payfast\Payfast\Model\Payment;
+
 /**
  * Class Grid
  *

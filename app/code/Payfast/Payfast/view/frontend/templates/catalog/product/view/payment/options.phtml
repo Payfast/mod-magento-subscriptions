@@ -1,5 +1,5 @@
 <?php
-if ($this->isActiveMethod() && $this->isStartDateEditable() && $this->isScheduledProduct()) : ?>
+if ($this->isActiveMethod() && $this->isStartDateEditable() && $this->isScheduledProduct()): ?>
         <dl class="payfast-recurring-payment product options">
             <dt class="title">
                 <label><?= /* @noEscape */ __('PayFast Recurring Payment Start Date') ?></label>
@@ -26,6 +26,6 @@ if ($this->isActiveMethod() && $this->isStartDateEditable() && $this->isSchedule
         });
     });
 </script>
-<?php
+    <?php
 endif;
 ?>

@@ -249,15 +249,15 @@ class Config extends AbstractConfig
         $this->_logger->debug($pre . 'payment action is : ' . $action);
 
         switch ($action) {
-        case self::PAYMENT_ACTION_AUTH:
-            $paymentAction = self::ACTION_AUTHORIZE;
-            break;
-        case self::PAYMENT_ACTION_SALE:
-            $paymentAction = self::ACTION_AUTHORIZE_CAPTURE;
-            break;
-        case self::PAYMENT_ACTION_ORDER:
-            $paymentAction = self::ACTION_ORDER;
-            break;
+            case self::PAYMENT_ACTION_AUTH:
+                $paymentAction = self::ACTION_AUTHORIZE;
+                break;
+            case self::PAYMENT_ACTION_SALE:
+                $paymentAction = self::ACTION_AUTHORIZE_CAPTURE;
+                break;
+            case self::PAYMENT_ACTION_ORDER:
+                $paymentAction = self::ACTION_ORDER;
+                break;
         }
 
         $this->_logger->debug($pre . 'eof : paymentAction is ' . $paymentAction);

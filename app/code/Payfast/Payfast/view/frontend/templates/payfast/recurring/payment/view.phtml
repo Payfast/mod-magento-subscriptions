@@ -6,25 +6,25 @@
 
     <div class="actions-toolbar order-actions-toolbar">
         <div class="primary">
-            <?php if ($this->getCanActivate()) : ?>
+            <?php if ($this->getCanActivate()): ?>
                 <button type="button" title="<?= /* @noEscape */ __('Activate') ?>" class="action activate"
                         onclick="if( confirm('<?= /* @noEscape */ $this->getConfirmationMessage() ?>') ) { window.location.href = '<?= /* @noEscape */ $this->getActivateUrl() ?>'; } return false;">
                     <span><?= /* @noEscape */ __('Activate') ?></span>
                 </button>
             <?php endif; ?>
-            <?php if ($this->getCanCancel()) : ?>
+            <?php if ($this->getCanCancel()): ?>
                 <button type="button" title="<?= /* @noEscape */ __('Cancel') ?>" class="action cancel"
                         onclick="if( confirm('<?= /* @noEscape */ $this->getConfirmationMessage() ?>') ) { window.location.href = '<?= /* @noEscape */ $this->getCancelUrl() ?>'; } return false;">
                     <span><?= /* @noEscape */ __('Cancel') ?></span>
                 </button>
             <?php endif; ?>
-            <?php if ($this->getCanSuspend()) : ?>
+            <?php if ($this->getCanSuspend()): ?>
                 <button type="button" title="<?= /* @noEscape */ __('Suspend') ?>" class="action suspend"
                         onclick="if( confirm('<?= /* @noEscape */ $this->getConfirmationMessage() ?>') ) { window.location.href = '<?= /* @noEscape */ $this->getSuspendUrl() ?>'; } return false;">
                     <span><?= /* @noEscape */ __('Suspend') ?></span>
                 </button>
             <?php endif; ?>
-            <?php if ($this->getCanUpdate()) : ?>
+            <?php if ($this->getCanUpdate()): ?>
                 <button type="button" title="<?= /* @noEscape */ __('Get Update') ?>" class="action update"
                         onclick="if( confirm('<?= /* @noEscape */ $this->getConfirmationMessage() ?>') ) { window.location.href = '<?= /* @noEscape */ $this->getUpdateUrl() ?>'; } return false;">
                     <span><?= /* @noEscape */ __('Get Update') ?></span>
@@ -34,16 +34,16 @@
     </div>
 
     <ul id="order-info-tabs" class="items order-links">
-        <?php foreach ($infoTabs as $elementName) : ?>
+        <?php foreach ($infoTabs as $elementName): ?>
             <?php $block = $layout->getBlock($elementName); ?>
-            <?php if (!$block) :
+            <?php if (!$block):
                 continue;
             endif; ?>
-            <?php if ($this->getObjectData($block, 'is_view_current')) : ?>
+            <?php if ($this->getObjectData($block, 'is_view_current')): ?>
                 <li class="nav item current">
                     <strong><?= $this->escapeHtml($this->getObjectData($block, 'view_label')) ?></strong>
                 </li>
-            <?php else : ?>
+            <?php else: ?>
                 <li class="nav item">
                     <a href="<?= $this->escapeHtml($this->getObjectData($block, 'view_url')) ?>">
                         <?= $this->escapeHtml($this->getObjectData($block, 'view_label')) ?>
@@ -54,18 +54,18 @@
     </ul>
 
     <div class="order-details-items" <?= (!empty($actionname) && $actionname != 'orders') ? 'style="display:block"' : 'style="display:none"'; ?>>
-        <?php for ($i = 1; $i <= 3; $i++) : ?>
+        <?php for ($i = 1; $i <= 3; $i++): ?>
             <?php $infoBlocks = $this->getGroupChildNames("info_blocks_row_{$i}"); ?>
-            <?php if ($infoBlocks) : ?>
+            <?php if ($infoBlocks): ?>
                 <div class="block block-view-info">
                     <div class="block-content">
-                        <?php for ($j = 1; $j <= 2; $j++) : ?>
-                            <?php foreach ($infoBlocks as $elementName) : ?>
+                        <?php for ($j = 1; $j <= 2; $j++): ?>
+                            <?php foreach ($infoBlocks as $elementName): ?>
                                 <?php $block = $layout->getBlock($elementName); ?>
-                                <?php if (!$block) :
+                                <?php if (!$block):
                                     continue;
                                 endif; ?>
-                                <?php if ($j == $this->getObjectData($block, 'view_column')) : ?>
+                                <?php if ($j == $this->getObjectData($block, 'view_column')): ?>
                                     <div class="box box<?= /* @noEscape */ $j ?>">
                                         <strong class="box-title">
                                             <span><?= $this->escapeHtml($this->getObjectData($block, 'view_label')) ?></span>
@@ -87,7 +87,7 @@
 
     <!-- table data block -->
     <?php $table = $this->getChildBlock('table') ?>
-    <?php if ($table) : ?>
+    <?php if ($table): ?>
         <div class="order-details-items block block-payFast-recurring-details-items">
             <div class="block-title">
                 <strong><?= $this->escapeHtml($this->getObjectData($table, 'view_label')) ?></strong>

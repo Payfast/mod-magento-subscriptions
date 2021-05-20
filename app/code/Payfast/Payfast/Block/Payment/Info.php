@@ -37,5 +37,4 @@ class Info extends \Magento\Payment\Block\Info
         $this->_payfastInfoFactory = $payfastInfoFactory;
         parent::__construct($context, $data);
     }
-
 }

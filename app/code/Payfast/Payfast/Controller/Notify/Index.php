@@ -23,7 +23,7 @@ use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 use Payfast\Payfast\Model\Info;
 use Magento\Quote\Model\QuoteFactory;
 use Payfast\Payfast\Model\PaymentTypeInterface;
-
+use Payfast\Payfast\Model\States;
 
 class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPostActionInterface
 {
@@ -135,7 +135,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
         }
 
         //// Check status and update order
-        if (!$pfError ) {
+        if (!$pfError) {
             pflog('Check status and update order');
 
             // Successful
@@ -147,7 +147,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
                 // Save invoice
                 $this->saveInvoice();
             } elseif ($isCompleted && ($this->isInitial || $this->isRecurring )) {
-                if (false === $this->processRecurringPayment()){
+                if (false === $this->processRecurringPayment()) {
                     $pfError = true;
                     $pfErrMsg = 'Failed to create subscription subsequent payment order ';
                 }
@@ -185,91 +185,120 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
         pflog($pre . 'bof');
         $respose = true;
         try {
-
             /** @var \Payfast\Payfast\Model\Payment $paymentFactory */
             $paymentFactory = $this->paymentFactory->create();
             /** @var \Payfast\Payfast\Model\Payment $recurringPayment */
             $recurringPayment = $paymentFactory->loadByInternalReferenceId($this->data['custom_str1']);
             if (!$recurringPayment->getId()) {
-                $this->_logger->error($pre . 'Failed to get recurring payment for token '. $this->data['token']);
-                throw new \Exception($pre . 'Failed to get recurring payment for token '. $this->data['token']);
+                $this->_logger->error($pre . 'Failed to get recurring payment for token ' . $this->data['token']);
+                throw new \Exception($pre . 'Failed to get recurring payment for token ' . $this->data['token']);
             }
 
             // create Product info Item needed for creating order
             $productItemInfo = new \Magento\Framework\DataObject;
             $productItemInfo->setTaxAmount(0);
             if ($this->isInitial && $recurringPayment->getInitialAmount()) {
-                pflog( __('%1Setting Payment type to : %2, of %3',$pre , PaymentTypeInterface::INITIAL,
-                          SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()])
+                pflog(
+                    __(
+                        '%1Setting Payment type to : %2, of %3',
+                        $pre,
+                        PaymentTypeInterface::INITIAL,
+                        SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()]
+                    )
                 );
                 $productItemInfo->setPaymentType(PaymentTypeInterface::INITIAL);
             } else {
-                pflog( __('%1Setting Payment type to : %2, of %3',$pre , PaymentTypeInterface::RECURRING,
-                          SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()])
+                pflog(
+                    __(
+                        '%1Setting Payment type to : %2, of %3',
+                        $pre,
+                        PaymentTypeInterface::RECURRING,
+                        SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()]
+                    )
                 );
 
                 $productItemInfo->setPaymentType(PaymentTypeInterface::RECURRING);
             }
 
-            $productItemInfo->setShippingAmount(0);
-            $productItemInfo->setPrice($this->data['amount_gross']);
+            $firstCharge = null === $recurringPayment->getReferenceId();
 
-            $order = $recurringPayment->createOrder($productItemInfo);
-
-            $payment = $order->getPayment()
-                ->setTransactionId($this->data['pf_payment_id'])
-                ->setCurrencyCode($recurringPayment->getCurrencyCode())
-                ->setPrepareMessage(__('ITN Recurring payment %1 ', $this->data['payment_status']))
-                ->setIsTransactionClosed(0);
-
-            $payment->setAdditionalInformation(Info::PAYMENT_STATUS, $this->data[Info::PAYMENT_STATUS]);
-            $payment->setAdditionalInformation(Info::M_PAYMENT_ID, $this->data[Info::M_PAYMENT_ID]);
-            $payment->setAdditionalInformation(Info::PF_PAYMENT_ID, $this->data[Info::PF_PAYMENT_ID]);
-            $payment->setAdditionalInformation(Info::EMAIL_ADDRESS, $this->data[Info::EMAIL_ADDRESS]);
-            $payment->setAdditionalInformation("amount_fee", $this->data['amount_fee']);
-            $payment->registerCaptureNotification($this->data['amount_gross']);
-
-            $invoice = $order->prepareInvoice();
-            $order = $invoice->getOrder();
-
-            $order->setIsInProcess(true);
-//            $order->setIncrementId($this->data[Info::PF_PAYMENT_ID]);
-            $transaction = $this->transactionFactory->create();
-            $transaction->addObject($order)->save();
-
-            $this->orderResourceModel->save($order);
-
-            $recurringPayment->addOrderRelation($order->getId());
-
-            if (null === $recurringPayment->getReferenceId()) {
-                $recurringPayment->addToken($this->data['token']);
+            if ($firstCharge) {
+                $recurringPayment->setReferenceId($this->data['token']);
             }
 
-            $invoice = $payment->getCreatedInvoice();
-
-            if ($this->_config->getValue(PayFastConfig::KEY_SEND_CONFIRMATION_EMAIL)) {
-                pflog(
-                    'before sending order email, canSendNewEmailFlag is ' . boolval(
-                        $this->_order->getCanSendNewEmailFlag()
-                    )
-                );
-                $this->orderSender->send($this->_order);
-
-                pflog('after sending order email');
+            if (null !== $recurringPayment->getRecurringPaymentStartDate() && !empty($this->data['billing_date'])) {
+                $recurringPayment->setRecurringPaymentStartDate($this->data['billing_date']);
+            }
+            if ($recurringPayment->getState() !== States::ACTIVE) {
+                $recurringPayment->activate();
+            } else {
+                $recurringPayment->save();
             }
 
-            if ($this->_config->getValue(PayFastConfig::KEY_SEND_INVOICE_EMAIL)) {
-                pflog('before sending invoice email is ' . boolval($this->_order->getCanSendNewEmailFlag()));
-                foreach ($this->_order->getInvoiceCollection() as $invoice) {
-                    pflog('sending invoice #' . $invoice->getId());
-                    if ($invoice->getId()) {
-                        $this->invoiceSender->send($invoice);
-                    }
+            if ($firstCharge && (int)$recurringPayment->getSubscriptionType() === SubscriptionType::RECURRING_ADHOC) {
+                $this->setPaymentAdditionalInformation($this->data);
+                $this->saveInvoice();
+                $orderId = $this->_order->getId();
+
+            } else {
+
+                $productItemInfo->setShippingAmount(0);
+                $productItemInfo->setPrice($this->data['amount_gross']);
+
+                $order = $recurringPayment->createOrder($productItemInfo);
+
+                $payment = $order->getPayment()
+                    ->setTransactionId($this->data['pf_payment_id'])
+                    ->setCurrencyCode($recurringPayment->getCurrencyCode())
+                    ->setPrepareMessage(__('ITN Recurring payment %1 ', $this->data['payment_status']))
+                    ->setIsTransactionClosed(0);
+
+                $payment->setAdditionalInformation(Info::PAYMENT_STATUS, $this->data[Info::PAYMENT_STATUS]);
+                $payment->setAdditionalInformation(Info::M_PAYMENT_ID, $this->data[Info::M_PAYMENT_ID]);
+                $payment->setAdditionalInformation(Info::PF_PAYMENT_ID, $this->data[Info::PF_PAYMENT_ID]);
+                $payment->setAdditionalInformation(Info::EMAIL_ADDRESS, $this->data[Info::EMAIL_ADDRESS]);
+                $payment->setAdditionalInformation("amount_fee", $this->data['amount_fee']);
+                $payment->registerCaptureNotification($this->data['amount_gross']);
+
+                $invoice = $order->prepareInvoice();
+                $order = $invoice->getOrder();
+
+                $order->setIsInProcess(true);
+
+                $transaction = $this->transactionFactory->create();
+                $transaction->addObject($order)->save();
+
+                $this->orderResourceModel->save($order);
+
+                $invoice = $payment->getCreatedInvoice();
+
+                $orderId = $order->getId();
+
+                if ($this->_config->getValue(PayFastConfig::KEY_SEND_CONFIRMATION_EMAIL)) {
+                    pflog(
+                        'before sending order email, canSendNewEmailFlag is ' . boolval(
+                            $this->_order->getCanSendNewEmailFlag()
+                        )
+                    );
+                    $this->orderSender->send($this->_order);
+
+                    pflog('after sending order email');
                 }
 
-                pflog('after sending ' . boolval($invoice->getIncrementId()));
+                if ($this->_config->getValue(PayFastConfig::KEY_SEND_INVOICE_EMAIL)) {
+                    pflog('before sending invoice email is ' . boolval($this->_order->getCanSendNewEmailFlag()));
+                    foreach ($this->_order->getInvoiceCollection() as $invoice) {
+                        pflog('sending invoice #' . $invoice->getId());
+                        if ($invoice->getId()) {
+                            $this->invoiceSender->send($invoice);
+                        }
+                    }
+
+                    pflog('after sending ' . boolval($invoice->getIncrementId()));
+                }
             }
 
+            $recurringPayment->addOrderRelation($orderId);
 //            $pro
         } catch (LocalizedException $exception) {
             $respose = false;

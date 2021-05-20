@@ -1,12 +1,12 @@
-<?php if ($this->getIsAddress()) : ?>
-    <?php foreach ($this->getRenderedInfo() as $row) : ?>
+<?php if ($this->getIsAddress()): ?>
+    <?php foreach ($this->getRenderedInfo() as $row): ?>
         <address><?= nl2br($this->getObjectData($row, 'value')) ?></address>
     <?php endforeach; ?>
 
-<?php else : ?>
+<?php else: ?>
     <table cellspacing="0" class="admin__table-secondary order-information-table">
         <tbody>
-            <?php foreach ($this->getRenderedInfo() as $row) : ?>
+            <?php foreach ($this->getRenderedInfo() as $row): ?>
                 <?php $isAmount = $this->getObjectData($row, 'is_amount'); ?>
                 <tr>
                     <th><strong><?= $this->escapeHtml($this->getObjectData($row, 'label')) ?></strong></th>

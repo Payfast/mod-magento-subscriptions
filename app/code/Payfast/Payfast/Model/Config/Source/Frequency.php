@@ -3,7 +3,6 @@
 
 namespace Payfast\Payfast\Model\Config\Source;
 
-
 use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
 
 class Frequency extends AbstractSource

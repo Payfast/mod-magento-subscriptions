@@ -38,7 +38,6 @@ use Payfast\Payfast\Model\Payfast;
 use Psr\Log\LoggerInterface;
 use Payfast\Payfast\Model\PaymentFactory;
 
-
 /**
  * Abstract PayFast Checkout Controller
  */
@@ -57,8 +56,8 @@ abstract class AbstractPayfast implements ActionInterface, HttpGetActionInterfac
     protected $_checkoutTypes = [];
 
     /**
-    * @var ObjectManagerInterface and I could place this as property type but it will break lower php versions
-    */
+     * @var ObjectManagerInterface and I could place this as property type but it will break lower php versions
+     */
     protected $_objectManager;
     /**
      * @var Config
@@ -419,5 +418,4 @@ abstract class AbstractPayfast implements ActionInterface, HttpGetActionInterfac
         $this->_redirect->redirect($this->getResponse(), $path, $arguments);
         return $this->getResponse();
     }
-
 }

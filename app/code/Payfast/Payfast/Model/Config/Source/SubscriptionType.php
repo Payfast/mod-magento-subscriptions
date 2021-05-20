@@ -25,5 +25,4 @@ class SubscriptionType extends AbstractSource
 
         return $this->_options;
     }
-
 }

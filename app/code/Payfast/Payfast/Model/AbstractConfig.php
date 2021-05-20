@@ -248,25 +248,25 @@ abstract class AbstractConfig extends \Magento\Payment\Gateway\Config\Config imp
     public function isMethodActive($method)
     {
         switch ($method) {
-        case Config::METHOD_CODE:
-            $isEnabled = $this->_scopeConfig->isSetFlag(
-                'payment/' . $this->getMethodCode() . '/active',
-                ScopeInterface::SCOPE_STORE,
-                $this->_storeId
-            ) ||
-                $this->_scopeConfig->isSetFlag(
+            case Config::METHOD_CODE:
+                $isEnabled = $this->_scopeConfig->isSetFlag(
                     'payment/' . $this->getMethodCode() . '/active',
                     ScopeInterface::SCOPE_STORE,
                     $this->_storeId
+                ) ||
+                    $this->_scopeConfig->isSetFlag(
+                        'payment/' . $this->getMethodCode() . '/active',
+                        ScopeInterface::SCOPE_STORE,
+                        $this->_storeId
+                    );
+                $method = $this->getMethodCode();
+                break;
+            default:
+                $isEnabled = $this->_scopeConfig->isSetFlag(
+                    "payment/{$method}/active",
+                    ScopeInterface::SCOPE_STORE,
+                    $this->_storeId
                 );
-            $method = $this->getMethodCode();
-            break;
-        default:
-            $isEnabled = $this->_scopeConfig->isSetFlag(
-                "payment/{$method}/active",
-                ScopeInterface::SCOPE_STORE,
-                $this->_storeId
-            );
         }
 
         return $this->isMethodSupportedForCountry($method) && $isEnabled;

@@ -12,6 +12,7 @@ use Magento\Framework\View\Element\Template\Context;
 use Payfast\Payfast\Helper\Data;
 use Payfast\Payfast\Model\Config;
 use Payfast\Payfast\Model\PayfastConfigProvider;
+
 /**
  * Class Form
  *

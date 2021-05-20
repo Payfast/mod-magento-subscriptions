@@ -29,7 +29,7 @@ class SetIsPayfastRecurringToQuote implements ObserverInterface
      *
      * @return null
      */
-    public function __construct( LoggerInterfaceAlias $logger)
+    public function __construct(LoggerInterfaceAlias $logger)
     {
         $this->_logger = $logger;
     }

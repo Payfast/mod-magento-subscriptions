@@ -28,7 +28,7 @@ class MockDataRequest implements BuilderInterface
         }
 
         /**
- * @var PaymentDataObjectInterface $paymentDO 
+ * @var PaymentDataObjectInterface $paymentDO
 */
         $paymentDO = $buildSubject['payment'];
         $payment = $paymentDO->getPayment();

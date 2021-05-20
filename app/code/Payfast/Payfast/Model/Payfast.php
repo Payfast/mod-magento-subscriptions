@@ -30,7 +30,6 @@ use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 
-
  /**
   * PayFast Module.
   *
@@ -352,24 +351,25 @@ class Payfast implements ManagerInterface
             $product = $this->productRepository->getById($item->getProductId(), false, $this->_storeManager->getStore()->getId());
             if ($product->getIsPayfastRecurring()) {
                 $data['subscription_type'] = (int) $product->getSubscriptionType();
-                $data['item_name'] = trim(substr($product->getName(), 0,254));
+                $data['item_name'] = trim(substr($product->getName(), 0, 254));
                 $data['item_description'] = trim(substr($product->getPfScheduleDescription(), 0, 256));
+
+                $quote = $this->quoteFactory->create()->load($order->getQuoteId());
 
                 if ($data['subscription_type'] === SubscriptionType::RECURRING_SUBSCRIPTION) {
                     $data['frequency'] = $product->getPfBillingPeriodFrequency();
                     $data['cycles'] = $product->getPfBillingPeriodMaxCycles();
 
-                    $quote = $this->quoteFactory->create()->load($order->getQuoteId());
 
                     if (!is_null($product->getPfInitialAmount())) {
-//                      $data['amount'] = $this->getTotalAmount($order) - $this->getNumberFormat($product->getPrice()) + $this->getNumberFormat($product->getPfInitialAmount());
                         $data['amount'] = $this->getOrderItems(round($product->getPfInitialAmount()), $quote);
                     }
 
                     $data['recurring_amount'] = $this->getNumberFormat($product->getPrice());
 
-                    $data['custom_str1'] = $this->storeRecurringData($quote);
                 }
+
+                $data['custom_str1'] = $this->storeRecurringData($quote);
 
             }
         }
@@ -438,23 +438,18 @@ class Payfast implements ManagerInterface
         $tax = 0;
         $shipping = 0;
 
-        if ($useStoreCurrency)
-        {
+        if ($useStoreCurrency) {
             $currency = $quote->getQuoteCurrencyCode();
-            if (!$quote->getIsVirtual())
-            {
+            if (!$quote->getIsVirtual()) {
                 $shippingAddress = $quote->getShippingAddress();
                 $shipping = $shippingAddress->getShippingAmount();
                 $tax += $shippingAddress->getShippingTaxAmount();
             }
 
             $discount = $quote->getSubtotal() - $quote->getSubtotalWithDiscount();
-        }
-        else
-        {
+        } else {
             $currency = $quote->getBaseCurrencyCode();
-            if (!$quote->getIsVirtual())
-            {
+            if (!$quote->getIsVirtual()) {
                 $shippingAddress = $quote->getShippingAddress();
                 $shipping = $shippingAddress->getBaseShippingAmount();
                 $tax += $shippingAddress->getBaseShippingTaxAmount();
@@ -464,15 +459,11 @@ class Payfast implements ManagerInterface
         }
 
         $quoteItems = $quote->getAllVisibleItems();
-        foreach ($quoteItems as $item)
-        {
-            if ($useStoreCurrency)
-            {
+        foreach ($quoteItems as $item) {
+            if ($useStoreCurrency) {
                 $amount = $item->getRowTotal();
                 $tax += $item->getTaxAmount();
-            }
-            else
-            {
+            } else {
                 $amount = $item->getBaseRowTotal();
                 $tax += $item->getBaseTaxAmount();
             }
@@ -499,8 +490,7 @@ class Payfast implements ManagerInterface
 
         }
 
-        if ($tax > 0)
-        {
+        if ($tax > 0) {
             $items[] = [
                 "type" => "tax",
                 "description" => "Tax",
@@ -509,8 +499,7 @@ class Payfast implements ManagerInterface
             ];
         }
 
-        if ($discount > 0)
-        {
+        if ($discount > 0) {
             $items[] = [
                 "type" => "discount",
                 "description" => "Discount",
@@ -519,8 +508,7 @@ class Payfast implements ManagerInterface
             ];
         }
 
-        if ($shipping > 0)
-        {
+        if ($shipping > 0) {
             $items[] = [
                 "type" => "shipping",
                 "description" => "Shipping",

@@ -3,7 +3,6 @@
 
 namespace Payfast\Payfast\Observer;
 
-
 use Magento\Catalog\Api\Data\ProductInterface;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Event\Observer;
@@ -96,7 +95,7 @@ class AllowToAddOnlyOneRecurringPaymentProductToCart implements ObserverInterfac
                 }
             }
 
-            if(count($items) >=1 && $product->getIsPayfastRecurring()) {
+            if (count($items) >=1 && $product->getIsPayfastRecurring()) {
                 $this->_logger->debug($pre. 'You can only add 1 recurring subscription Item to your shopping cart at a time.');
                 $this->messageManager->addErrorMessage(__('You can only add 1 recurring subscription Item to your shopping cart at a time.'));
                 $observer->getRequest()->setParam('product', false);

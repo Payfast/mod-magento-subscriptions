@@ -25,7 +25,7 @@ interface ManagerInterface
      * @param PayfastRecurringPayment $payment payment
      *
      * @return void
-     *@throws \Magento\Framework\Exception
+     * @throws \Magento\Framework\Exception
      *
      */
     public function validate(PayfastRecurringPayment $payment);

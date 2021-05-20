@@ -11,6 +11,7 @@
  * @link     https://www.payfast.co.za
  */
 namespace Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment\View\Tab;
+
 /**
  * Class Info
  *

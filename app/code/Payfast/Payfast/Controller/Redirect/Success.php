@@ -45,6 +45,5 @@ class Success extends AbstractPayfast
             $this->messageManager->addExceptionMessage($e, __('We can\'t start PayFast Checkout.'));
             return $this->_redirect('checkout/cart');
         }
-
     }
 }

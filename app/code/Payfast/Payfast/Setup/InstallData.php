@@ -40,12 +40,10 @@ class InstallData implements InstallDataInterface
         EavSetupFactory $eavSetupFactory,
         AttributeSetFactory $attributeSetFactory,
         CategorySetupFactory $categorySetupFactory
-    )
-    {
+    ) {
         $this->eavSetupFactory = $eavSetupFactory;
         $this->attributeSetFactory = $attributeSetFactory;
         $this->categorySetupFactory = $categorySetupFactory;
-
     }
 
     /**
@@ -191,5 +189,4 @@ class InstallData implements InstallDataInterface
 
         $setup->endSetup();
     }
-
 }

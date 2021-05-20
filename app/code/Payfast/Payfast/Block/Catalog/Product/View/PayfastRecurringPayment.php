@@ -7,6 +7,7 @@
  * Except as expressly indicated in this licence, you may not use, copy, modify or distribute this plugin / code or part thereof in any way.
  */
 namespace Payfast\Payfast\Block\Catalog\Product\View;
+
 use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\View\Element\Template\Context;
@@ -153,10 +154,10 @@ class PayfastRecurringPayment extends \Magento\Framework\View\Element\Template
     }
 
      /**
-     * ToHtml
-     *
-     * @return string
-     */
+      * ToHtml
+      *
+      * @return string
+      */
     protected function _toHtml()
     {
         $pre = __METHOD__ . ' : ';

@@ -1,17 +1,17 @@
 <section class="admin__page-section">
     <?php $layout = $this->getLayout(); ?>
-    <?php for ($i = 1; $i <= 3; $i++) : ?>
+    <?php for ($i = 1; $i <= 3; $i++): ?>
         <?php $infoBlocks = $this->getGroupChildNames("info_blocks_row_{$i}"); ?>
-        <?php if ($infoBlocks) : ?>
+        <?php if ($infoBlocks): ?>
             <div>
                 <div class="admin__page-section-content">
-                    <?php for ($j = 1; $j <= 2; $j++) : ?>
-                        <?php foreach ($infoBlocks as $name) : ?>
+                    <?php for ($j = 1; $j <= 2; $j++): ?>
+                        <?php foreach ($infoBlocks as $name): ?>
                             <?php $block = $layout->getBlock($name); ?>
-                            <?php if (!$block) :
+                            <?php if (!$block):
                                 continue;
                             endif; ?>
-                            <?php if ($j == $this->getObjectData($block, 'view_column')) : ?>
+                            <?php if ($j == $this->getObjectData($block, 'view_column')): ?>
                                 <div class="box-<?= $j == 1 ? 'left admin__page-section-item order-billing-address' : 'right admin__page-section-item order-shipping-address' ?>">
                                     <div class="entry-edit">
                                         <div class="admin__page-section-title">

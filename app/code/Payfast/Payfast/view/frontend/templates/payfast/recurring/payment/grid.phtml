@@ -1,16 +1,16 @@
 <div <?= $this->getGridHtmlClass() ? ' class="' . $this->getGridHtmlClass() . '"' : '' ?><?= $this->getGridHtmlCss() ? ' style="' . $this->getGridHtmlCss() . '"' : '' ?>>
-    <?php if ($caption = $this->getGridCaption()) : ?>
+    <?php if ($caption = $this->getGridCaption()): ?>
         <div class="title"><strong><?= $this->escapeHtml($caption) ?></strong></div>
     <?php endif; ?>
 
     <?php $gridElements = $this->getGridElements(); ?>
-    <?php if ($gridElements) : ?>
+    <?php if ($gridElements): ?>
         <div class="table-wrapper payfast-recurring-payments">
             <table id="<?= $this->getGridHtmlId() ?>" class="data table table-payfast-recurring-payments">
                 <caption class="table-caption"><?= /* @noEscape */ __('PayFast Recurring Payments') ?></caption>
                 <thead>
                 <tr>
-                    <?php foreach ($this->getGridColumns() as $column) :
+                    <?php foreach ($this->getGridColumns() as $column):
                         $nobr = $this->getObjectData($column, 'is_nobr') ? '%s' : '%s';
                         $title = $this->getObjectData($column, 'title');
                         $index = $this->getObjectData($column, 'index');
@@ -20,9 +20,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($gridElements as $_payment) : ?>
+                <?php foreach ($gridElements as $_payment): ?>
                     <tr>
-                        <?php foreach ($this->getGridColumns() as $column) :
+                        <?php foreach ($this->getGridColumns() as $column):
                             $nobr = $this->getObjectData($column, 'is_nobr') ? '%s' : '%s';
                             $index = $this->getObjectData($column, 'index');
                             $value = $this->getObjectData($_payment, $index);
@@ -47,10 +47,10 @@
                 </tbody>
             </table>
         </div>
-        <?php if ($block->getPagerHtml()) : ?>
+        <?php if ($block->getPagerHtml()): ?>
             <div class="payfast-recurring-payments-toolbar toolbar bottom"><?= $block->getPagerHtml() ?></div>
         <?php endif;?>
-    <?php else : ?>
+    <?php else: ?>
         <div class="message info empty"><span><?= $this->escapeHtml($this->getEmptyGridMessage()); ?></span></div>
     <?php endif; ?>
 </div>

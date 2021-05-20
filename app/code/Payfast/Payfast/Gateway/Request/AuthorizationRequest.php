@@ -146,7 +146,7 @@ class AuthorizationRequest implements BuilderInterface
      */
     public function recurringData(OrderAdapterInterface $order):array
     {
-        if (count($order->getItems()) == 1){
+        if (count($order->getItems()) == 1) {
             /** @var \Magento\Catalog\Model\Product $product */
             $item = array_first($order->getItems());
 

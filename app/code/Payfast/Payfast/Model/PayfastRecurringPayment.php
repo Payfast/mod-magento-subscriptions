@@ -288,7 +288,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
      * @param \Magento\Framework\DataObject $buyRequest buyRequest
      *
      * @return PayfastRecurringPayment
-     *@throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      *
      */
     public function importBuyRequest(\Magento\Framework\DataObject $buyRequest)
@@ -555,7 +555,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
             if (empty($this->_getData('pf_initial_amount')) && !empty($this->storedData['initial_amount'])) {
                 $this->setPfInitialAmount($this->storedData['initial_amount']);
             }
-            $result[] = __('Initial Amount : %1', $this->amountRenderer->currency($this->_getData('pf_initial_amount'),true, false));
+            $result[] = __('Initial Amount : %1', $this->amountRenderer->currency($this->_getData('pf_initial_amount'), true, false));
         }
 
         $this->_logger->debug(__METHOD__ . ' : results is ', $result);
