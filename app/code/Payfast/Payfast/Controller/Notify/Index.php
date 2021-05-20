@@ -28,6 +28,12 @@ use Payfast\Payfast\Model\PaymentTypeInterface;
 class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPostActionInterface
 {
 
+    /** @var bool $isInitial when original order is pending and order total amount is not equal to paid order amount */
+    protected bool $isInitial = false;
+
+    /** @var bool $isRecurring when original order is not pending */
+    protected bool $isRecurring = false;
+
     protected array $data;
     /**
      * indexAction
@@ -118,10 +124,11 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             pflog('order status is : ' . $this->_order->getStatus());
 
             // Check order is in "pending payment" state
-            $isRecurring = ($this->_order->getState() !== Order::STATE_PENDING_PAYMENT && !empty($pfData['token']));
+            $this->isRecurring = ($this->_order->getState() !== Order::STATE_PENDING_PAYMENT && !empty($pfData['token']));
                 // handle recurring subsequent charge
+            $this->isInitial = ($this->_order->getState() === Order::STATE_PENDING_PAYMENT && !empty($pfData['token']));
 
-            if ($this->_order->getState() !== Order::STATE_PENDING_PAYMENT && !$isRecurring) {
+            if ($this->_order->getState() !== Order::STATE_PENDING_PAYMENT && !$this->isRecurring) {
                 $pfError = true;
                 $pfErrMsg = PF_ERR_ORDER_PROCESSED;
             }
@@ -132,14 +139,21 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             pflog('Check status and update order');
 
             // Successful
-            if ($pfData[Info::PAYMENT_STATUS] == "COMPLETE" && !$isRecurring) {
+            $isCompleted = ($pfData[Info::PAYMENT_STATUS] == "COMPLETE");
+
+            if ($isCompleted && !($this->isInitial || $this->isRecurring)) {
 
                 $this->setPaymentAdditionalInformation($pfData);
                 // Save invoice
                 $this->saveInvoice();
-            } elseif ($isRecurring && false === $this->processRecurringPayment()) {
+            } elseif ($isCompleted && ($this->isInitial || $this->isRecurring )) {
+                if (false === $this->processRecurringPayment()){
+                    $pfError = true;
+                    $pfErrMsg = 'Failed to create subscription subsequent payment order ';
+                }
+            } else {
+                $pfErrMsg = 'Unknown payment type and needs investigation';
                 $pfError = true;
-                $pfErrMsg = 'Failed to create subscription subsequent payment order ';
             }
         }
 
@@ -171,10 +185,11 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
         pflog($pre . 'bof');
         $respose = true;
         try {
+
             /** @var \Payfast\Payfast\Model\Payment $paymentFactory */
             $paymentFactory = $this->paymentFactory->create();
-
-            $recurringPayment = $paymentFactory->loadByReferenceId($this->data['token']);
+            /** @var \Payfast\Payfast\Model\Payment $recurringPayment */
+            $recurringPayment = $paymentFactory->loadByInternalReferenceId($this->data['custom_str1']);
             if (!$recurringPayment->getId()) {
                 $this->_logger->error($pre . 'Failed to get recurring payment for token '. $this->data['token']);
                 throw new \Exception($pre . 'Failed to get recurring payment for token '. $this->data['token']);
@@ -183,30 +198,52 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             // create Product info Item needed for creating order
             $productItemInfo = new \Magento\Framework\DataObject;
             $productItemInfo->setTaxAmount(0);
-            $productItemInfo->setPaymentType(PaymentTypeInterface::RECURRING);
+            if ($this->isInitial && $recurringPayment->getInitialAmount()) {
+                pflog( __('%1Setting Payment type to : %2, of %3',$pre , PaymentTypeInterface::INITIAL,
+                          SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()])
+                );
+                $productItemInfo->setPaymentType(PaymentTypeInterface::INITIAL);
+            } else {
+                pflog( __('%1Setting Payment type to : %2, of %3',$pre , PaymentTypeInterface::RECURRING,
+                          SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()])
+                );
+
+                $productItemInfo->setPaymentType(PaymentTypeInterface::RECURRING);
+            }
+
             $productItemInfo->setShippingAmount(0);
             $productItemInfo->setPrice($this->data['amount_gross']);
 
-            $this->_order = $recurringPayment->createOrder($productItemInfo);
+            $order = $recurringPayment->createOrder($productItemInfo);
 
-            $payment = $this->_order->getPayment()
+            $payment = $order->getPayment()
                 ->setTransactionId($this->data['pf_payment_id'])
-                ->setCurrencyCod($recurringPayment->getCurrencyCode())
+                ->setCurrencyCode($recurringPayment->getCurrencyCode())
                 ->setPrepareMessage(__('ITN Recurring payment %1 ', $this->data['payment_status']))
                 ->setIsTransactionClosed(0);
 
-            $this->_order->setIsInProcess(true);
-
-            $transaction = $this->transactionFactory->create();
-            $transaction->addObject($this->_order)->save();
-            $this->setPaymentAdditionalInformation($this->data);
-            $this->orderResourceModel->save($this->_order);
-
-            $recurringPayment->addOrderRelation($this->_order->getId());
-
+            $payment->setAdditionalInformation(Info::PAYMENT_STATUS, $this->data[Info::PAYMENT_STATUS]);
+            $payment->setAdditionalInformation(Info::M_PAYMENT_ID, $this->data[Info::M_PAYMENT_ID]);
+            $payment->setAdditionalInformation(Info::PF_PAYMENT_ID, $this->data[Info::PF_PAYMENT_ID]);
+            $payment->setAdditionalInformation(Info::EMAIL_ADDRESS, $this->data[Info::EMAIL_ADDRESS]);
+            $payment->setAdditionalInformation("amount_fee", $this->data['amount_fee']);
             $payment->registerCaptureNotification($this->data['amount_gross']);
 
-//            $result = $this->orderResourceModel->save($this->_order);
+            $invoice = $order->prepareInvoice();
+            $order = $invoice->getOrder();
+
+            $order->setIsInProcess(true);
+//            $order->setIncrementId($this->data[Info::PF_PAYMENT_ID]);
+            $transaction = $this->transactionFactory->create();
+            $transaction->addObject($order)->save();
+
+            $this->orderResourceModel->save($order);
+
+            $recurringPayment->addOrderRelation($order->getId());
+
+            if (null === $recurringPayment->getReferenceId()) {
+                $recurringPayment->addToken($this->data['token']);
+            }
 
             $invoice = $payment->getCreatedInvoice();
 
@@ -260,9 +297,9 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             $order->setTotalPaid($this->data['amount_gross']);
             $order->setBaseTotalPaid($this->data['amount_gross']);
 
-            $quote = $this->quoteFactory->create()->load($order->getQuoteId());
+//            $quote = $this->quoteFactory->create()->load($order->getQuoteId());
             /** handle subscription data if it exists */
-            $this->handleSubscriptionData($quote, $order->getId());
+//            $this->handleSubscriptionData($quote, $order->getId());
 
             $this->_order->setIsInProcess(true);
             $transaction = $this->transactionFactory->create();
@@ -305,43 +342,6 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
         pflog(__METHOD__ . ' : eof');
     }
 
-    private function handleSubscriptionData(Quote $quote, $orderId)
-    {
-        $pre = __METHOD__ . ' : ';
-        pflog($pre . 'bof');
-        try {
-
-            $allVisibleItems = $quote->getAllVisibleItems();
-            foreach ($allVisibleItems as $item) {
-                $product = $this->paymentMethod->getProductRepository()->getById($item->getProduct()->getId());
-                if ($product->getIsPayfastRecurring()) {
-                    /** @var \Payfast\Payfast\Model\Payment $payment */
-                    $payment =  $this->paymentFactory->create()->importProduct($product);
-                    $payment->importQuote($quote);
-                    $payment->importQuoteItem($item);
-                    $payment->setData('reference_id', $this->data['token']);
-                    $payment->setData('subscription_type', $product->getSubscriptionType());
-                    $payment->setData('amount_gross', $this->data['amount_gross']);
-                    if ((int)$product->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION) {
-                        pflog($pre. 'adding subscription data');
-                        $payment->setData('recurring_payment_start_date', $this->data['billing_date']);
-                        $payment->setData('pf_billing_period_frequency', $product->getPfBillingPeriodFrequency());
-                        $payment->setData('pf_billing_period_max_cycles', $product->getPfBillingPeriodMaxCycles());
-                        $payment->setData('pf_initial_amount', $product->getPfInitialAmount());
-                    }
-
-                    $payment->submit();
-                    $payment->addOrderRelation($orderId);
-                }
-            }
-
-        } catch (LocalizedException $e) {
-            $this->_logger->error($pre. $e->getMessage(). PHP_EOL . $e->getTraceAsString());
-            throw $e;
-        }
-
-        pflog($pre . 'eof');
-    }
     /**
      * @param  $pfData
      * @throws LocalizedException

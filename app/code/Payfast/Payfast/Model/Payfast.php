@@ -13,13 +13,14 @@ require_once dirname(__FILE__) . '/../Model/payfast_common.inc';
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\LocalizedExceptionFactory;
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Model\Info as PaymentInfo;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
-use Magento\QuoteGraphQl\Model\Cart\QuoteAddressFactory;
+use Payfast\Payfast\Model\PaymentFactory;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\TransactionRepositoryInterface;
@@ -128,6 +129,7 @@ class Payfast implements ManagerInterface
      */
     protected $quoteFactory;
 
+    protected $paymentFactory;
     /**
      * @param ConfigFactory $configFactory
      * @param StoreManagerInterface $storeManager
@@ -147,7 +149,8 @@ class Payfast implements ManagerInterface
         TransactionRepositoryInterface $transactionRepository,
         BuilderInterface $transactionBuilder,
         ProductRepository $productRepository,
-        QuoteFactory $quoteFactory
+        QuoteFactory $quoteFactory,
+        PaymentFactory $paymentFactory
     ) {
         $this->_storeManager = $storeManager;
         $this->_urlBuilder = $urlBuilder;
@@ -157,6 +160,7 @@ class Payfast implements ManagerInterface
         $this->transactionBuilder = $transactionBuilder;
         $this->productRepository = $productRepository;
         $this->quoteFactory = $quoteFactory;
+        $this->paymentFactory = $paymentFactory;
 
         $parameters = [ 'params' => [ $this->_code ] ];
 
@@ -355,19 +359,72 @@ class Payfast implements ManagerInterface
                     $data['frequency'] = $product->getPfBillingPeriodFrequency();
                     $data['cycles'] = $product->getPfBillingPeriodMaxCycles();
 
+                    $quote = $this->quoteFactory->create()->load($order->getQuoteId());
+
                     if (!is_null($product->getPfInitialAmount())) {
 //                      $data['amount'] = $this->getTotalAmount($order) - $this->getNumberFormat($product->getPrice()) + $this->getNumberFormat($product->getPfInitialAmount());
-                        $data['amount'] = $this->getOrderItems(round($product->getPfInitialAmount()), $this->quoteFactory->create()->load($order->getQuoteId()));
+                        $data['amount'] = $this->getOrderItems(round($product->getPfInitialAmount()), $quote);
                     }
 
                     $data['recurring_amount'] = $this->getNumberFormat($product->getPrice());
+
+                    $data['custom_str1'] = $this->storeRecurringData($quote);
                 }
+
             }
         }
 
         pflog($pre . 'subscription data is '. print_r($data, true));
 
         return $data;
+    }
+
+    /**
+     * storeRecurringData
+     *
+     * @param Quote $quote
+     * @return mixed
+     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function storeRecurringData(Quote $quote)
+    {
+        $pre = __METHOD__ . ' : ';
+        pflog($pre . 'bof');
+        try {
+
+            $allVisibleItems = $quote->getAllVisibleItems();
+            foreach ($allVisibleItems as $item) {
+                $product = $this->productRepository->getById($item->getProduct()->getId());
+                if ($product->getIsPayfastRecurring()) {
+                    /** @var \Payfast\Payfast\Model\Payment $payment */
+                    $payment =  $this->paymentFactory->create()->importProduct($product);
+                    $payment->importQuote($quote);
+                    $payment->importQuoteItem($item);
+//                    $payment->setData('reference_id', $this->data['token']);
+                    $payment->setData('subscription_type', $product->getSubscriptionType());
+//                    $payment->setData('amount_gross', $this->data['amount_gross']);
+                    if ((int)$product->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION) {
+                        pflog($pre. 'adding subscription data');
+                        // todo maybe move this to notify controller
+//                        $payment->setData('recurring_payment_start_date', $this->data['billing_date']);
+                        $payment->setData('pf_billing_period_frequency', $product->getPfBillingPeriodFrequency());
+                        $payment->setData('pf_billing_period_max_cycles', $product->getPfBillingPeriodMaxCycles());
+                        $payment->setData('pf_initial_amount', $product->getPfInitialAmount());
+                    }
+
+                    $payment->submit();
+                    return $payment->getInternalReferenceId();
+//                    $payment->addOrderRelation($orderId);
+                }
+            }
+
+        } catch (LocalizedException $e) {
+            pflog($pre. $e->getMessage(). PHP_EOL . $e->getTraceAsString());
+            throw $e;
+        }
+
+        pflog($pre . 'eof');
     }
 
     /**
@@ -379,7 +436,6 @@ class Payfast implements ManagerInterface
         $items = [];
         $useStoreCurrency = $this->_config->getValue('use_store_currency');
         $tax = 0;
-        $discount = 0;
         $shipping = 0;
 
         if ($useStoreCurrency)
@@ -406,8 +462,6 @@ class Payfast implements ManagerInterface
 
             $discount = $quote->getBaseSubtotal() - $quote->getBaseSubtotalWithDiscount();
         }
-
-        $cents = 100;
 
         $quoteItems = $quote->getAllVisibleItems();
         foreach ($quoteItems as $item)

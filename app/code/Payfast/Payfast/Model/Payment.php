@@ -216,7 +216,7 @@ class Payment extends PayfastRecurringPayment
             $this->save();
             $this->_getResource()->commit();
 
-            $this->activate();
+//            $this->activate();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $this->_getResource()->rollBack();
             $this->messageManager->addExceptionMessage($e, $e->getMessage());
@@ -234,6 +234,19 @@ class Payment extends PayfastRecurringPayment
         $this->setNewState(States::ACTIVE);
         $this->getManager()->updateStatus($this);
         $this->setState(States::ACTIVE)->save();
+    }
+
+    /**
+     * addToken
+     * will update model record with subscription token
+     * @param string $token
+     *
+     */
+    public function addToken(string $token)
+    {
+        if (null === $this->getReferenceId()) {
+            $this->setReferenceId($token)->save();
+        }
     }
 
     /**

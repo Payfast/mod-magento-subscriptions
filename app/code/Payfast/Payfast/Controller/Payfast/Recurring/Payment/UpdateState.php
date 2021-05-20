@@ -118,16 +118,16 @@ class UpdateState extends Grid
                     default:
                         break;
                 }
-                $this->messageManager->addSuccess(__('Payment status has been updated.'));
+                $this->messageManager->addSuccessMessage(__('Payment status has been updated.'));
             } else {
                 $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
                 $resultRedirect->setPath('customer/account/login');
                 return $resultRedirect;
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addError(__('We couldn\'t update the payment.'));
+            $this->messageManager->addErrorMessage(__('We couldn\'t update the payment.'));
         }
         if ($payment) {
             $this->_redirect('*/*/view', ['payment' => $payment->getId()]);
