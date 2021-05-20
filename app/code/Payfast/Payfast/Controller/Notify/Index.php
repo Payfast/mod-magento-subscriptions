@@ -21,7 +21,7 @@ use Payfast\Payfast\Controller\AbstractPayfast;
 use Payfast\Payfast\Model\Config as PayFastConfig;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 use Payfast\Payfast\Model\Info;
-use \Magento\Quote\Model\QuoteFactory;
+use Magento\Quote\Model\QuoteFactory;
 use Payfast\Payfast\Model\PaymentTypeInterface;
 
 
@@ -296,10 +296,6 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             $order = $invoice->getOrder();
             $order->setTotalPaid($this->data['amount_gross']);
             $order->setBaseTotalPaid($this->data['amount_gross']);
-
-//            $quote = $this->quoteFactory->create()->load($order->getQuoteId());
-            /** handle subscription data if it exists */
-//            $this->handleSubscriptionData($quote, $order->getId());
 
             $this->_order->setIsInProcess(true);
             $transaction = $this->transactionFactory->create();

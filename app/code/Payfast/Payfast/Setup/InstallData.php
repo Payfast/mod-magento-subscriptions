@@ -1,14 +1,8 @@
 <?php
 /**
- * Class InstallData
- *
- * PHP version 7
- *
- * @category Payfast
- * @package  Payfast_Payfast
- * @author   Lefu Ntho
- * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
- * @link     https://www.payfast.co.za
+ * Copyright (c) 2008 PayFast (Pty) Ltd
+ * You (being anyone who is not PayFast (Pty) Ltd) may download and use this plugin / code in your own website in conjunction with a registered and active PayFast account. If your PayFast account is terminated for any reason, you may not use this plugin / code or part thereof.
+ * Except as expressly indicated in this licence, you may not use, copy, modify or distribute this plugin / code or part thereof in any way.
  */
 namespace Payfast\Payfast\Setup;
 
@@ -19,15 +13,16 @@ use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\Setup\InstallDataInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Payfast\Payfast\Model\Config\Source\Frequency;
+use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 
 /**
  * Class InstallData
  *
- * @category Sparsh
- * @package  Sparsh_PaypalRecurringPayment
- * @author   Sparsh <magento@sparsh-technologies.com>
- * @license  https://www.sparsh-technologies.com  Open Software License (OSL 3.0)
- * @link     https://www.sparsh-technologies.com
+ * @category Payfast
+ * @package  Payfast_Payfast
+ * @license  https://www.payfast.co.za
+ * @link     https://www.payfast.co.za
  */
 class InstallData implements InstallDataInterface
 {
@@ -67,30 +62,25 @@ class InstallData implements InstallDataInterface
      */
     public function install(ModuleDataSetupInterface $setup, ModuleContextInterface $context)
     {
+        $pre = __METHOD__ . ' : ';
+
         $setup->startSetup();
-        $this->installEntities($setup);
-        $setup->endSetup();
-    }
+        $logger = \Magento\Framework\App\ObjectManager::getInstance()
+            ->get(\Psr\Log\LoggerInterface::class);
 
-    /**
-     * Default entites and attributes
-     *
-     * @param array|null $setup setup
+        $logger->debug($pre . ' setting up PayFast product recurring attributes.');
 
-     * @return array
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function installEntities($setup)
-    {
-        $groupName = 'Paypal Recurring Payment';
+        // CODE FOR CREATING ATTRIBUTE SET
+        $groupName = 'PayFast Recurring Payment';
+        $eavSetup = $this->eavSetupFactory->create();
+
 
         $attributes = [
-            'is_paypal_recurring'       => [
+            'is_payfast_recurring'       => [
                 'group'                      => $groupName,
                 'type'                       => 'int',
                 'input'                      => 'select',
-                'label'                      => 'Enable PayPal Recurring Payment',
+                'label'                      => 'Enable PayFast Recurring Payment',
                 'required'                   => false,
                 'source'                     => \Magento\Eav\Model\Entity\Attribute\Source\Boolean::class,
                 'default'                    => '0',
@@ -98,7 +88,20 @@ class InstallData implements InstallDataInterface
                 'apply_to'                   => 'simple,configurable,virtual,bundle,downloadable',
                 'sort_order'                 => 1,
             ],
-            'schedule_description'       => [
+
+            'subscription_type'       => [
+                'group'                      => $groupName,
+                'type'                       => 'int',
+                'input'                      => 'select',
+                'label'                      => 'Subscription Type',
+                'required'                   => false,
+                'source'                     => SubscriptionType::class,
+                'default'                    => '1',
+                'global'                     => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
+                'apply_to'                   => 'simple,configurable,virtual,bundle,downloadable',
+                'sort_order'                 => 1,
+            ],
+            'pf_schedule_description'       => [
                 'group'                     => $groupName,
                 'type'                      => 'varchar',
                 'input'                     => 'text',
@@ -112,7 +115,33 @@ class InstallData implements InstallDataInterface
                 'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
                 'sort_order'                => 2,
             ],
-            'is_start_date_editable'       => [
+            'pf_billing_period_frequency'       => [
+                'group'                     => $groupName,
+                'type'                      => 'int',
+                'input'                     => 'select',
+                'label'                     => 'Billing Period Frequency',
+                'note'                      => 'This is the number of billing periods that make up one billing cycle.The combination of billing frequency and billing period must be less than or equal to one year.',
+                'required'                  => false,
+                'default'                   => 1,
+                'source'                    => Frequency::class,
+                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
+                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
+                'sort_order'                => 5,
+            ],
+            'pf_billing_period_max_cycles'       => [
+                'group'                     => $groupName,
+                'type'                      => 'varchar',
+                'input'                     => 'text',
+                'label'                     => 'Maximum Billing Cycles',
+                'note'                      => 'This is the total number of billing cycles for the payment period.If you specify a value 0, the payments continue until PayFast (or the buyer) cancels or suspends the profile.',
+                'required'                  => false,
+                'default'                   => '',
+                'frontend_class'            => 'validate-digits',
+                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
+                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
+                'sort_order'                => 6,
+            ],
+            'pf_is_start_date_editable'       => [
                 'group'                     => $groupName,
                 'type'                      => 'int',
                 'input'                     => 'select',
@@ -125,116 +154,12 @@ class InstallData implements InstallDataInterface
                 'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
                 'sort_order'                => 3,
             ],
-            'billing_period_unit'       => [
-                'group'                     => $groupName,
-                'type'                      => 'varchar',
-                'input'                     => 'select',
-                'label'                     => 'Billing Period Unit',
-                'note'                      => 'This is the unit of measure for billing cycle.',
-                'required'                  => false,
-                'source'                    => \Payfast\Payfast\Model\Config\Source\BillingPeriodUnitsOptions::class,
-                'default'                   => 'day',
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 4,
-            ],
-            'billing_period_frequency'       => [
-                'group'                     => $groupName,
-                'type'                      => 'varchar',
-                'input'                     => 'text',
-                'label'                     => 'Billing Period Frequency',
-                'note'                      => 'This is the number of billing periods that make up one billing cycle.The combination of billing frequency and billing period must be less than or equal to one year.',
-                'required'                  => false,
-                'default'                   => 1,
-                'frontend_class'            => 'validate-digits',
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 5,
-            ],
-            'billing_period_max_cycles'       => [
-                'group'                     => $groupName,
-                'type'                      => 'varchar',
-                'input'                     => 'text',
-                'label'                     => 'Maximum Billing Cycles',
-                'note'                      => 'This is the total number of billing cycles for the payment period.If you specify a value 0, the payments continue until PayPal (or the buyer) cancels or suspends the profile.',
-                'required'                  => false,
-                'default'                   => '',
-                'frontend_class'            => 'validate-digits',
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 6,
-            ],
-            'is_trial_available'       => [
-                'group'                     => $groupName,
-                'type'                      => 'int',
-                'input'                     => 'select',
-                'label'                     => 'Is Trial Period Available?',
-                'note'                      => 'Is trial period subscription available for this product?',
-                'required'                  => false,
-                'source'                    => \Magento\Eav\Model\Entity\Attribute\Source\Boolean::class,
-                'default'                   => '0',
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 7,
-            ],
-            'trial_period_unit'       => [
-                'group'                     => $groupName,
-                'type'                      => 'varchar',
-                'input'                     => 'select',
-                'label'                     => 'Trial Period Unit',
-                'note'                      => 'This is the unit of measure for trial period.',
-                'required'                  => false,
-                'source'                    => \Payfast\Payfast\Model\Config\Source\BillingPeriodUnitsOptions::class,
-                'default'                   => 'day',
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 8,
-            ],
-            'trial_period_frequency'       => [
-                'group'                     => $groupName,
-                'type'                      => 'varchar',
-                'input'                     => 'text',
-                'label'                     => 'Trial Period Frequency',
-                'note'                      => 'This is the number of trial periods that make up one cycle.',
-                'required'                  => false,
-                'default'                   => 1,
-                'frontend_class'            => 'validate-digits',
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 9,
-            ],
-            'trial_period_amount'       => [
-                'group'                     => $groupName,
-                'type'                      => 'decimal',
-                'input'                     => 'price',
-                'label'                     => 'Trial Period Amount',
-                'note'                      => 'This is the trial period amount.',
-                'required'                  => false,
-                'backend'                   => \Magento\Catalog\Model\Product\Attribute\Backend\Price::class,
-                'attribute_model'           => \Magento\Catalog\Model\ResourceModel\Eav\Attribute::class,
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 10,
-            ],
-            'trial_period_max_cycles'       => [
-                'group'                     => $groupName,
-                'type'                      => 'varchar',
-                'input'                     => 'text',
-                'label'                     => 'Maximum Trial Cycles',
-                'note'                      => 'This is the total number of trial cycles for the payment period.',
-                'required'                  => false,
-                'default'                   => '',
-                'frontend_class'            => 'validate-digits',
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 11,
-            ],
-            'initial_amount'       => [
+            'pf_initial_amount'       => [
                 'group'                     => $groupName,
                 'type'                      => 'decimal',
                 'input'                     => 'price',
                 'label'                     => 'Initial Amount',
-                'note'                      => 'The initial, non-recurring payment amount is due immediately when the payment is created.',
+                'note'                      => 'The Initial amount payment amount is due immediately when the payment is created.',
                 'required'                  => false,
                 'backend'                   => \Magento\Catalog\Model\Product\Attribute\Backend\Price::class,
                 'attribute_model'           => \Magento\Catalog\Model\ResourceModel\Eav\Attribute::class,
@@ -242,49 +167,11 @@ class InstallData implements InstallDataInterface
                 'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
                 'sort_order'                => 12,
             ],
-            'allow_initial_amount_failure'       => [
-                'group'                     => $groupName,
-                'type'                      => 'int',
-                'input'                     => 'select',
-                'label'                     => 'Allow Initial Amount Failure',
-                'note'                      => 'This sets whether to suspend the payment if the initial fee fails or, instead, add the failed payment amount to the outstanding balance due on this recurring payment profile.',
-                'required'                  => false,
-                'source'                    => \Magento\Eav\Model\Entity\Attribute\Source\Boolean::class,
-                'default'                   => '0',
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 13,
-            ],
-            'max_allowed_payment_failures'       => [
-                'group'                     => $groupName,
-                'type'                      => 'varchar',
-                'input'                     => 'text',
-                'label'                     => 'Maximum Allowed Payment Failures',
-                'note'                      => 'This is the number of failed payments allowed before profile is automatically suspended.',
-                'required'                  => false,
-                'default'                   => 0,
-                'frontend_class'            => 'validate-digits',
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 14,
-            ],
-            'auto_bill_failures'       => [
-                'group'                     => $groupName,
-                'type'                      => 'int',
-                'input'                     => 'select',
-                'label'                     => 'Auto Bill on Next Cycle',
-                'note'                      => 'Use this to automatically bill the outstanding balance amount in the next billing cycle (if there were failed payments).',
-                'required'                  => false,
-                'source'                    => \Magento\Eav\Model\Entity\Attribute\Source\Boolean::class,
-                'default'                   => '0',
-                'global'                    => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
-                'apply_to'                  => 'simple,configurable,virtual,bundle,downloadable',
-                'sort_order'                => 15,
-            ]
+
         ];
 
-        $eavSetup = $this->eavSetupFactory->create();
         foreach ($attributes as $attrCode => $attr) {
+            $eavSetup->removeAttribute(Product::ENTITY, $attrCode);
             $eavSetup->addAttribute(
                 Product::ENTITY,
                 $attrCode,
@@ -295,21 +182,14 @@ class InstallData implements InstallDataInterface
         $entityTypeId = $eavSetup->getEntityTypeId(Product::ENTITY);
         $attributeSetId = $eavSetup->getAttributeSetId($entityTypeId, 'Default');
 
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'is_paypal_recurring');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'schedule_description');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'is_start_date_editable');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'billing_period_unit');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'billing_period_frequency');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'billing_period_max_cycles');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'is_trial_available');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'trial_period_unit');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'trial_period_frequency');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'trial_period_amount');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'trial_period_max_cycles');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'initial_amount');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'allow_initial_amount_failure');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'max_allowed_payment_failures');
-        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'auto_bill_failures');
+        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'is_payfast_recurring');
+        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_schedule_description');
+        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_initial_amount');
+        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_billing_period_frequency');
+        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_billing_period_max_cycles');
+        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_is_start_date_editable');
 
+        $setup->endSetup();
     }
+
 }
