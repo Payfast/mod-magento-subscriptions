@@ -356,20 +356,22 @@ class Payfast implements ManagerInterface
 
                 $quote = $this->quoteFactory->create()->load($order->getQuoteId());
 
+                $itemFees = $this->getOrderItems(round($product->getPfInitialAmount()), $quote);
+
                 if ($data['subscription_type'] === SubscriptionType::RECURRING_SUBSCRIPTION) {
                     $data['frequency'] = $product->getPfBillingPeriodFrequency();
                     $data['cycles'] = $product->getPfBillingPeriodMaxCycles();
 
 
                     if (!is_null($product->getPfInitialAmount())) {
-                        $data['amount'] = $this->getOrderItems(round($product->getPfInitialAmount()), $quote);
+                        $data['amount'] = array_sum(array_column($itemFees, 'amount'));
                     }
 
                     $data['recurring_amount'] = $this->getNumberFormat($product->getPrice());
 
                 }
 
-                $data['custom_str1'] = $this->storeRecurringData($quote);
+                $data['custom_str1'] = $this->storeRecurringData($quote, $itemFees);
 
             }
         }
@@ -387,7 +389,7 @@ class Payfast implements ManagerInterface
      * @throws LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function storeRecurringData(Quote $quote)
+    private function storeRecurringData(Quote $quote, array $itemsFees)
     {
         $pre = __METHOD__ . ' : ';
         pflog($pre . 'bof');
@@ -412,7 +414,7 @@ class Payfast implements ManagerInterface
                         $payment->setData('pf_billing_period_max_cycles', $product->getPfBillingPeriodMaxCycles());
                         $payment->setData('pf_initial_amount', $product->getPfInitialAmount());
                     }
-
+                    $payment->setData('additional_info', $itemsFees);
                     $payment->submit();
                     return $payment->getInternalReferenceId();
 //                    $payment->addOrderRelation($orderId);
@@ -429,7 +431,7 @@ class Payfast implements ManagerInterface
 
     /**
      * @param $quote
-     * @return float|int
+     * @return array
      */
     protected function getOrderItems($initialAmount, \Magento\Quote\Model\Quote $quote)
     {
@@ -517,7 +519,7 @@ class Payfast implements ManagerInterface
             ];
         }
 
-        return array_sum(array_column($items, 'amount'));
+        return $items;
     }
 
     /**

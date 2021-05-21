@@ -196,7 +196,9 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
 
             // create Product info Item needed for creating order
             $productItemInfo = new \Magento\Framework\DataObject;
-            $productItemInfo->setTaxAmount(0);
+            $productItemInfo->setShippingAmount(0);
+            $productItemInfo->setPrice($this->data['amount_gross']);
+
             if ($this->isInitial && $recurringPayment->getInitialAmount()) {
                 pflog(
                     __(
@@ -206,7 +208,13 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
                         SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()]
                     )
                 );
+
+                $productItemInfo->setTaxAmount($this->getItemValue($recurringPayment->getAdditionalInfo(), 'tax', 'amount', 0));
+                $productItemInfo->setPrice($this->getItemValue($recurringPayment->getAdditionalInfo(), 'sku', 'amount', $this->data['amount_gross']));
+                $productItemInfo->setShippingAmount($this->getItemValue($recurringPayment->getAdditionalInfo(), 'shipping', 'amount', 0));
+
                 $productItemInfo->setPaymentType(PaymentTypeInterface::INITIAL);
+
             } else {
                 pflog(
                     __(
@@ -226,7 +234,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
                 $recurringPayment->setReferenceId($this->data['token']);
             }
 
-            if (null !== $recurringPayment->getRecurringPaymentStartDate() && !empty($this->data['billing_date'])) {
+            if (null === $recurringPayment->getRecurringPaymentStartDate() && !empty($this->data['billing_date'])) {
                 $recurringPayment->setRecurringPaymentStartDate($this->data['billing_date']);
             }
             if ($recurringPayment->getState() !== States::ACTIVE) {
@@ -241,9 +249,6 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
                 $orderId = $this->_order->getId();
 
             } else {
-
-                $productItemInfo->setShippingAmount(0);
-                $productItemInfo->setPrice($this->data['amount_gross']);
 
                 $order = $recurringPayment->createOrder($productItemInfo);
 
@@ -308,6 +313,26 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
         return $respose;
     }
 
+    /**
+     * getItemValue
+     *
+     * @param array $items
+     * @param string $fieldType
+     * @param string $targetField
+     * @param  $default
+     */
+    private function getItemValue(array $items, string $fieldType, string $targetField, $default = 0)
+    {
+        $typeValue = null;
+        foreach ($items as $item)
+        {
+            if (!empty($item['type']) && $item['type'] === $fieldType) {
+                $typeValue += $item[$targetField];
+            }
+        }
+
+        return $typeValue ?? $default;
+    }
     /**
      * saveInvoice
      *

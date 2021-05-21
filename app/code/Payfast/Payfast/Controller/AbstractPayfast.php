@@ -23,6 +23,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface as MessageManagerInterface;
 use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Session\Generic;
+use Magento\Framework\Stdlib\ArrayManager;
 use Magento\Framework\Url\Helper\Data;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Quote\Model\Quote;
@@ -182,6 +183,8 @@ abstract class AbstractPayfast implements ActionInterface, HttpGetActionInterfac
 
     protected $quoteFactory;
 
+    protected ArrayManager $arrayManager;
+
     /**
      * @param Context $context
      * @param PageFactory $pageFactory
@@ -217,6 +220,7 @@ abstract class AbstractPayfast implements ActionInterface, HttpGetActionInterfac
         Transaction $salesTransactionResourceModel,
         PaymentFactory $paymentFactory,
         QuoteFactory $quoteFactory,
+        ArrayManager $arrayManager,
         Raw $rawResult
     ) {
         $pre = __METHOD__ . " : ";
@@ -250,7 +254,7 @@ abstract class AbstractPayfast implements ActionInterface, HttpGetActionInterfac
         $this->_response = $context->getResponse();
         $this->_actionFlag = $context->getActionFlag();
         $this->messageManager = $context->getMessageManager();
-
+        $this->arrayManager = $arrayManager;
         $this->_config = $this->_objectManager->create($this->_configType, $parameters);
 
         if (!defined('PF_DEBUG')) {
