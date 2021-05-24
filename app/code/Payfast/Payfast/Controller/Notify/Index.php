@@ -184,6 +184,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
         $pre = __METHOD__ . ' : ';
         pflog($pre . 'bof');
         $respose = true;
+//        return $respose;
         try {
             /** @var \Payfast\Payfast\Model\Payment $paymentFactory */
             $paymentFactory = $this->paymentFactory->create();
@@ -208,6 +209,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
                         SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()]
                     )
                 );
+                // Attempt to update this->_order and its items see what happens
 
                 $productItemInfo->setTaxAmount($this->getItemValue($recurringPayment->getAdditionalInfo(), 'tax', 'amount', 0));
                 $productItemInfo->setPrice($this->getItemValue($recurringPayment->getAdditionalInfo(), 'sku', 'amount', $this->data['amount_gross']));
@@ -243,13 +245,19 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
                 $recurringPayment->save();
             }
 
-            if ($firstCharge && (int)$recurringPayment->getSubscriptionType() === SubscriptionType::RECURRING_ADHOC) {
+            if ($this->isInitial && (int)$recurringPayment->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION) {
+
+                $this->setPaymentAdditionalInformation($this->data);
+                $this->saveInvoice();
+                $orderId = $this->_order->getId();
+
+            } elseif ($firstCharge && (int)$recurringPayment->getSubscriptionType() === SubscriptionType::RECURRING_ADHOC) {
                 $this->setPaymentAdditionalInformation($this->data);
                 $this->saveInvoice();
                 $orderId = $this->_order->getId();
 
             } else {
-
+                return $respose;
                 $order = $recurringPayment->createOrder($productItemInfo);
 
                 $payment = $order->getPayment()

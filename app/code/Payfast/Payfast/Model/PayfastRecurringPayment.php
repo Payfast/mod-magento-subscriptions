@@ -6,8 +6,21 @@
  */
 namespace Payfast\Payfast\Model;
 
+use Magento\Catalog\Api\Data\ProductInterfaceFactory;
+use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product;
+
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Locale\ResolverInterface;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
 use Magento\Framework\Pricing\Helper\Data as AmountRenderer;
+use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\DateTime;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Magento\Payment\Helper\Data;
+use Payfast\Payfast\Block\Fields;
 use Payfast\Payfast\Model\Config\Source\BillingPeriodUnitsOptions;
 use Magento\Framework\Serialize\SerializerInterface;
 use Payfast\Payfast\Model\Config\Source\Frequency;
@@ -67,7 +80,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
     /**
      * Data
      *
-     * @var \Magento\Payment\Helper\Data|null
+     * @var Data|null
      */
     protected $_paymentData = null;
 
@@ -84,21 +97,21 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
     /**
      * Fields
      *
-     * @var \Payfast\Payfast\Block\Fields $_fields
+     * @var Fields $_fields
      */
     protected $_fields;
 
     /**
      * TimezoneInterface
      *
-     * @var \Magento\Framework\Stdlib\DateTime\TimezoneInterface
+     * @var TimezoneInterface
      */
     protected $_localeDate;
 
     /**
      * ResolverInterface
      *
-     * @var \Magento\Framework\Locale\ResolverInterface
+     * @var ResolverInterface
      */
     protected $_localeResolver;
 
@@ -112,7 +125,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
     /**
      * DateTime
      *
-     * @var \Magento\Framework\Stdlib\DateTime
+     * @var DateTime
      */
     protected $_dateTime;
 
@@ -126,39 +139,48 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
     /** @var AmountRenderer $amountRenderer */
     protected $amountRenderer;
 
+    /** @var ProductInterfaceFactory $productFactory */
+    protected $productFactory;
+
+    protected $productRepository;
+
     /**
      * PaypalRecurringPayment constructor.
      *
-     * @param \Magento\Framework\Model\Context                             $context                   context
-     * @param \Magento\Framework\Registry                                  $registry                  registry
-     * @param \Magento\Payment\Helper\Data                                 $paymentData               paymentData
+     * @param Context                             $context                   context
+     * @param Registry                                  $registry                  registry
+     * @param Data                                 $paymentData               paymentData
      * @param BillingPeriodUnitsOptions                                    $billingPeriodUnitsOptions billingPeriodUnitsOptions
-     * @param \Payfast\Payfast\Block\Fields              $fields                    fields
+     * @param Fields              $fields                    fields
      * @param ManagerInterfaceFactory                                      $managerFactory            managerFactory
-     * @param \Magento\Framework\Stdlib\DateTime\TimezoneInterface         $localeDate                localeDate
-     * @param \Magento\Framework\Locale\ResolverInterface                  $localeResolver            localeResolver
-     * @param \Magento\Framework\Stdlib\DateTime                           $dateTime                  dateTime
+     * @param TimezoneInterface         $localeDate                localeDate
+     * @param ResolverInterface                  $localeResolver            localeResolver
+     * @param DateTime                           $dateTime                  dateTime
      * @param Magento\Framework\Serialize\SerializerInterface              $serializer                serializer
-     * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource                  resource
-     * @param \Magento\Framework\Data\Collection\AbstractDb|null           $resourceCollection        resourceCollection
+     * @param AbstractResource|null $resource                  resource
+     * @param AbstractDb|null           $resourceCollection        resourceCollection
      * @param AmountRenderer $amountRender
+     * @param ProductInterfaceFactory $productFactory
+     * @param ProductRepositoryInterface $productRepository
      * @param array                                                        $data                      data
      */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Payment\Helper\Data $paymentData,
+        Context $context,
+        Registry $registry,
+        Data $paymentData,
         BillingPeriodUnitsOptions $billingPeriodUnitsOptions,
-        \Payfast\Payfast\Block\Fields $fields,
-        \Payfast\Payfast\Model\ManagerInterfaceFactory $managerFactory,
-        \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
-        \Magento\Framework\Locale\ResolverInterface $localeResolver,
-        \Magento\Framework\Stdlib\DateTime $dateTime,
+        Fields $fields,
+        ManagerInterfaceFactory $managerFactory,
+        TimezoneInterface $localeDate,
+        ResolverInterface $localeResolver,
+        DateTime $dateTime,
         SerializerInterface $serializer,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
         Frequency $frequency,
         AmountRenderer $amountRender,
+        ProductInterfaceFactory $productFactory,
+        ProductRepositoryInterface $productRepository,
         array $data = []
     ) {
         $this->_paymentData = $paymentData;
@@ -171,6 +193,8 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
         $this->serializer = $serializer;
         $this->_frequency = $frequency;
         $this->amountRenderer = $amountRender;
+        $this->productFactory = $productFactory;
+        $this->productRepository = $productRepository;
 
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
@@ -188,7 +212,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
 
         if (!$this->getRecurringPaymentStartDate()) {
             $this->_errors['payfast_recurring_payment_start_date'][] = __('PayFast Recurring Payment Start date is undefined.');
-        } elseif (!\Zend_Date::isDate($this->getPaypalRecurringPaymentStartDate(), \Magento\Framework\Stdlib\DateTime::DATETIME_INTERNAL_FORMAT)) {
+        } elseif (!\Zend_Date::isDate($this->getPaypalRecurringPaymentStartDate(), DateTime::DATETIME_INTERNAL_FORMAT)) {
             $this->_errors['payfast_recurring_payment_start_date'][] = __('PayFast Recurring Payment Start date has an invalid format.');
         }
 
@@ -310,7 +334,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
                 throw new \Magento\Framework\Exception\LocalizedException(__('The PayFast recurring payment start date must be future date.'));
             }
 
-            $utcDate =  $this->_localeDate->date($recurringPaymentStartDate)->format(\Magento\Framework\Stdlib\DateTime::DATETIME_PHP_FORMAT);
+            $utcDate =  $this->_localeDate->date($recurringPaymentStartDate)->format(DateTime::DATETIME_PHP_FORMAT);
             $this->setPaypalRecurringPaymentStartDate($utcDate)->setImportedPaypalRecurringPaymentStartDate($recurringPaymentStartDate);
         }
         return $this->_filterValues();
@@ -387,9 +411,9 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
     protected function setNearestPayfastRecurringPaymentStartDate($date = null, $date_string = null)
     {
         if (!$date || $date->strToTime($date_string) < time()) {
-            $date = $this->_localeDate->date()->format(\Magento\Framework\Stdlib\DateTime::DATETIME_PHP_FORMAT);
+            $date = $this->_localeDate->date()->format(DateTime::DATETIME_PHP_FORMAT);
         } else {
-            $date =  $this->_localeDate->date($date_string)->format(\Magento\Framework\Stdlib\DateTime::DATETIME_PHP_FORMAT);
+            $date =  $this->_localeDate->date($date_string)->format(DateTime::DATETIME_PHP_FORMAT);
         }
 
         $this->setPayfastRecurringPaymentStartDate($date);
@@ -402,9 +426,9 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
      *
      * @return string
      */
-    public function exportPayfasRecurringPaymentStartDate()
+    public function exportPayfastRecurringPaymentStartDate()
     {
-        $datetime = $this->getPayfastRecurringPaymentStartDate();
+        $datetime = $this->getRecurringPaymentStartDate();
         if (!$datetime || !$this->_localeDate || !$this->_store) {
             return '';
         }
@@ -446,8 +470,9 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
                     return $this->_paymentMethods[$value];
                 }
                 break;
-            case 'paypal_recurring_payment_start_date':
+            case 'recurring_payment_start_date':
                 return $this->exportPayfastRecurringPaymentStartDate();
+
         }
         return $value;
     }
@@ -493,7 +518,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
     public function isActiveMethod()
     {
         $activePaymentMethods = $this->payment_config->getActiveMethods();
-        return isset($activePaymentMethods['payfast_payfast']) ? true : false;
+        return isset($activePaymentMethods['payfast']) ? true : false;
     }
     /**
      * ValidatePeriodFrequency
@@ -560,5 +585,46 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
 
         $this->_logger->debug(__METHOD__ . ' : results is ', $result);
         return $result;
+    }
+
+    public function createVirtualProduct($price )
+    {
+        try {
+
+            $product = $this->productFactory->create();
+            $product->setSku('sku');
+            $product->setName(__('PayFast Recurring Payment Initial Fee'));
+            $product->setDescription(__('PayFast Recurring Payment Initial Fee'));
+            $product->setShortDescription(__('PayFast Recurring Payment Initial Fee'));
+            $product->setWebsiteIds([1]);
+            $categories = ["1","2"]; //create an array of categories which you want to set for the product
+            $product->setCategoryIds($categories);
+            $product->setTypeId(\Magento\Catalog\Model\Product\Type::TYPE_VIRTUAL);
+            $product->setVisibility(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE); // To make product visible in both catalog,search
+            $product->setPrice($price);
+            $product->setAttributeSetId(4); // Attribute set for products
+            $product->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
+
+            $product->setStockData(
+                array(
+                    'use_config_manage_stock' => 0,
+                    'manage_stock' => 1,
+                    'is_in_stock' => 1,
+                    'qty' => 1
+                )
+            );
+            $product = $this->productRepository->save($product);
+            //To add images to product
+            $imagePath = "Image Path"; //Set the full path of Image for product
+//            $product->addImageToMediaGallery($imagePath, ['image', 'small_image', 'thumbnail'], false, false);
+            $product->save();
+
+        } catch (LocalizedException $e){
+            $this->_logger->error($e->getMessage());
+            throw $e;
+        }
+
+        return $product->getId();
+
     }
 }

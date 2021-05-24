@@ -129,6 +129,8 @@ class Payfast implements ManagerInterface
     protected $quoteFactory;
 
     protected $paymentFactory;
+
+    protected $recurringPayment;
     /**
      * @param ConfigFactory $configFactory
      * @param StoreManagerInterface $storeManager
@@ -149,7 +151,8 @@ class Payfast implements ManagerInterface
         BuilderInterface $transactionBuilder,
         ProductRepository $productRepository,
         QuoteFactory $quoteFactory,
-        PaymentFactory $paymentFactory
+        PaymentFactory $paymentFactory,
+        PayfastRecurringPayment $recurringPayment
     ) {
         $this->_storeManager = $storeManager;
         $this->_urlBuilder = $urlBuilder;
@@ -160,7 +163,7 @@ class Payfast implements ManagerInterface
         $this->productRepository = $productRepository;
         $this->quoteFactory = $quoteFactory;
         $this->paymentFactory = $paymentFactory;
-
+        $this->recurringPayment = $recurringPayment;
         $parameters = [ 'params' => [ $this->_code ] ];
 
         $this->_config = $configFactory->create($parameters);
@@ -354,9 +357,11 @@ class Payfast implements ManagerInterface
                 $data['item_name'] = trim(substr($product->getName(), 0, 254));
                 $data['item_description'] = trim(substr($product->getPfScheduleDescription(), 0, 256));
 
+                /** @var Quote $quote */
                 $quote = $this->quoteFactory->create()->load($order->getQuoteId());
 
                 $itemFees = $this->getOrderItems(round($product->getPfInitialAmount()), $quote);
+//                $itemFees = $this->recurringPayment->getOrderItems(round($product->getPfInitialAmount()), $quote);
 
                 if ($data['subscription_type'] === SubscriptionType::RECURRING_SUBSCRIPTION) {
                     $data['frequency'] = $product->getPfBillingPeriodFrequency();
@@ -364,7 +369,8 @@ class Payfast implements ManagerInterface
 
 
                     if (!is_null($product->getPfInitialAmount())) {
-                        $data['amount'] = array_sum(array_column($itemFees, 'amount'));
+//                        $data['amount'] = array_sum(array_column($itemFees, 'amount'));
+                        $data['amount'] = $this->getNumberFormat($order->getTotalDue());
                     }
 
                     $data['recurring_amount'] = $this->getNumberFormat($product->getPrice());
@@ -379,6 +385,99 @@ class Payfast implements ManagerInterface
         pflog($pre . 'subscription data is '. print_r($data, true));
 
         return $data;
+    }
+
+    /**
+     * @param $quote
+     * @return array
+     */
+    public function getOrderItems($initialAmount, \Magento\Quote\Model\Quote $quote)
+    {
+        $items = [];
+        $useStoreCurrency = $this->_config->getValue('use_store_currency');
+        $tax = 0;
+        $shipping = 0;
+
+        if ($useStoreCurrency) {
+            $currency = $quote->getQuoteCurrencyCode();
+            if (!$quote->getIsVirtual()) {
+                $shippingAddress = $quote->getShippingAddress();
+                $shipping = $shippingAddress->getShippingAmount();
+                $tax += $shippingAddress->getShippingTaxAmount();
+            }
+
+            $discount = $quote->getSubtotal() - $quote->getSubtotalWithDiscount();
+        } else {
+            $currency = $quote->getBaseCurrencyCode();
+            if (!$quote->getIsVirtual()) {
+                $shippingAddress = $quote->getShippingAddress();
+                $shipping = $shippingAddress->getBaseShippingAmount();
+                $tax += $shippingAddress->getBaseShippingTaxAmount();
+            }
+
+            $discount = $quote->getBaseSubtotal() - $quote->getBaseSubtotalWithDiscount();
+        }
+
+        $quoteItems = $quote->getAllVisibleItems();
+        foreach ($quoteItems as $item) {
+            if ($useStoreCurrency) {
+                $amount = $item->getRowTotal();
+                $tax += $item->getTaxAmount();
+            } else {
+                $amount = $item->getBaseRowTotal();
+                $tax += $item->getBaseTaxAmount();
+            }
+
+            if ($item->getIsPayfastRecurring()) {
+                $items[] = [
+                    'type' => 'sku',
+                    'parent' => $item->getSku(),
+                    'description' => trim($item->getPfScheduleDescription()),
+                    "quantity" => $item->getQty(),
+                    "currency" => $currency,
+                    "amount" => round($initialAmount)
+                ];
+            } else {
+                $items[] = [
+                    "type" => "sku",
+                    "parent" => $item->getSku(),
+                    "description" => $item->getName(),
+                    "quantity" => $item->getQty(),
+                    "currency" => $currency,
+                    "amount" => round($amount)
+                ];
+            }
+
+        }
+
+        if ($tax > 0) {
+            $items[] = [
+                "type" => "tax",
+                "description" => "Tax",
+                "currency" => $currency,
+                "amount" => round($tax)
+            ];
+        }
+
+        if ($discount > 0) {
+            $items[] = [
+                "type" => "discount",
+                "description" => "Discount",
+                "currency" => $currency,
+                "amount" => -round($discount)
+            ];
+        }
+
+        if ($shipping > 0) {
+            $items[] = [
+                "type" => "shipping",
+                "description" => "Shipping",
+                "currency" => $currency,
+                "amount" => round($shipping)
+            ];
+        }
+
+        return $items;
     }
 
     /**
@@ -427,99 +526,6 @@ class Payfast implements ManagerInterface
         }
 
         pflog($pre . 'eof');
-    }
-
-    /**
-     * @param $quote
-     * @return array
-     */
-    protected function getOrderItems($initialAmount, \Magento\Quote\Model\Quote $quote)
-    {
-        $items = [];
-        $useStoreCurrency = $this->_config->getValue('use_store_currency');
-        $tax = 0;
-        $shipping = 0;
-
-        if ($useStoreCurrency) {
-            $currency = $quote->getQuoteCurrencyCode();
-            if (!$quote->getIsVirtual()) {
-                $shippingAddress = $quote->getShippingAddress();
-                $shipping = $shippingAddress->getShippingAmount();
-                $tax += $shippingAddress->getShippingTaxAmount();
-            }
-
-            $discount = $quote->getSubtotal() - $quote->getSubtotalWithDiscount();
-        } else {
-            $currency = $quote->getBaseCurrencyCode();
-            if (!$quote->getIsVirtual()) {
-                $shippingAddress = $quote->getShippingAddress();
-                $shipping = $shippingAddress->getBaseShippingAmount();
-                $tax += $shippingAddress->getBaseShippingTaxAmount();
-            }
-
-            $discount = $quote->getBaseSubtotal() - $quote->getBaseSubtotalWithDiscount();
-        }
-
-        $quoteItems = $quote->getAllVisibleItems();
-        foreach ($quoteItems as $item) {
-            if ($useStoreCurrency) {
-                $amount = $item->getRowTotal();
-                $tax += $item->getTaxAmount();
-            } else {
-                $amount = $item->getBaseRowTotal();
-                $tax += $item->getBaseTaxAmount();
-            }
-
-            if ($item->getIsPayfastRecurring()) {
-                $items[] = [
-                  'type' => 'sku',
-                  'parent' => $item->getSku(),
-                  'description' => trim($item->getPfScheduleDescription()),
-                  "quantity" => $item->getQty(),
-                  "currency" => $currency,
-                  "amount" => round($initialAmount)
-                ];
-            } else {
-                $items[] = [
-                    "type" => "sku",
-                    "parent" => $item->getSku(),
-                    "description" => $item->getName(),
-                    "quantity" => $item->getQty(),
-                    "currency" => $currency,
-                    "amount" => round($amount)
-                ];
-            }
-
-        }
-
-        if ($tax > 0) {
-            $items[] = [
-                "type" => "tax",
-                "description" => "Tax",
-                "currency" => $currency,
-                "amount" => round($tax)
-            ];
-        }
-
-        if ($discount > 0) {
-            $items[] = [
-                "type" => "discount",
-                "description" => "Discount",
-                "currency" => $currency,
-                "amount" => -round($discount)
-            ];
-        }
-
-        if ($shipping > 0) {
-            $items[] = [
-                "type" => "shipping",
-                "description" => "Shipping",
-                "currency" => $currency,
-                "amount" => round($shipping)
-            ];
-        }
-
-        return $items;
     }
 
     /**

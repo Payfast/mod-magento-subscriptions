@@ -121,7 +121,7 @@ class PrepareProductRecurringPaymentOptions implements ObserverInterface
 
         $infoOptions = [[
             'label' => $this->fields->getFieldLabel('paypal_recurring_payment_start_date'),
-            'value' => $payment->exportPaypalRecurringPaymentStartDate(),
+            'value' => $payment->exportPayfastRecurringPaymentStartDate(),
         ]];
 
         foreach ($payment->exportPaypalRecurringPaymentScheduleInfo() as $info) {

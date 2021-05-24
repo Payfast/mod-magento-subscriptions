@@ -6,6 +6,8 @@
  */
 namespace Payfast\Payfast\Model;
 
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Catalog\Api\Data\ProductInterfaceFactory;
 use Magento\Framework\Pricing\Helper\Data as AmountRenderer;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Sales\Model\Order;
@@ -111,6 +113,8 @@ class Payment extends PayfastRecurringPayment
      * @param \Magento\Framework\Model\ResourceModel\AbstractResource|null $resource
      * @param \Magento\Framework\Data\Collection\AbstractDb|null $resourceCollection
      * @param AmountRenderer $amountRenderer
+     * @param ProductInterfaceFactory $productFactory
+     * @param ProductRepositoryInterface $productRepository
      * @param array $data
      */
     public function __construct(
@@ -135,6 +139,8 @@ class Payment extends PayfastRecurringPayment
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         Frequency $frequency,
         AmountRenderer $amountRenderer,
+        ProductInterfaceFactory $productFactory,
+        ProductRepositoryInterface $productRepository,
         array $data = []
     ) {
         $this->_orderFactory = $orderFactory;
@@ -161,6 +167,8 @@ class Payment extends PayfastRecurringPayment
             $resourceCollection,
             $frequency,
             $amountRenderer,
+            $productFactory,
+            $productRepository,
             $data
         );
     }
