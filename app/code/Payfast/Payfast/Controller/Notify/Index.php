@@ -200,37 +200,18 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             $productItemInfo->setShippingAmount(0);
             $productItemInfo->setPrice($this->data['amount_gross']);
 
-            if ($this->isInitial && $recurringPayment->getInitialAmount()) {
-                pflog(
-                    __(
-                        '%1Setting Payment type to : %2, of %3',
-                        $pre,
-                        PaymentTypeInterface::INITIAL,
-                        SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()]
-                    )
-                );
-                // Attempt to update this->_order and its items see what happens
+            pflog(
+                __(
+                    '%1Setting Payment type to : %2, of %3',
+                    $pre,
+                    PaymentTypeInterface::RECURRING,
+                    SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()]
+                )
+            );
 
-                $productItemInfo->setTaxAmount($this->getItemValue($recurringPayment->getAdditionalInfo(), 'tax', 'amount', 0));
-                $productItemInfo->setPrice($this->getItemValue($recurringPayment->getAdditionalInfo(), 'sku', 'amount', $this->data['amount_gross']));
-                $productItemInfo->setShippingAmount($this->getItemValue($recurringPayment->getAdditionalInfo(), 'shipping', 'amount', 0));
+            $productItemInfo->setPaymentType(PaymentTypeInterface::RECURRING);
 
-                $productItemInfo->setPaymentType(PaymentTypeInterface::INITIAL);
-
-            } else {
-                pflog(
-                    __(
-                        '%1Setting Payment type to : %2, of %3',
-                        $pre,
-                        PaymentTypeInterface::RECURRING,
-                        SubscriptionType::RECURRING_LABEL[$recurringPayment->getSubscriptionType()]
-                    )
-                );
-
-                $productItemInfo->setPaymentType(PaymentTypeInterface::RECURRING);
-            }
-
-            $firstCharge = null === $recurringPayment->getReferenceId();
+            $firstCharge = (null === $recurringPayment->getReferenceId());
 
             if ($firstCharge) {
                 $recurringPayment->setReferenceId($this->data['token']);
@@ -257,7 +238,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
                 $orderId = $this->_order->getId();
 
             } else {
-                return $respose;
+//                return $respose;
                 $order = $recurringPayment->createOrder($productItemInfo);
 
                 $payment = $order->getPayment()
@@ -332,8 +313,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
     private function getItemValue(array $items, string $fieldType, string $targetField, $default = 0)
     {
         $typeValue = null;
-        foreach ($items as $item)
-        {
+        foreach ($items as $item) {
             if (!empty($item['type']) && $item['type'] === $fieldType) {
                 $typeValue += $item[$targetField];
             }

@@ -20,6 +20,7 @@ use Magento\Payment\Model\Info as PaymentInfo;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
+use Payfast\Payfast\Model\Config\Source\Frequency;
 use Payfast\Payfast\Model\PaymentFactory;
 use Magento\Sales\Api\Data\OrderPaymentInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -367,6 +368,7 @@ class Payfast implements ManagerInterface
                     $data['frequency'] = $product->getPfBillingPeriodFrequency();
                     $data['cycles'] = $product->getPfBillingPeriodMaxCycles();
 
+                    $data['billing_date'] = $this->recurringPayment->getBillingDate((int)$product->getPfBillingPeriodFrequency());
 
                     if (!is_null($product->getPfInitialAmount())) {
 //                        $data['amount'] = array_sum(array_column($itemFees, 'amount'));

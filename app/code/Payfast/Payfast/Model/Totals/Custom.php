@@ -14,12 +14,12 @@ use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 use Payfast\Payfast\Model\PayfastRecurringPayment;
 
 /**
-  * PayFast Module.
-  *
-  *
-  * @SuppressWarnings(PHPMD.TooManyFields)
-  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
-  */
+ * PayFast Module.
+ *
+ *
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 {
 
@@ -52,21 +52,21 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     ): Custom {
         parent::collect($quote, $shippingAssignment, $total);
 
-       $discount = $this->evaluateDiscount($quote);
-       if ($discount) {
+        $discount = $this->evaluateDiscount($quote);
+        if ($discount) {
 
-           $baseDiscount = 10;
+            $baseDiscount = 10;
 
-           $discount =  $this->priceCurrency->convert($discount);
+            $discount =  $this->priceCurrency->convert($discount);
 
-           $total->addTotalAmount($this->getCode(), -$discount);
-           $total->addBaseTotalAmount($this->getCode(), -$baseDiscount);
-           $total->setBaseGrandTotal($total->getBaseGrandTotal() - $baseDiscount);
-           $quote->setDiscount(-$discount);
-       }
+            $total->addTotalAmount($this->getCode(), -$discount);
+            $total->addBaseTotalAmount($this->getCode(), -$baseDiscount);
+            $total->setBaseGrandTotal($total->getBaseGrandTotal() - $baseDiscount);
+            $quote->setDiscount(-$discount);
+        }
 
 
-      return $this;
+        return $this;
     }
 
     /**
@@ -84,11 +84,10 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     {
         $baseDiscountAmount = 0;
 
-        foreach($quote->getAllVisibleItems() as $item)
-        {
+        foreach ($quote->getAllVisibleItems() as $item) {
             if ($item->getIsPayfastRecurring()) {
                 $product = $this->productRepository->getById($item->getProduct()->getId());
-                if((int) $product->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION && !is_null($product->getPfInitialAmount())){
+                if ((int) $product->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION && !is_null($product->getPfInitialAmount())) {
 
                     $discountPercentage = (($product->getPrice() - $product->getPfInitialAmount()) / $product->getPrice()) * 100;
                     $baseDiscountAmount = ($discountPercentage / 100) * $product->getPrice();
@@ -103,12 +102,12 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         Total $total
     ) {
 
-       $discount = $this->evaluateDiscount($quote);
+        $discount = $this->evaluateDiscount($quote);
 
-//        return [
-//            'code' => $this->getCode(),
-//            'title' => $this->getLabel(),
-//            'value' => -$discount  //You can change the reduced amount, or replace it with your own variable
-//        ];
-  	  }
+        return [
+            'code' => $this->getCode(),
+            'title' => $this->getLabel(),
+            'value' => -$discount  //You can change the reduced amount, or replace it with your own variable
+        ];
+    }
 }

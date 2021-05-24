@@ -365,23 +365,29 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
                 $this->setScheduleDescription(trim($product->getName()));
             }
 
-            // collect start datetime from the product options
-            $options = $product->getCustomOption(self::PRODUCT_OPTIONS_KEY);
-            if ($options) {
-                $options = $this->serializer->unserialize($options->getValue());
-                if (is_array($options)) {
-                    if (isset($options['recurring_payment_start_date'])) {
-                        $paypalRecurringPaymentStartDate = $this->_dateTime->formatDate($options['recurring_payment_start_date']);
-                        $this->setNearestPayfastRecurringPaymentStartDate($this->_dateTime, $paypalRecurringPaymentStartDate);
-                    }
-                }
-            }
+
+            $frequency = Frequency::FREQUENCY[$this->getBillingPeriodFrequency()];
+            $baseTimestamp = strtotime(date('Y-m-d'));
+            $startDate = date('Y-m-d', strtotime('+' . $frequency, $baseTimestamp));
+            $payfastRecurringPaymentStartDate = $this->_dateTime->formatDate($startDate);
+            $this->setNearestPayfastRecurringPaymentStartDate($this->_dateTime, $payfastRecurringPaymentStartDate);
+
 
             return $this->_filterValues();
         }
         return false;
     }
 
+    /**
+     * @param int $frequency
+     * @return string|null
+     */
+    public function getBillingDate(int $frequency)
+    {
+        $frequency = Frequency::FREQUENCY[$frequency];
+        $baseTimestamp = strtotime(date('Y-m-d'));
+        return date('Y-m-d', strtotime('+' . $frequency, $baseTimestamp));
+    }
 
     /**
      * ExportPaypalRecurringPaymentScheduleInfo
@@ -416,7 +422,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
             $date =  $this->_localeDate->date($date_string)->format(DateTime::DATETIME_PHP_FORMAT);
         }
 
-        $this->setPayfastRecurringPaymentStartDate($date);
+        $this->setRecurringPaymentStartDate($date);
 
         return $this;
     }
@@ -429,8 +435,9 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
     public function exportPayfastRecurringPaymentStartDate()
     {
         $datetime = $this->getRecurringPaymentStartDate();
-        if (!$datetime || !$this->_localeDate || !$this->_store) {
-            return '';
+        if (!$datetime && $this->getBillingPeriodFrequency()) {
+
+            return date('Y-m-d', strtotime('+' . Frequency::FREQUENCY[$this->getBillingPeriodFrequency()], strtotime($this->getBillingPeriodFrequency())));
         }
         $date = $this->_localeDate->scopeDate($this->_store, strtotime($datetime), true);
         return $date->format("l, jS \of F Y");
@@ -587,7 +594,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
         return $result;
     }
 
-    public function createVirtualProduct($price )
+    public function createVirtualProduct($price)
     {
         try {
 
@@ -606,12 +613,12 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
             $product->setStatus(\Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED);
 
             $product->setStockData(
-                array(
+                [
                     'use_config_manage_stock' => 0,
                     'manage_stock' => 1,
                     'is_in_stock' => 1,
                     'qty' => 1
-                )
+                ]
             );
             $product = $this->productRepository->save($product);
             //To add images to product
@@ -619,12 +626,11 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
 //            $product->addImageToMediaGallery($imagePath, ['image', 'small_image', 'thumbnail'], false, false);
             $product->save();
 
-        } catch (LocalizedException $e){
+        } catch (LocalizedException $e) {
             $this->_logger->error($e->getMessage());
             throw $e;
         }
 
         return $product->getId();
-
     }
 }

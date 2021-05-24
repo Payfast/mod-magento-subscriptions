@@ -12,6 +12,7 @@ use Magento\Catalog\Model\Product;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Store\Model\StoreManagerInterface;
+use Payfast\Payfast\Model\Config\Source\Frequency;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 use Psr\Log\LoggerInterface;
 
@@ -142,6 +143,7 @@ class PayfastRecurringPayment extends \Magento\Framework\View\Element\Template
         }
         return parent::_prepareLayout();
     }
+
 
     /**
      * @return bool

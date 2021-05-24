@@ -102,7 +102,7 @@ class PrepareProductRecurringPaymentOptions implements ObserverInterface
         if (!$product->getIsPaypalRecurring() || !isset($activePaymentMethods['payfast'])) {
             return;
         }
-
+        /** @var PayfastRecurringPayment $payment */
         $payment = $this->payfastRecurringPayment->create(['locale' => $this->locale]);
         $payment->setStore($this->storeManager->getStore())
             ->importBuyRequest($buyRequest)
@@ -116,7 +116,7 @@ class PrepareProductRecurringPaymentOptions implements ObserverInterface
         $product->addCustomOption(
             PayfastRecurringPayment::PRODUCT_OPTIONS_KEY,
             $this->serializer
-                ->serialize(['paypal_recurring_payment_start_date' => $payment->getPaypalRecurringPaymentStartDate()])
+                ->serialize(['payfast_recurring_payment_start_date' => $payment->getPayfastRecurringPaymentStartDate()])
         );
 
         $infoOptions = [[

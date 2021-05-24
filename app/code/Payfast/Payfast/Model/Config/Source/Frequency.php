@@ -12,6 +12,8 @@ class Frequency extends AbstractSource
         const BIANNUALLY = 5; // - Biannually
         const ANNUAL = 6 ;// - Annual
 
+        const FREQUENCY = [ 2 => '1week', 3 => '1month', 4 => '3months', 5 => '6months', 6 => '12months'];
+
     public function getAllOptions()
     {
 
