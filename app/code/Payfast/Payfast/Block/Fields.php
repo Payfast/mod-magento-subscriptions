@@ -74,6 +74,8 @@ class Fields extends \Magento\Backend\Block\AbstractBlock
                 return __('Payment Method');
             case 'reference_id':
                 return __('PayFast Reference #');
+            case 'subscription_type':
+                return __('Subscription Type ');
         }
     }
 
@@ -93,7 +95,7 @@ class Fields extends \Magento\Backend\Block\AbstractBlock
                 return __(
                     'Full name of the person receiving the product or service paid for by the PayPal recurring payment.'
                 );
-            case 'paypal_recurring_payment_start_date':
+            case 'recurring_payment_start_date':
                 return __('This is the date when billing for the payment begins.');
             case 'schedule_description':
                 return __(

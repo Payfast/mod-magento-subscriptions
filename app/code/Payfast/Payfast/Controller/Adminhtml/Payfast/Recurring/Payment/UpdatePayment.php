@@ -64,14 +64,14 @@ class UpdatePayment extends Index
             $payment->fetchUpdate();
             if ($payment->hasDataChanges()) {
                 $payment->save();
-                $this->messageManager->addSuccess(__('Payment status has been updated.'));
+                $this->messageManager->addSuccessMessage(__('Payment status has been updated.'));
             } else {
-                $this->messageManager->addNotice(__('There is no change in payment status.'));
+                $this->messageManager->addNoticeMessage(__('There is no change in payment status.'));
             }
         } catch (LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addError(__('We could not update the payment.'));
+            $this->messageManager->addErrorMessage(__('We could not update the payment.'));
             $this->logger->err($e);
         }
         if ($payment) {

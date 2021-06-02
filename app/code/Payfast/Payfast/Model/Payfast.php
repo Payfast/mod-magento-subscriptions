@@ -10,6 +10,7 @@ namespace Payfast\Payfast\Model;
 require_once dirname(__FILE__) . '/../Model/payfast_common.inc';
 
 
+use http\Client\Response;
 use Magento\Catalog\Model\ProductRepository;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\DataObject;
@@ -30,8 +31,9 @@ use Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
+use PayFast\PayFastApi;
 
- /**
+/**
   * PayFast Module.
   *
   * @method  \Magento\Quote\Api\Data\PaymentMethodExtensionInterface getExtensionAttributes()
@@ -132,6 +134,8 @@ class Payfast implements ManagerInterface
     protected $paymentFactory;
 
     protected $recurringPayment;
+
+    protected $api;
     /**
      * @param ConfigFactory $configFactory
      * @param StoreManagerInterface $storeManager
@@ -154,6 +158,7 @@ class Payfast implements ManagerInterface
         QuoteFactory $quoteFactory,
         PaymentFactory $paymentFactory,
         PayfastRecurringPayment $recurringPayment
+
     ) {
         $this->_storeManager = $storeManager;
         $this->_urlBuilder = $urlBuilder;
@@ -165,6 +170,7 @@ class Payfast implements ManagerInterface
         $this->quoteFactory = $quoteFactory;
         $this->paymentFactory = $paymentFactory;
         $this->recurringPayment = $recurringPayment;
+
         $parameters = [ 'params' => [ $this->_code ] ];
 
         $this->_config = $configFactory->create($parameters);
@@ -172,6 +178,8 @@ class Payfast implements ManagerInterface
         if (! defined('PF_DEBUG')) {
             define('PF_DEBUG', $this->_config->getValue('debug'));
         }
+
+
     }
 
     /**
@@ -323,7 +331,7 @@ class Payfast implements ManagerInterface
         $pfOutput = '';
         // Create output string
         foreach ($data as $key => $val) {
-            if (!empty($val)) {
+            if (!is_null($val)) {
                 $pfOutput .= $key . '=' . urlencode(trim($val)) . '&';
             }
         }
@@ -677,12 +685,12 @@ class Payfast implements ManagerInterface
 
     public function getDetails($referenceId, DataObject $result)
     {
-        // TODO: Implement getDetails() method.
+        $result->setData($this->initiateApi()->subscriptions->fetch($referenceId));
     }
 
     public function canGetDetails()
     {
-        // TODO: Implement canGetDetails() method.
+        return true;
     }
 
     public function update(PayfastRecurringPayment $payment)
@@ -692,11 +700,69 @@ class Payfast implements ManagerInterface
 
     public function updateStatus(PayfastRecurringPayment $payment)
     {
-        return true;
+        $pre = __METHOD__ . ' : ';
+        pflog($pre . 'user wants to '. $payment->getNewState());
+        $action = $payment->getNewState();
+
+        $response = $this->initiateApi()
+            ->subscriptions
+            ->$action($payment->getReferenceId());
+
+        pflog($pre . 'result is '. $response['code']);
+
+        return (string)$response['code'] === '200';
     }
 
     public function getPaymentMethodCode()
     {
         return $this->_code;
     }
+
+    public function charge($data)
+    {
+        $pre = __METHOD__. ' : ';
+        pflog($pre . 'bof');
+
+        $result = $this->initiateApi()
+            ->subscriptions
+            ->adhoc($data['guid'], ['amount' => $data['amount'], 'item_name' => $data['description']]);
+
+        pflog($pre . 'api Url is '. PayFastApi::$apiUrl. print_r($result, true));
+
+    }
+
+    /**
+     * @return PayFastApi
+     * @throws \PayFast\Exceptions\InvalidRequestException
+     *
+     */
+    protected function initiateApi(): PayFastApi
+    {
+        $merchantId = '10000100';
+        $passPhrase = '';
+
+        if ($this->_config->getValue('server') == 'live') {
+            $merchantId = $this->_config->getValue('merchant_id');
+        }
+
+        if (!empty(trim($this->_config->getValue('passphrase'))) && $this->_config->getValue('server') !== 'test') {
+            $passPhrase = trim($this->_config->getValue('passphrase'));
+        }
+
+        $setup = [
+            'merchantId' => $merchantId,
+            'passPhrase' => $passPhrase,
+            'testMode' => true
+        ];
+
+        $api = new PayFastApi($setup);
+
+        if (!in_array($this->_config->getValue('server'), ['live', 'test'])) {
+            PayFastApi::$apiUrl = 'https://api.' . $this->_config->getValue('server');
+        }
+
+        return $api;
+    }
+
+
 }

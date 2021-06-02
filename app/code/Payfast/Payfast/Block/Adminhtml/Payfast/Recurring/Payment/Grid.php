@@ -12,6 +12,8 @@
  */
 namespace Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment;
 
+use Payfast\Payfast\Model\Config\Source\SubscriptionType;
+
 class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
 {
     /**
@@ -34,6 +36,7 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
      * @var \Payfast\Payfast\Block\Fields
      */
     protected $fields;
+    private SubscriptionType $subscriptionType;
 
     /**
      * Grid constructor.
@@ -51,12 +54,15 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
         \Payfast\Payfast\Model\ResourceModel\Payment\CollectionFactory $paymentCollection,
         \Payfast\Payfast\Model\States $recurringStates,
         \Payfast\Payfast\Block\Fields $fields,
+        SubscriptionType $subscriptionType,
         array $data = []
     ) {
         parent::__construct($context, $backendHelper, $data);
         $this->paymentCollection = $paymentCollection;
         $this->recurringStates = $recurringStates;
         $this->fields = $fields;
+
+        $this->subscriptionType = $subscriptionType;
     }
 
     /**
@@ -101,6 +107,17 @@ class Grid extends \Magento\Backend\Block\Widget\Grid\Extended
             'header' => $this->fields->getFieldLabel('reference_id'),
             'index' => 'reference_id',
             'html_decorators' => ['nobr']
+            ]
+        );
+
+        $this->addColumn(
+            'subscription_type',
+            [
+                'header' => $this->fields->getFieldLabel('subscription_type'),
+                'index' => 'subscription_type',
+                'type' => 'options',
+                'html_decorators' => ['nobr'],
+                'options' => $this->subscriptionType->toOptionArray(),
             ]
         );
 

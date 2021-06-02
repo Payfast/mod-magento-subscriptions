@@ -506,7 +506,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
      *
      * @throws \Magento\Framework\Exception\LocalizedException
      *
-     * @return ManagerInterface|null
+     * @return ManagerInterface|Payfast|null
      */
     protected function getManager()
     {

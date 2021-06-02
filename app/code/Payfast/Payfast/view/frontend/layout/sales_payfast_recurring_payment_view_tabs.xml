@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd" label="Payfast Recurring Profile View Tabs" design_abstraction="custom">
     <body>
+
         <referenceContainer name="content">
             <block class="Payfast\Payfast\Block\Payment\View\Data" name="sales.payfast_recurring_payment.view" template="Payfast_Payfast::payfast/recurring/payment/view.phtml" cacheable="false">
                 <action method="setShouldPrepareInfoTabs">
@@ -22,6 +23,7 @@
                         <argument name="value" xsi:type="string">orders</argument>
                     </action>
                 </block>
+
             </block>
         </referenceContainer>
     </body>

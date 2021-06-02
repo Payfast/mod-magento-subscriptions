@@ -77,10 +77,10 @@ class Orders extends Index
             return $resultPage;
         } catch (LocalizedException $e) {
             $this->logger->err($e);
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
             $this->logger->err($e);
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         }
     }
 

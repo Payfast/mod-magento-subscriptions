@@ -81,11 +81,11 @@ class UpdateState extends Index
                 default:
                     throw new \Exception(sprintf('Wrong action parameter: %s', $action));
             }
-            $this->messageManager->addSuccess(__('Payment status has been updated.'));
+            $this->messageManager->addSuccessMessage(__('Payment status has been updated.'));
         } catch (LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addError(__('We could not update the payment.'));
+            $this->messageManager->addErrorMessage(__('We could not update the payment.'));
             $this->logger->err($e);
         }
         if ($payment) {

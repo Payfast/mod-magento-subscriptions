@@ -5,13 +5,13 @@ namespace Payfast\Payfast\Model\Config\Source;
 
 use Magento\Eav\Model\Entity\Attribute\Source\AbstractSource;
 
-class SubscriptionType extends AbstractSource
+class SubscriptionType extends AbstractSource implements \Magento\Framework\Data\OptionSourceInterface
 {
     const RECURRING_SUBSCRIPTION = 1; // Recurring Subscription
     const RECURRING_ADHOC = 2; // Ad hoc
     const RECURRING_LABEL = [
-        self::RECURRING_SUBSCRIPTION => 'Recurring Subscription',
-        self::RECURRING_ADHOC => 'Recurring Adhoc'
+        self::RECURRING_SUBSCRIPTION => 'Recurring',
+        self::RECURRING_ADHOC => 'Adhoc'
     ];
 
 
@@ -24,5 +24,11 @@ class SubscriptionType extends AbstractSource
         ];
 
         return $this->_options;
+    }
+
+
+    public function toOptionArray()
+    {
+        return self::RECURRING_LABEL;
     }
 }

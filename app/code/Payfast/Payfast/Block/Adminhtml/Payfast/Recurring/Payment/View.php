@@ -10,7 +10,7 @@
  * @license  https://www.sparsh-technologies.com  Open Software License (OSL 3.0)
  * @link     https://www.sparsh-technologies.com
  */
-namespace Payfast\Payfast\Block\Adminhtml\Paypal\Recurring\Payment;
+namespace Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment;
 
 /**
  * Class View
@@ -42,13 +42,13 @@ class View extends \Magento\Backend\Block\Widget\Container
      *
      * @param \Magento\Backend\Block\Widget\Context            $context               context
      * @param \Magento\Framework\Registry                      $registry              registry
-     * @param \Payfast\Payfast\Model\Payfast $recurringPaymentModel recurringPaymentModel
+     * @param \Payfast\Payfast\Model\Payment $recurringPaymentModel recurringPaymentModel
      * @param array                                            $data                  data
      */
     public function __construct(
         \Magento\Backend\Block\Widget\Context $context,
         \Magento\Framework\Registry $registry,
-        \Payfast\Payfast\Model\Payfast $recurringPaymentModel,
+        \Payfast\Payfast\Model\Payment $recurringPaymentModel,
         array $data = []
     ) {
         $this->coreRegistry = $registry;
@@ -67,7 +67,7 @@ class View extends \Magento\Backend\Block\Widget\Container
             'back',
             [
             'label'     => __('Back'),
-            'onclick'   => "setLocation('{$this->getUrl('sales/paypal_recurring_payment/index')}')",
+            'onclick'   => "setLocation('{$this->getUrl('sales/payfast_recurring_payment/index')}')",
             'class'     => 'back',
             ]
         );
@@ -138,7 +138,7 @@ class View extends \Magento\Backend\Block\Widget\Container
      */
     protected function _beforeToHtml()
     {
-        $payment = $this->coreRegistry->registry('current_paypal_recurring_payment');
+        $payment = $this->coreRegistry->registry('current_payfast_recurring_payment');
         $this->_headerText = __('PayFast Recurring Payment # %1', $payment->getReferenceId());
         $this->setViewHtml('<div id="' . $this->getDestElementId() . '"></div>');
         return parent::_beforeToHtml();

@@ -1,5 +1,5 @@
 <?php $actionname = (!empty($this->getRequest()->getActionName())) ? $this->getRequest()->getActionName() : '';  ?>
-<div class="order-paypal-recurring-payment-details">
+<div class="order-payfast-recurring-payment-details">
     <?php /* info tabs */ ?>
     <?php $layout = $this->getLayout(); ?>
     <?php $infoTabs = $this->getGroupChildNames('info_tabs');?>
@@ -21,7 +21,7 @@
             <?php if ($this->getCanSuspend()): ?>
                 <button type="button" title="<?= /* @noEscape */ __('Suspend') ?>" class="action suspend"
                         onclick="if( confirm('<?= /* @noEscape */ $this->getConfirmationMessage() ?>') ) { window.location.href = '<?= /* @noEscape */ $this->getSuspendUrl() ?>'; } return false;">
-                    <span><?= /* @noEscape */ __('Suspend') ?></span>
+                    <span><?= /* @noEscape */ __('Suspendsss') ?></span>
                 </button>
             <?php endif; ?>
             <?php if ($this->getCanUpdate()): ?>

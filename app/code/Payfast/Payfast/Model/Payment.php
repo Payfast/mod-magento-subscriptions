@@ -297,10 +297,21 @@ class Payment extends PayfastRecurringPayment
      */
     public function cancel()
     {
+        $pre = __METHOD__ . ' : ';
+        $this->_logger->debug($pre . 'bof');
         $this->_checkWorkflow(States::CANCELED, false);
+
         $this->setNewState(States::CANCELED);
-        $this->getManager()->updateStatus($this);
-        $this->setState(States::CANCELED)->save();
+
+        $updateStatus = $this->getManager()->updateStatus($this);
+
+        $this->_logger->debug($pre . 'result is '. json_encode($updateStatus));
+        if ($updateStatus) {
+            $this->setState(States::CANCELED)->save();
+            $this->_logger->debug($pre . 'cancelled '. $this->getReferenceId());
+        }
+
+        $this->_logger->debug($pre . 'eof');
     }
 
     /**
@@ -607,9 +618,9 @@ class Payment extends PayfastRecurringPayment
             $this->_workflow = [
                 'unknown' => ['pending', 'active', 'suspended', 'canceled'],
                 'pending' => ['active', 'canceled'],
-                'active' => ['suspended', 'canceled'],
+                'active' => ['suspended', States::CANCELED],
                 'suspended' => ['active', 'canceled'],
-                'canceled' => [],
+                States::CANCELED => [],
                 'expired' => [],
             ];
         }
@@ -821,5 +832,10 @@ class Payment extends PayfastRecurringPayment
                 $this->_cleanupArray($array[$key]);
             }
         }
+    }
+
+    public function charge(array $data)
+    {
+        return $this->getManager()->charge($data);
     }
 }

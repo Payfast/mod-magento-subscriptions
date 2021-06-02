@@ -80,7 +80,7 @@ class Index extends Action
     /**
      * Payment
      *
-     * @var \Sparsh\PaypalRecurringPayment\Model\Payment
+     * @var \Payfast\Payfast\Model\Payment
      */
     protected $paymentModel;
 
@@ -136,7 +136,7 @@ class Index extends Action
             $this->_view->renderLayout();
             return;
         } catch (LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
             $this->logger->err($e);
         }
@@ -229,14 +229,14 @@ class Index extends Action
             $payment->fetchUpdate();
             if ($payment->hasDataChanges()) {
                 $payment->save();
-                $this->messageManager->addSuccess(__('You updated the payment.'));
+                $this->messageManager->addSuccessMessage(__('You updated the payment.'));
             } else {
-                $this->messageManager->addNotice(__('The payment has no changes.'));
+                $this->messageManager->addNoticeMessage(__('The payment has no changes.'));
             }
         } catch (LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addError(__('We could not update the payment.'));
+            $this->messageManager->addErrorMessage(__('We could not update the payment.'));
             $this->logger->err($e);
         }
         if ($payment) {

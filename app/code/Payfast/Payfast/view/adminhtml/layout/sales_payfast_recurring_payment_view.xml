@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="admin-2columns-left" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
+
         <referenceContainer name="content">
             <block class="Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment\View" name="sales.payfast.recurring.payment.view" template="Magento_Backend::widget/view/container.phtml" cacheable="false">
                 <action method="setDestElementId">
@@ -9,7 +10,8 @@
             </block>
         </referenceContainer>
 
-        <referenceContainer name="content">
+
+        <referenceContainer name="left">
             <block class="Magento\Backend\Block\Widget\Tabs" name="sales.payfast.recurring.payment.view.tabs" cacheable="false">
                 <action method="setDestElementId">
                     <argument name="value" xsi:type="string">sales_payfast_recurring_payment_view</argument>
@@ -28,6 +30,15 @@
                     <argument name="name" xsi:type="string">payfast_recurring_payment_orders</argument>
                     <argument name="block" xsi:type="string">orders_tab</argument>
                 </action>
+                <action method="addTab">
+                    <argument name="name" xsi:type="string">payfast_recurring_payment_charge</argument>
+                    <argument name="block" xsi:type="string">charge_tab</argument>
+                </action>
+                <action method="addTab">
+                    <argument name="name" xsi:type="string">payfast_recurring_payment_edit</argument>
+                    <argument name="block" xsi:type="string">edit_tab</argument>
+                </action>
+
                 <block class="Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment\View\Tab\Info" as="info_tab" name="sales.payfast.recurring.payment.tab.info" template="Payfast_Payfast::payfast/recurring/payment/view.phtml" cacheable="false">
                     <block class="Payfast\Payfast\Block\Payment\View\Reference" name="sales.payfast.recurring.payment.view.general" as="general" template="Payfast_Payfast::payfast/recurring/payment/info.phtml" group="info_blocks_row_1" cacheable="false">
                         <arguments>
@@ -80,6 +91,8 @@
                     </block>
                 </block>
                 <block class="Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment\View\Tab\Orders" as="orders_tab" name="sales.payfast.recurring.payment.tab.orders" cacheable="false"/>
+                <block class="Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment\View\Tab\Charge" as="charge_tab" name="sales.payfast.recurring.payment.tab.charge" template="Payfast_Payfast::payfast/recurring/payment/charge.phtml" cacheable="false"/>
+                <block class="Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment\View\Tab\Edit" as="charge_tab" name="sales.payfast.recurring.payment.tab.charge" template="Payfast_Payfast::payfast/recurring/payment/edit.phtml" cacheable="false"/>
             </block>
         </referenceContainer>
     </body>

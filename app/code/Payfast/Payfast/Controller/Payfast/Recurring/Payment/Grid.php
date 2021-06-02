@@ -180,14 +180,14 @@ class Grid extends \Magento\Framework\App\Action\Action
             $payment->fetchUpdate();
             if ($payment->hasDataChanges()) {
                 $payment->save();
-                $this->messageManager->addSuccess(__('The payment has been updated.'));
+                $this->messageManager->addSuccessMessage(__('The payment has been updated.'));
             } else {
-                $this->messageManager->addNotice(__('The payment has no changes.'));
+                $this->messageManager->addNoticeMessage(__('The payment has no changes.'));
             }
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addError(__('We couldn\'t update the payment.'));
+            $this->messageManager->addErrorMessage(__('We couldn\'t update the payment.'));
         }
         if ($payment) {
             $this->_redirect('*/*/view', ['payment' => $payment->getId()]);

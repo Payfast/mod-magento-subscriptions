@@ -81,4 +81,6 @@ interface ManagerInterface
      * @return string
      */
     public function getPaymentMethodCode();
+
+    public function charge(array $data);
 }

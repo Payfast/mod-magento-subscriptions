@@ -48,7 +48,7 @@ class States implements \Magento\Framework\Data\OptionSourceInterface
     /**
      * CANCELED
      */
-    const CANCELED = 'canceled';
+    const CANCELED = 'cancel';
 
     /**
      * EXPIRED

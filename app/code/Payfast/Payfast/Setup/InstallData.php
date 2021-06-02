@@ -86,7 +86,19 @@ class InstallData implements InstallDataInterface
                 'apply_to'                   => 'simple,configurable,virtual,bundle,downloadable',
                 'sort_order'                 => 1,
             ],
-
+            'pf_skip'       => [
+                'group'                      => $groupName,
+                'type'                       => 'int',
+                'input'                      => 'select',
+                'label'                      => 'Skip 1st period',
+                'required'                   => false,
+                'note'                      => 'When enabled PayFast will start counting from next running date buyer will be charged only what is in their cart',
+                'source'                     => \Magento\Eav\Model\Entity\Attribute\Source\Boolean::class,
+                'default'                    => '0',
+                'global'                     => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_GLOBAL,
+                'apply_to'                   => 'simple,configurable,virtual,bundle,downloadable',
+                'sort_order'                 => 1,
+            ],
             'subscription_type'       => [
                 'group'                      => $groupName,
                 'type'                       => 'int',
@@ -186,6 +198,7 @@ class InstallData implements InstallDataInterface
         $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_billing_period_frequency');
         $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_billing_period_max_cycles');
         $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_is_start_date_editable');
+        $eavSetup->addAttributeToGroup($entityTypeId, $attributeSetId, $groupName, 'pf_skip_count');
 
         $setup->endSetup();
     }

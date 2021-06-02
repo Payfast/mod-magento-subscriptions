@@ -238,7 +238,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
                 $orderId = $this->_order->getId();
 
             } else {
-//                return $respose;
+
                 $order = $recurringPayment->createOrder($productItemInfo);
 
                 $payment = $order->getPayment()
