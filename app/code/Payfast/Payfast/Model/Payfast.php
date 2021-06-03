@@ -698,19 +698,32 @@ class Payfast implements ManagerInterface
         return true;
     }
 
+    /**
+     * @param PayfastRecurringPayment $payment
+     * @return bool
+     * @throws \PayFast\Exceptions\InvalidRequestException
+     */
     public function updateStatus(PayfastRecurringPayment $payment)
     {
         $pre = __METHOD__ . ' : ';
-        pflog($pre . 'user wants to '. $payment->getNewState());
-        $action = $payment->getNewState();
+        pflog($pre . 'user wants to ' . $payment->getNewState());
+        try {
+            $action = $payment->getNewState();
 
-        $response = $this->initiateApi()
-            ->subscriptions
-            ->$action($payment->getReferenceId());
+            $response = $this->initiateApi()
+                ->subscriptions
+                ->$action($payment->getReferenceId());
+            pflog($pre . 'result is '. $response['code']);
 
-        pflog($pre . 'result is '. $response['code']);
+            return (string)$response['code'] === '200';
+        } catch (\PayFast\Exceptions\InvalidRequestException $exception) {
+            pflog($pre . ' Invalid Request Exception '. $exception->getMessage());
+            return false;
+        } catch (\Exception $exception) {
+            pflog($pre . ' Invalid Request Exception '. $exception->getMessage());
+            return false;
 
-        return (string)$response['code'] === '200';
+        }
     }
 
     public function getPaymentMethodCode()
