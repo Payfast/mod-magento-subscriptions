@@ -6,6 +6,8 @@
  */
 namespace Payfast\Payfast\Model\Attribute\Backend;
 
+use Payfast\Payfast\Model\Config\Source\SubscriptionType;
+
 /**
  * Class ScheduleDescription
  *
@@ -34,7 +36,7 @@ class ScheduleCycles extends \Magento\Eav\Model\Entity\Attribute\Backend\Abstrac
         }
 
 
-        if (!is_numeric($value)) {
+        if ((int) $object->getData('subscription_type') === SubscriptionType::RECURRING_SUBSCRIPTION && !is_numeric($value)) {
             throw new \Magento\Framework\Exception\LocalizedException(__("PayFast Recurring Payment - Cycles has to be a numeric value."));
         }
 
