@@ -88,7 +88,10 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         //add items in quote
         foreach ($orderData as $item) {
             $product = $this->productRepository->getById($item['product_id']);
-            $product->setPrice($item->getPrice());
+            $product
+                ->setPrice($item->getPrice())
+                ->setTaxClassId(0)
+            ;
 
             $quoteItem = $this->_objectManager->create(\Magento\Quote\Model\Quote\Item::class);
 

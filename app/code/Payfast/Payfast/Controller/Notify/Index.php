@@ -141,6 +141,11 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             // Successful
             $isCompleted = ($pfData[Info::PAYMENT_STATUS] == "COMPLETE");
 
+//            return $this->rawResult
+//                ->setHttpResponseCode(200)
+//                ->setHeader('Content-Type', 'text/html')
+//                ->setContents('HTTP/1.0 200');
+
             if ($isCompleted && !($this->isInitial || $this->isRecurring)) {
 
                 $this->setPaymentAdditionalInformation($pfData);
@@ -336,11 +341,12 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
 
         try {
 
+
+            $this->_order->setTotalPaid($this->data['amount_gross']);
+            $this->_order->setBaseTotalPaid($this->data['amount_gross']);
             $invoice = $this->_order->prepareInvoice();
 
             $order = $invoice->getOrder();
-            $order->setTotalPaid($this->data['amount_gross']);
-            $order->setBaseTotalPaid($this->data['amount_gross']);
 
             $this->_order->setIsInProcess(true);
             $transaction = $this->transactionFactory->create();

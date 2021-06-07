@@ -4,9 +4,11 @@
  * You (being anyone who is not PayFast (Pty) Ltd) may download and use this plugin / code in your own website in conjunction with a registered and active PayFast account. If your PayFast account is terminated for any reason, you may not use this plugin / code or part thereof.
  * Except as expressly indicated in this licence, you may not use, copy, modify or distribute this plugin / code or part thereof in any way.
  */
+
 namespace Payfast\Payfast\Model\Totals;
 
 use Magento\Catalog\Model\ProductRepository;
+use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\Quote\Address\Total;
@@ -26,10 +28,11 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
     /**
      * @var ProductRepository
      */
-    private $productRepository;
+    private ProductRepository $productRepository;
 
-    private $priceCurrency;
-    public function __construct(\Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency, ProductRepository $productRepository)
+    private PriceCurrencyInterface $priceCurrency;
+
+    public function __construct(PriceCurrencyInterface $priceCurrency, ProductRepository $productRepository)
     {
         $this->productRepository = $productRepository;
 
@@ -50,20 +53,37 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         ShippingAssignmentInterface $shippingAssignment,
         Total $total
     ): Custom {
+        //Fix for discount applied twice
+        $items = $shippingAssignment->getItems();
+        if (!count($items)) {
+            return $this;
+        }
+
         parent::collect($quote, $shippingAssignment, $total);
+        //$address             = $shippingAssignment->getShipping()->getAddress();
+        $label = 'Subscription discount';
+        $discountAmount = -$this->priceCurrency->convert($this->evaluateDiscount($quote));
+        $appliedCartDiscount = 0;
 
-        $discount = $this->evaluateDiscount($quote);
+        if ($total->getDiscountDescription()) {
+            // If a discount exists in cart and another discount is applied, the add both discounts.
+            $appliedCartDiscount = $total->getDiscountAmount();
+            $discountAmount = $total->getDiscountAmount() + $discountAmount;
+            $label = $total->getDiscountDescription() . ', ' . $label;
+        }
 
-        if ($discount) {
+        $total->setDiscountDescription($label);
+        $total->setDiscountAmount($discountAmount);
+        $total->setBaseDiscountAmount($discountAmount);
+        $total->setSubtotalWithDiscount($total->getSubtotal() + $discountAmount);
+        $total->setBaseSubtotalWithDiscount($total->getBaseSubtotal() + $discountAmount);
 
-            $discount =  $this->priceCurrency->convert($discount);
-
-            $total->addTotalAmount($this->getCode(), -$discount);
-
-//            $total->addBaseTotalAmount($this->getCode(), -$baseDiscount);
-//            $total->setBaseGrandTotal($total->getBaseGrandTotal() - $baseDiscount);
-
-            $quote->setDiscount(-$discount);
+        if (isset($appliedCartDiscount)) {
+            $total->addTotalAmount($this->getCode(), $discountAmount - $appliedCartDiscount);
+            $total->addBaseTotalAmount($this->getCode(), $discountAmount - $appliedCartDiscount);
+        } else {
+            $total->addTotalAmount($this->getCode(), $discountAmount);
+            $total->addBaseTotalAmount($this->getCode(), $discountAmount);
         }
 
 
@@ -87,12 +107,14 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
 
         foreach ($quote->getAllVisibleItems() as $item) {
             if ($quote->getPayFastTotalPaid()) {
-                return $baseDiscountAmount ;
+                return $baseDiscountAmount;
             } elseif ($item->getIsPayfastRecurring()) {
                 $product = $this->productRepository->getById($item->getProduct()->getId());
-                if ((int) $product->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION && !is_null($product->getPfInitialAmount())) {
-
-                    $discountPercentage = (($product->getPrice() - $product->getPfInitialAmount()) / $product->getPrice()) * 100;
+                if ((int)$product->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION && !is_null(
+                    $product->getPfInitialAmount()
+                )) {
+                    $discountPercentage = (($product->getPrice() - $product->getPfInitialAmount()) / $product->getPrice(
+                    )) * 100;
                     $baseDiscountAmount = ($discountPercentage / 100) * $product->getPrice();
                 }
             }
@@ -105,7 +127,6 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         Quote $quote,
         Total $total
     ) {
-
         $discount = $this->evaluateDiscount($quote);
 
         return [
