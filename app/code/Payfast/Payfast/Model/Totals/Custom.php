@@ -53,15 +53,14 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         parent::collect($quote, $shippingAssignment, $total);
 
         $discount = $this->evaluateDiscount($quote);
-        if ($discount) {
 
-            $baseDiscount = 10;
+        if ($discount) {
 
             $discount =  $this->priceCurrency->convert($discount);
 
             $total->addTotalAmount($this->getCode(), -$discount);
-            $total->addBaseTotalAmount($this->getCode(), -$baseDiscount);
-            $total->setBaseGrandTotal($total->getBaseGrandTotal() - $baseDiscount);
+            $total->addBaseTotalAmount($this->getCode(), -$discount);
+            $total->setBaseGrandTotal($total->getBaseGrandTotal() - $discount);
             $quote->setDiscount(-$discount);
         }
 
@@ -85,7 +84,9 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $baseDiscountAmount = 0;
 
         foreach ($quote->getAllVisibleItems() as $item) {
-            if ($item->getIsPayfastRecurring()) {
+            if ($quote->getPayFastTotalPaid()) {
+                return $baseDiscountAmount ;
+            } elseif ($item->getIsPayfastRecurring()) {
                 $product = $this->productRepository->getById($item->getProduct()->getId());
                 if ((int) $product->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION && !is_null($product->getPfInitialAmount())) {
 
@@ -94,6 +95,7 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
                 }
             }
         }
+
         return $baseDiscountAmount;
     }
 

@@ -10,6 +10,8 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Api\Data\ProductInterfaceFactory;
 use Magento\Framework\Pricing\Helper\Data as AmountRenderer;
 use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Quote\Model\Quote;
+use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use Payfast\Payfast\Model\Config\Source\Frequency;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
@@ -91,6 +93,8 @@ class Payment extends PayfastRecurringPayment
     /** @var AmountRenderer $amountRenderer */
     protected $amountRenderer;
 
+    private QuoteFactory $quoteFactory;
+
     /**
      * Payment constructor.
      * @param \Magento\Framework\Model\Context $context
@@ -141,6 +145,7 @@ class Payment extends PayfastRecurringPayment
         AmountRenderer $amountRenderer,
         ProductInterfaceFactory $productFactory,
         ProductRepositoryInterface $productRepository,
+        \Payfast\Payfast\Helper\Order $orderSubscription,
         array $data = []
     ) {
         $this->_orderFactory = $orderFactory;
@@ -152,6 +157,7 @@ class Payment extends PayfastRecurringPayment
         $this->messageManager = $messageManager;
         $this->serializer = $serializer;
         $this->amountRenderer = $amountRenderer;
+        $this->orderSubscription = $orderSubscription;
         parent::__construct(
             $context,
             $registry,
@@ -378,26 +384,14 @@ class Payment extends PayfastRecurringPayment
             $shippingAmount += $item->getShippingAmount();
             $taxAmount += $item->getTaxAmount();
             $weight += $item->getWeight();
-            if (!$item->getIsVirtual()) {
-                $isVirtual = 0;
-            }
             $items[] = $item;
         }
         $grandTotal = $billingAmount + $shippingAmount + $taxAmount;
-
+        /** @var Order $order */
         $order = $this->_orderFactory->create();
 
-        $billingAddress = $this->_addressFactory->create()
-            ->setData($this->getBillingAddressInfo())
-            ->setId(null);
-
         $shippingInfo = $this->getShippingAddressInfo();
-        $shippingAddress = $this->_addressFactory->create()
-            ->setData($shippingInfo)
-            ->setId(null);
 
-        $payment = $this->_paymentFactory->create()
-            ->setMethod($this->getMethodCode());
 
         $transferDataKeys = [
             'store_id',             'store_name',           'customer_id',          'customer_email',
@@ -418,30 +412,41 @@ class Payment extends PayfastRecurringPayment
             }
         }
 
-        $order->setStoreId($this->getStoreId())
-            //->setState(\Magento\Sales\Model\Order::STATE_NEW)
-            ->setState(\Magento\Sales\Model\Order::STATE_PROCESSING)
-            ->setBaseToOrderRate($this->getInfoValue('order_info', 'base_to_quote_rate'))
-            ->setStoreToOrderRate($this->getInfoValue('order_info', 'store_to_quote_rate'))
-            ->setOrderCurrencyCode($this->getInfoValue('order_info', 'quote_currency_code'))
-            ->setBaseSubtotal($billingAmount)
-            ->setSubtotal($billingAmount)
-            ->setBaseShippingAmount($shippingAmount)
-            ->setShippingAmount($shippingAmount)
-            ->setBaseTaxAmount($taxAmount)
-            ->setTaxAmount($taxAmount)
-            ->setBaseGrandTotal($grandTotal)
-            ->setGrandTotal($grandTotal)
-            ->setIsVirtual($isVirtual)
-            ->setWeight($weight)
-            ->setTotalQtyOrdered($this->getInfoValue('order_info', 'items_qty'))
-            ->setBillingAddress($billingAddress)
-            ->setShippingAddress($shippingAddress)
-            ->setPayment($payment);
+        $this->_logger->debug(__METHOD__ . 'storeId is '. $this->getStoreId());
+        $this->_logger->debug(__METHOD__ . 'orderId is '. $order->getId());
 
-        foreach ($items as $item) {
-            $order->addItem($item);
+        return $this->orderSubscription->createMageOrder($items, $this);
+
+//        $quote->addProduct($)
+
+        if (false) {
+
+            $order->setStoreId($this->getStoreId())
+                //->setIncrementId($orderId)
+                //->setState(\Magento\Sales\Model\Order::STATE_NEW)
+                ->setState(\Magento\Sales\Model\Order::STATE_PROCESSING)
+                ->setBaseToOrderRate($this->getInfoValue('order_info', 'base_to_quote_rate'))
+                ->setStoreToOrderRate($this->getInfoValue('order_info', 'store_to_quote_rate'))
+                ->setOrderCurrencyCode($this->getInfoValue('order_info', 'quote_currency_code'))
+                ->setBaseSubtotal($billingAmount)
+                ->setSubtotal($billingAmount)
+                ->setBaseShippingAmount($shippingAmount)
+                ->setShippingAmount($shippingAmount)
+                ->setBaseTaxAmount($taxAmount)
+                ->setTaxAmount($taxAmount)
+                ->setBaseGrandTotal($grandTotal)
+                ->setGrandTotal($grandTotal)
+                ->setIsVirtual($isVirtual)
+                ->setWeight($weight)
+                ->setTotalQtyOrdered($this->getInfoValue('order_info', 'items_qty'))
+                ->setBillingAddress($billingAddress)
+                ->setShippingAddress($shippingAddress)
+                ->setPayment($payment);
+            foreach ($items as $item) {
+                $order->addItem($item);
+            }
         }
+
 
         return $order;
     }

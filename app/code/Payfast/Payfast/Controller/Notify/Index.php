@@ -183,8 +183,8 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
     {
         $pre = __METHOD__ . ' : ';
         pflog($pre . 'bof');
-        $respose = true;
-//        return $respose;
+        $response = true;
+//        return $response;
         try {
             /** @var \Payfast\Payfast\Model\Payment $paymentFactory */
             $paymentFactory = $this->paymentFactory->create();
@@ -240,7 +240,7 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             } else {
 
                 $order = $recurringPayment->createOrder($productItemInfo);
-
+//                return true;
                 $payment = $order->getPayment()
                     ->setTransactionId($this->data['pf_payment_id'])
                     ->setCurrencyCode($recurringPayment->getCurrencyCode())
@@ -254,9 +254,12 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
                 $payment->setAdditionalInformation("amount_fee", $this->data['amount_fee']);
                 $payment->registerCaptureNotification($this->data['amount_gross']);
 
+
                 $invoice = $order->prepareInvoice();
                 $order = $invoice->getOrder();
 
+                $order->setTotalPaid($this->data['amount_gross']);
+                $order->setBaseTotalPaid($this->data['amount_gross']);
                 $order->setIsInProcess(true);
 
                 $transaction = $this->transactionFactory->create();
@@ -295,11 +298,11 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             $recurringPayment->addOrderRelation($orderId);
 //            $pro
         } catch (LocalizedException $exception) {
-            $respose = false;
+            $response = false;
             $this->_logger->error($pre . 'Error detected : '. $exception->getMessage(). PHP_EOL . $exception->getTraceAsString());
         }
 
-        return $respose;
+        return $response;
     }
 
     /**

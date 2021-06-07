@@ -34,12 +34,12 @@ use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 use PayFast\PayFastApi;
 
 /**
-  * PayFast Module.
-  *
-  * @method  \Magento\Quote\Api\Data\PaymentMethodExtensionInterface getExtensionAttributes()
-  * @SuppressWarnings(PHPMD.TooManyFields)
-  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
-  */
+ * PayFast Module.
+ *
+ * @method  \Magento\Quote\Api\Data\PaymentMethodExtensionInterface getExtensionAttributes()
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 
 class Payfast implements ManagerInterface
 {
@@ -158,7 +158,6 @@ class Payfast implements ManagerInterface
         QuoteFactory $quoteFactory,
         PaymentFactory $paymentFactory,
         PayfastRecurringPayment $recurringPayment
-
     ) {
         $this->_storeManager = $storeManager;
         $this->_urlBuilder = $urlBuilder;
@@ -178,8 +177,6 @@ class Payfast implements ManagerInterface
         if (! defined('PF_DEBUG')) {
             define('PF_DEBUG', $this->_config->getValue('debug'));
         }
-
-
     }
 
     /**
@@ -741,7 +738,6 @@ class Payfast implements ManagerInterface
             ->adhoc($data['guid'], ['amount' => $data['amount'], 'item_name' => $data['description']]);
 
         pflog($pre . 'api Url is '. PayFastApi::$apiUrl. print_r($result, true));
-
     }
 
     /**
@@ -776,6 +772,4 @@ class Payfast implements ManagerInterface
 
         return $api;
     }
-
-
 }

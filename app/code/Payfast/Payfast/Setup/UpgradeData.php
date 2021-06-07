@@ -10,7 +10,6 @@ use Magento\Framework\Setup\UpgradeDataInterface;
 use Payfast\Payfast\Model\Config\Source\Frequency;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 
-
 class UpgradeData implements UpgradeDataInterface
 {
     private $categorySetupFactory;

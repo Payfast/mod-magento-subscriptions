@@ -12,11 +12,9 @@
  */
 namespace Payfast\Payfast\Controller\Adminhtml\Payfast\Recurring\Payment;
 
-
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ActionInterface;
 use Magento\Framework\Exception\LocalizedException as LocalizedException;
-
 
 class Edit extends Index implements ActionInterface, HttpPostActionInterface
 {
