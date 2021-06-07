@@ -59,8 +59,10 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
             $discount =  $this->priceCurrency->convert($discount);
 
             $total->addTotalAmount($this->getCode(), -$discount);
-            $total->addBaseTotalAmount($this->getCode(), -$discount);
-            $total->setBaseGrandTotal($total->getBaseGrandTotal() - $discount);
+
+//            $total->addBaseTotalAmount($this->getCode(), -$baseDiscount);
+//            $total->setBaseGrandTotal($total->getBaseGrandTotal() - $baseDiscount);
+
             $quote->setDiscount(-$discount);
         }
 

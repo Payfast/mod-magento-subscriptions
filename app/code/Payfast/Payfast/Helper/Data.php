@@ -26,7 +26,7 @@ class Data extends AbstractHelper
      *
      * @var bool
      */
-    protected static $_shouldAskToCreateBillingAgreement = false;
+    protected static $_shouldAskToCreateBillingAgreement = true;
 
     /**
      * @var helperData
