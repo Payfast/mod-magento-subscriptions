@@ -232,21 +232,23 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
                 $recurringPayment->save();
             }
 
-            if ($this->isInitial && (int)$recurringPayment->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION) {
 
+            if ($this->isInitial && (int)$recurringPayment->getSubscriptionType() === SubscriptionType::RECURRING_SUBSCRIPTION) {
+                // get in here when ist first payment in the series that had initial
                 $this->setPaymentAdditionalInformation($this->data);
                 $this->saveInvoice();
                 $orderId = $this->_order->getId();
 
             } elseif ($firstCharge && (int)$recurringPayment->getSubscriptionType() === SubscriptionType::RECURRING_ADHOC) {
+                // get in here when its an adhoc
                 $this->setPaymentAdditionalInformation($this->data);
                 $this->saveInvoice();
                 $orderId = $this->_order->getId();
 
             } else {
-
+//                get here and process subsequent charge of subscriptions
                 $order = $recurringPayment->createOrder($productItemInfo);
-//                return true;
+                $order->setIgnorePayfastDiscount(true);
                 $payment = $order->getPayment()
                     ->setTransactionId($this->data['pf_payment_id'])
                     ->setCurrencyCode($recurringPayment->getCurrencyCode())
@@ -273,36 +275,34 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
 
                 $this->orderResourceModel->save($order);
 
-                $invoice = $payment->getCreatedInvoice();
-
                 $orderId = $order->getId();
 
                 if ($this->_config->getValue(PayFastConfig::KEY_SEND_CONFIRMATION_EMAIL)) {
                     pflog(
-                        'before sending order email, canSendNewEmailFlag is ' . boolval(
-                            $this->_order->getCanSendNewEmailFlag()
-                        )
+                        __('before sending email, Order can Send New Email Flag is %1', boolval(
+                            $order->getCanSendNewEmailFlag()
+                        ))
                     );
-                    $this->orderSender->send($this->_order);
+                    $this->orderSender->send($order);
 
-                    pflog('after sending order email');
+                    pflog(__('after sending order %1 email', $order->getId()));
                 }
 
                 if ($this->_config->getValue(PayFastConfig::KEY_SEND_INVOICE_EMAIL)) {
-                    pflog('before sending invoice email is ' . boolval($this->_order->getCanSendNewEmailFlag()));
-                    foreach ($this->_order->getInvoiceCollection() as $invoice) {
-                        pflog('sending invoice #' . $invoice->getId());
-                        if ($invoice->getId()) {
-                            $this->invoiceSender->send($invoice);
+
+                    foreach ($order->getInvoiceCollection() as $currentInvoice) {
+                        pflog(__('sending invoice #%1', $currentInvoice->getId()));
+                        if ($currentInvoice->getId()) {
+                            $this->invoiceSender->send($currentInvoice);
                         }
+                        pflog(__('after sending invoice #%1 email', boolval($currentInvoice->getId())));
                     }
 
-                    pflog('after sending ' . boolval($invoice->getIncrementId()));
                 }
             }
 
             $recurringPayment->addOrderRelation($orderId);
-//            $pro
+
         } catch (LocalizedException $exception) {
             $response = false;
             $this->_logger->error($pre . 'Error detected : '. $exception->getMessage(). PHP_EOL . $exception->getTraceAsString());

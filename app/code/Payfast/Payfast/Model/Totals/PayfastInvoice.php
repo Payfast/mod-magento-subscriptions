@@ -47,11 +47,20 @@ class PayfastInvoice extends \Magento\Sales\Model\Order\Invoice\Total\AbstractTo
      */
     public function collect(Invoice $invoice)
     {
+        $pre = __METHOD__ . ' : ';
+
         $items = $invoice->getItems();
+
         if (!count($items)) {
             return $this;
         }
 
+        if ($invoice->getOrder()->getIgnorePayfastDiscount() === true) {
+            $this->_logger->debug($pre .'ignoring discount for PayFast subsequent charge');
+            return  $this;
+        }
+
+        $this->_logger->debug($pre . 'bof');
         parent::collect($invoice);
         $label = __('Subscription discount');
         $discountAmount = -$this->priceCurrency->convert($this->evaluateDiscount($invoice));
@@ -69,16 +78,8 @@ class PayfastInvoice extends \Magento\Sales\Model\Order\Invoice\Total\AbstractTo
         $invoice->setBaseDiscountAmount($discountAmount);
         $invoice->setBaseGrandTotal($invoice->getBaseGrandTotal() + $discountAmount);
         $invoice->setGrandTotal($invoice->getGrandTotal() + $discountAmount);
-//        $invoice->setSubtotalWithDiscount($invoice->getSubtotal() + $discountAmount);
-//        $invoice->setBaseSubtotalWithDiscount($invoice->getBaseSubtotal() + $discountAmount);
 
-//        if (!empty($appliedCartDiscount)) {
-//            $invoice->addTotalAmount($this->getCode(), $discountAmount - $appliedCartDiscount);
-//            $invoice->addBaseTotalAmount($this->getCode(), $discountAmount - $appliedCartDiscount);
-//        } else {
-//            $invoice->addTotalAmount($this->getCode(), $discountAmount);
-//            $invoice->addBaseTotalAmount($this->getCode(), $discountAmount);
-//        }
+        $this->_logger->debug($pre. 'eof');
 
         return $this;
     }

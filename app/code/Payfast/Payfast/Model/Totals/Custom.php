@@ -8,6 +8,7 @@
 namespace Payfast\Payfast\Model\Totals;
 
 use Magento\Catalog\Model\ProductRepository;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
 use Magento\Quote\Api\Data\ShippingAssignmentInterface;
 use Magento\Quote\Model\Quote;
@@ -99,12 +100,12 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
      * 4. You've obtained a discount in percentages. How awesome!
      *
      * @param Quote $quote
-     * @return null|float
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return float
+     * @throws NoSuchEntityException
      */
-    private function evaluateDiscount(Quote $quote)
+    private function evaluateDiscount(Quote $quote):float
     {
-        $baseDiscountAmount = 0;
+        $baseDiscountAmount = 0.0;
 
         foreach ($quote->getAllVisibleItems() as $item) {
             if ($quote->getPayFastTotalPaid()) {
