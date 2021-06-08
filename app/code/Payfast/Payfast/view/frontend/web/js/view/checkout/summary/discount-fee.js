@@ -14,6 +14,8 @@ define(
            },
            totals: quote.getTotals(),
            isDisplayedDiscountTotal : function () {
+
+               // console.log('price ;', totals);
                return true;
            },
            getDiscountTotal : function () {

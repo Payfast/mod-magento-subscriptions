@@ -37,4 +37,27 @@ $code = $this->escapeHtml($block->getMethodCode());
     </form>
 </div>
 
-
+<script type="text/javascript">
+    require(["jquery"],function($) {
+        $(document).ready(function() {
+            var customurl = "<?php echo $block->getChargeUrl()?>";
+            $.ajax({
+                url: customurl,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    customdata1: 'test1',
+                    customdata2: 'test2',
+                },
+                complete: function(response) {
+                    country = response.responseJSON.default_country;
+                    state = response.responseJSON.state;
+                    console.log(state+' '+country);
+                },
+                error: function (xhr, status, errorThrown) {
+                    console.log('Error happens. Try again.');
+                }
+            });
+        });
+    });
+</script>

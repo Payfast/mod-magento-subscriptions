@@ -34,10 +34,10 @@ class Edit extends \Magento\Backend\Block\Widget implements \Magento\Backend\Blo
 
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
+        Payment $payment,
         array $data = [],
         ?JsonHelper $jsonHelper = null,
-        ?DirectoryHelper $directoryHelper = null,
-        Payment $payment
+        ?DirectoryHelper $directoryHelper = null
     ) {
         parent::__construct($context, $data, $jsonHelper, $directoryHelper);
         $this->payment = $payment;

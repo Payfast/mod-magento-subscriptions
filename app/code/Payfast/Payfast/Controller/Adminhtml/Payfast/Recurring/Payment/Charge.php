@@ -46,12 +46,12 @@ class Charge extends Index implements ActionInterface, HttpPostActionInterface
 
             if (empty((float)$this->_request->getParam('amount'))) {
                 $this->messageManager->addWarningMessage('Invalid amount provided');
-                return $resultPage;
+                $this->_redirect('sales/*/view', [self::PARAM_PAYMENT => $payment->getId(), 'active_tab' => 'payfast_recurring_payment_charge']);
             }
 
             if (empty($this->_request->getParam('description'))) {
                 $this->messageManager->addWarningMessage('Empty description Not allowed');
-                return $resultPage;
+                $this->_redirect('sales/*/view', [self::PARAM_PAYMENT => $payment->getId(), 'active_tab' => 'payfast_recurring_payment_charge']);
             }
 
             $data = $this->_request->getParams();
@@ -63,12 +63,13 @@ class Charge extends Index implements ActionInterface, HttpPostActionInterface
 
             $this->messageManager->addSuccessMessage('Successfully charged token');
 
-            $this->_redirect('sales/*/view', [self::PARAM_PAYMENT => $payment->getId()]);
+            $this->_redirect('sales/*/view', [self::PARAM_PAYMENT => $payment->getId(), 'active_tab' => 'payfast_recurring_payment_charge']);
 
         } catch (LocalizedException $e) {
             $this->messageManager->addErrorMessage($e->getMessage());
             $this->_redirect('sales/*/view', [self::PARAM_PAYMENT => $payment->getId(), ]);
         } catch (\Exception $e) {
+            $this->messageManager->addErrorMessage($e->getMessage());
             $this->logger->err($e);
         }
         $this->_redirect('sales/*');

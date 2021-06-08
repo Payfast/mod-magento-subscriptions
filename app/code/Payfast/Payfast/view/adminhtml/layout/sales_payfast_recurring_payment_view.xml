@@ -92,7 +92,7 @@
                 </block>
                 <block class="Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment\View\Tab\Orders" as="orders_tab" name="sales.payfast.recurring.payment.tab.orders" cacheable="false"/>
                 <block class="Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment\View\Tab\Charge" as="charge_tab" name="sales.payfast.recurring.payment.tab.charge" template="Payfast_Payfast::payfast/recurring/payment/charge.phtml" cacheable="false"/>
-                <block class="Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment\View\Tab\Edit" as="charge_tab" name="sales.payfast.recurring.payment.tab.charge" template="Payfast_Payfast::payfast/recurring/payment/edit.phtml" cacheable="false"/>
+                <block class="Payfast\Payfast\Block\Adminhtml\Payfast\Recurring\Payment\View\Tab\Edit" as="edit_tab" name="sales.payfast.recurring.payment.tab.edit" template="Payfast_Payfast::payfast/recurring/payment/edit.phtml" cacheable="false"/>
             </block>
         </referenceContainer>
     </body>

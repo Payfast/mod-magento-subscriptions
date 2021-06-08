@@ -60,13 +60,14 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         }
 
         parent::collect($quote, $shippingAssignment, $total);
+
         //$address             = $shippingAssignment->getShipping()->getAddress();
         $label = 'Subscription discount';
         $discountAmount = -$this->priceCurrency->convert($this->evaluateDiscount($quote));
         $appliedCartDiscount = 0;
 
         if ($total->getDiscountDescription()) {
-            // If a discount exists in cart and another discount is applied, the add both discounts.
+            // If a discount exists in cart and another discount is applied, then add both discounts.
             $appliedCartDiscount = $total->getDiscountAmount();
             $discountAmount = $total->getDiscountAmount() + $discountAmount;
             $label = $total->getDiscountDescription() . ', ' . $label;
@@ -78,7 +79,7 @@ class Custom extends \Magento\Quote\Model\Quote\Address\Total\AbstractTotal
         $total->setSubtotalWithDiscount($total->getSubtotal() + $discountAmount);
         $total->setBaseSubtotalWithDiscount($total->getBaseSubtotal() + $discountAmount);
 
-        if (isset($appliedCartDiscount)) {
+        if (!empty($appliedCartDiscount)) {
             $total->addTotalAmount($this->getCode(), $discountAmount - $appliedCartDiscount);
             $total->addBaseTotalAmount($this->getCode(), $discountAmount - $appliedCartDiscount);
         } else {

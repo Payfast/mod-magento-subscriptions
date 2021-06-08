@@ -1,8 +1,16 @@
 <?xml version="1.0"?>
 <config>
-<section name="quote">
+    <!--     Apply discount when its a subscription and we have a confirmed order-->
+    <section name="quote">
         <group name="totals">
             <item name="discount" instance="Payfast\Payfast\Model\Totals\Custom" sort_order="300"/>
         </group>
- </section>
+    </section>
+
+<!--     Apply discount when its a subscription and we have a confirmed order-->
+    <section name="order_invoice">
+        <group name="totals">
+            <item name="payfast" instance="Payfast\Payfast\Model\Totals\PayfastInvoice" sort_order="600"/>
+        </group>
+    </section>
 </config>
