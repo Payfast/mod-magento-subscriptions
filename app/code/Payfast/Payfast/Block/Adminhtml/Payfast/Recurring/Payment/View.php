@@ -95,13 +95,24 @@ class View extends \Magento\Backend\Block\Widget\Container
             $this->addButton(
                 'suspend',
                 [
-                'label'     => __('Suspend'),
+                'label'     => __('Pause'),
                 'onclick'   => "confirmSetLocation('{$confirmationMessage}', '{$url}')",
                 'class'     => 'delete',
                 ]
             );
         }
 
+        if ($payment->canUnpause()) {
+            $url = $this->getUrl('*/*/updatestate', ['payment' => $payment->getId(), 'action' => 'unpause']);
+            $this->addButton(
+                'suspend',
+                [
+                    'label'     => __('Un Pause'),
+                    'onclick'   => "confirmSetLocation('{$confirmationMessage}', '{$url}')",
+                    'class'     => 'delete',
+                ]
+            );
+        }
         // activate
         if ($payment->canActivate()) {
             $url = $this->getUrl('*/*/updatestate', ['payment' => $payment->getId(), 'action' => 'activate']);

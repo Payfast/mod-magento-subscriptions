@@ -45,15 +45,19 @@ class States implements \Magento\Framework\Data\OptionSourceInterface
      */
     const SUSPENDED = 'suspended';
 
+    const PAUSE = 'pause';
+    const PAUSED = 'paused';
     /**
      * CANCELED
      */
     const CANCELED = 'cancel';
+    const CANCELLED = 'cancelled';
 
     /**
      * EXPIRED
      */
     const EXPIRED = 'expired';
+    const UNPAUSE = 'unpause';
 
     /**
      * ToOptionArray
@@ -67,7 +71,11 @@ class States implements \Magento\Framework\Data\OptionSourceInterface
             self::PENDING => __('Pending'),
             self::ACTIVE => __('Active'),
             self::SUSPENDED => __('Suspended'),
-            self::CANCELED => __('Canceled'),
+            self::PAUSE => __('Pause'),
+            self::PAUSED => __('Paused'),
+            self::UNPAUSE => __('unpause'),
+            self::CANCELED => __('Cancel'),
+            self::CANCELLED => __('Cancelled'),
             self::EXPIRED => __('Expired'),
         ];
     }

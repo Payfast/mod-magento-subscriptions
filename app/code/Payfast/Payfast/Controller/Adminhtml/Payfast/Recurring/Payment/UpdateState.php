@@ -78,6 +78,9 @@ class UpdateState extends Index
                 case self::ACTION_ACTIVATE:
                     $payment->activate();
                     break;
+                case self::ACTION_UNPAUSE:
+                    $payment->unpause();
+                    break;
                 default:
                     throw new \Exception(sprintf('Wrong action parameter: %s', $action));
             }

@@ -5,6 +5,7 @@ $code = $this->escapeHtml($block->getMethodCode());
 ?>
 
 <div class="form-inline">
+
     <form id="payment_form_<?php /* @noEscape */ echo $code; ?>" method="post" action="<?php echo $block->getChargeUrl()?>">
         <input type="hidden" name="form_key" value="<?php echo $block->getFormKey()?>">
         <div class="admin__fieldset-wrapper-content">
@@ -33,31 +34,59 @@ $code = $this->escapeHtml($block->getMethodCode());
                 </div>
             </fieldset>
         </div>
-        <input type="submit" name="Submit" class="submit">
+        <div class="admin__fieldset-wrapper-content">
+            <fieldset class="admin__fieldset">
+                <div class="admin__field">
+                    <div class="page-actions-buttons">
+                        <button type="submit" name="Submit" class="save action- scalable primary">
+                            <span>Submit</span>
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
     </form>
 </div>
 
 <script type="text/javascript">
-    require(["jquery"],function($) {
+    require(["jquery",
+        'Magento_Ui/js/modal/alert',
+        ],function($, alert) {
+
         $(document).ready(function() {
+
             var customurl = "<?php echo $block->getChargeUrl()?>";
-            $.ajax({
-                url: customurl,
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    customdata1: 'test1',
-                    customdata2: 'test2',
-                },
-                complete: function(response) {
-                    country = response.responseJSON.default_country;
-                    state = response.responseJSON.state;
-                    console.log(state+' '+country);
-                },
-                error: function (xhr, status, errorThrown) {
-                    console.log('Error happens. Try again.');
-                }
-            });
+            $('#payment_form_payfast').on('submit', function (e){
+                e.preventDefault();
+                console.log($(this).serialize());
+
+                $.ajax({
+                    url: customurl,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: $(this).serialize(),
+                    beforeSend: function (){
+                        $('body').trigger('processStart');
+                    },
+                    complete: function(result, status) {
+                        $('body').trigger('processStop');
+                        console.log(result.responseJSON.message, status, result);
+                        alert({
+                            content: result.responseJSON.message
+                        });
+
+                    },
+                    error: function (xhr, status, error) {
+                        $('body').trigger('processStop');
+                        var err = eval("(" + xhr.responseText + ")");
+                        // added error message
+                        alert({ content: err });
+                        //console.log(err.Message);
+                    }
+
+                });
+            })
+
         });
     });
 </script>

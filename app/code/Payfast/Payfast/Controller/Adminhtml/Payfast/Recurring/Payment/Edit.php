@@ -12,13 +12,42 @@
  */
 namespace Payfast\Payfast\Controller\Adminhtml\Payfast\Recurring\Payment;
 
+use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ActionInterface;
+use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Exception\LocalizedException as LocalizedException;
+use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\ArrayManager;
+use Magento\Framework\View\Result\PageFactory;
+use Payfast\Payfast\Model\Payment;
+use Psr\Log\LoggerInterface;
 
 class Edit extends Index implements ActionInterface, HttpPostActionInterface
 {
 
+    protected ArrayManager $arrayManger;
+
+    /**
+     * Index constructor.
+     *
+     * @param Context              $context           context
+     * @param Registry                      $coreRegistry      coreRegistry
+     * @param LoggerInterface                         $logger            logger
+     * @param PageFactory       $resultPageFactory resultPageFactory
+     * @param Payment $paymentModel      paymentModel
+     */
+    public function __construct(
+        Context $context,
+        Registry $coreRegistry,
+        LoggerInterface $logger,
+        PageFactory $resultPageFactory,
+        Payment $paymentModel,
+        ArrayManager $arrayManager
+    ) {
+        $this->arrayManger = $arrayManager;
+        parent::__construct($context, $coreRegistry,  $logger, $resultPageFactory, $paymentModel);
+    }
 
     /**
      * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface|\Magento\Framework\View\Result\Page
@@ -27,43 +56,42 @@ class Edit extends Index implements ActionInterface, HttpPostActionInterface
     {
         $pre = __METHOD__ . ' : ';
         $this->logger->debug($pre . 'bof');
+        $responseContent = [
+            'success' => false,
+            'message' => __('Failed to Update Subscription.'),
+            'code' => 400,
+        ];
 
         try {
             $payment = $this->_initPayment();
 
-            $resultPage = $this->resultPageFactory->create();
-            $resultPage->setActiveMenu('Payfast_Payfast::payfast_recurring_payment');
-
-            $resultPage->getConfig()->getTitle()->prepend(__('PayFast Referrence # %1', $payment->getReferenceId()));
-
-
-            if (empty((float)$this->_request->getParam('amount'))) {
-                $this->messageManager->addWarningMessage('Invalid amount provided');
-                return $resultPage;
-            }
-
-            if (empty($this->_request->getParam('description'))) {
-                $this->messageManager->addWarningMessage('Empty description Not allowed');
-                return $resultPage;
-            }
-
             $data = $this->_request->getParams();
+
             $data['guid'] = $payment->getReferenceId();
-            $payment->charge($data);
 
+            $result = $payment->update($data);
 
-            $this->logger->debug($pre . 'params', $this->_request->getParams());
+//            {"code":"400","status":"error","data":{"result":"Date cannot be today's date or in the past"}}
 
-            $this->messageManager->addSuccessMessage('Successfully charged token');
-
-            $this->_redirect('sales/*/view', [self::PARAM_PAYMENT => $payment->getId()]);
+            if ((int)$this->arrayManger->get('code', $result, 200) === 200 ) {
+                $responseContent['message']= __('Successfully updated %1', $this->paymentModel->getScheduleDescription());
+            } elseif ((int) $this->arrayManger->get('code',$result, 400) === 400 ) {
+                $responseContent['message'] = __($this->arrayManger->get('data/result', $result));
+            }
 
         } catch (LocalizedException $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
-            $this->_redirect('sales/*/view', [self::PARAM_PAYMENT => $payment->getId(), ]);
+            $this->logger->err($e);
+            $responseContent['message'] = __($e->getMessage());
+
         } catch (\Exception $e) {
             $this->logger->err($e);
         }
-        $this->_redirect('sales/*');
+
+        /** @var \Magento\Framework\Controller\Result\Json $resultJson */
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+
+        $resultJson->setData($responseContent);
+
+        return  $resultJson;
     }
 }

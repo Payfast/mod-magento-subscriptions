@@ -9,7 +9,6 @@
             var self = this;
 
             uiRegistry.get('product_form.product_form.payfast-recurring-payment.container_subscription_type.subscription_type', function (element){
-                console.log('subscription type value is ', element.initialValue);
                 if (element.initialValue === '2') {
                     self.hideSubscriptionFields();
                 }

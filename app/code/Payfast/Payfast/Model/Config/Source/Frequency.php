@@ -23,6 +23,7 @@ class Frequency extends AbstractSource
             ['value' => self::BIANNUALLY, 'label' => __('Biannually')],
             ['value' => self::ANNUAL, 'label' => __('Annual')],
         ];
+
         return $this->_options;
     }
 }

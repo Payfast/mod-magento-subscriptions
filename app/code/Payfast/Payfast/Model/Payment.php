@@ -16,6 +16,8 @@ use Magento\Sales\Model\Order;
 use Payfast\Payfast\Model\Config\Source\Frequency;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 
+use function Aws\filter;
+
 /**
  * Class Payment
  *
@@ -93,7 +95,7 @@ class Payment extends PayfastRecurringPayment
     /** @var AmountRenderer $amountRenderer */
     protected $amountRenderer;
 
-    private QuoteFactory $quoteFactory;
+
 
     /**
      * Payment constructor.
@@ -201,6 +203,13 @@ class Payment extends PayfastRecurringPayment
     }
 
     /**
+     * @return AmountRenderer
+     */
+    public function getAmountRender() :AmountRenderer
+    {
+        return $this->amountRenderer;
+    }
+    /**
      * Submit function
      *
      * @return void
@@ -281,9 +290,11 @@ class Payment extends PayfastRecurringPayment
     public function suspend()
     {
         $this->_checkWorkflow(States::SUSPENDED, false);
-        $this->setNewState(States::SUSPENDED);
-        $this->getManager()->updateStatus($this);
-        $this->setState(States::SUSPENDED)->save();
+        $this->setNewState(States::PAUSE);
+        $response = $this->getManager()->updateStatus($this);
+        if ($response) {
+            $this->setState(States::PAUSE)->save();
+        }
     }
 
     /**
@@ -293,7 +304,17 @@ class Payment extends PayfastRecurringPayment
      */
     public function canSuspend()
     {
-        return $this->_checkWorkflow(States::SUSPENDED);
+        return $this->_checkWorkflow(States::SUSPENDED) && $this->getSubscriptionType() != SubscriptionType::RECURRING_ADHOC;
+    }
+
+    /**
+     * CanSuspend function
+     *
+     * @return boolean
+     */
+    public function canUnpause()
+    {
+        return $this->_checkWorkflow(States::UNPAUSE) && $this->getSubscriptionType() != SubscriptionType::RECURRING_ADHOC;
     }
 
     /**
@@ -320,6 +341,26 @@ class Payment extends PayfastRecurringPayment
         $this->_logger->debug($pre . 'eof');
     }
 
+    public function unpause()
+    {
+        $pre = __METHOD__ . ' : ';
+        $this->_logger->debug($pre . 'bof');
+
+        $this->_checkWorkflow(States::UNPAUSE, false);
+        $this->setNewState(States::UNPAUSE);
+
+        $updateStatus = $this->getManager()->updateStatus($this);
+
+        $this->_logger->debug($pre . 'result is '. json_encode($updateStatus));
+
+        if ($updateStatus) {
+            $this->setState(States::ACTIVE)->save();
+            $this->_logger->debug($pre . 'activated '. $this->getReferenceId());
+        }
+
+        $this->_logger->debug($pre . 'eof');
+    }
+
     /**
      * CanCancel function
      *
@@ -338,19 +379,10 @@ class Payment extends PayfastRecurringPayment
     public function fetchUpdate()
     {
         $result = new \Magento\Framework\DataObject();
+
         $this->getManager()->getDetails($this->getReferenceId(), $result);
 
-        if ($result->getIsPaymentActive() || $result->getIsProfileActive()) {
-            $this->setState(States::ACTIVE);
-        } elseif ($result->getIsPaymentPending() || $result->getIsProfilePending()) {
-            $this->setState(States::PENDING);
-        } elseif ($result->getIsPaymentCanceled() || $result->getIsProfileCanceled()) {
-            $this->setState(States::CANCELED);
-        } elseif ($result->getIsPaymentSuspended() || $result->getIsProfileSuspended()) {
-            $this->setState(States::SUSPENDED);
-        } elseif ($result->getIsPaymentExpired() || $result->getIsProfileExpired()) {
-            $this->setState(States::EXPIRED);
-        }
+        $this->setData(array_merge($this->getData(), $result->getData()));
     }
 
     /**
@@ -626,7 +658,11 @@ class Payment extends PayfastRecurringPayment
                 'active' => ['suspended', States::CANCELED],
                 'suspended' => ['active', 'canceled'],
                 States::CANCELED => [],
+                States::UNPAUSE => [States::PAUSE, States::PAUSED],
+                States::PAUSED => [States::UNPAUSE],
                 'expired' => [],
+                States::PAUSE,
+
             ];
         }
     }
@@ -650,6 +686,7 @@ class Payment extends PayfastRecurringPayment
                 __('This payment state cannot be changed to "%1".', $againstState)
             );
         }
+
         return $result;
     }
 
@@ -839,8 +876,59 @@ class Payment extends PayfastRecurringPayment
         }
     }
 
-    public function charge(array $data)
+    /**
+     * @param array $data
+     * @return array
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function charge(array $data) : array
     {
+        $data['amount'] = (float)$data['amount'] * 100;
+
         return $this->getManager()->charge($data);
+    }
+
+    /**
+     * update subscriptions
+     * @param array $data
+     * @return array
+     */
+    public function update(array $data) : array
+    {
+        $pre = __METHOD__ . ' : ';
+        $filteredData = array_filter($data);
+        $this->_logger->debug($pre . 'filtered data = ', $filteredData);
+
+        $new = [
+            'billing_amount' =>'amount',
+            'billing_period_frequency' => 'frequency',
+            'recurring_payment_start_date' => 'next_run',
+            'billing_period_max_cycles' => 'cycles',
+        ];
+
+        foreach ($new as $key => $val)
+        {
+            if (array_key_exists($val, $filteredData)) {
+                $this->setData($key,  (float)$filteredData[$val] );
+                if ($key === 'billing_amount') {
+                    $filteredData[$val] *= 100 ;
+                } elseif ($key === 'recurring_payment_start_date') {
+                    $this->_logger->debug(__($pre . 'filtered date = %1', $filteredData[$val]));
+                    $filteredData[$val] = date('Y-m-d', strtotime($filteredData[$val]));
+                }
+            }
+        }
+
+        $this->setPostFields($filteredData);
+
+        $updateResult = $this->getManager()->update($this);
+
+        if (!empty($updateResult['code']) && $updateResult['code'] === 200 ) {
+            $this->save();
+        } else {
+            $this->_logger->err($pre , $updateResult);
+        }
+
+        return $updateResult;
     }
 }

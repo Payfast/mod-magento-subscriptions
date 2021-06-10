@@ -17,6 +17,7 @@ use Magento\Framework\Exception\LocalizedException as LocalizedException;
 use Magento\Customer\Controller\RegistryConstants;
 use Magento\Framework\Exception\NotFoundException;
 use Magento\Framework\Registry;
+use Magento\Framework\Stdlib\ArrayManager;
 use Magento\Framework\View\Result\PageFactory;
 use Payfast\Payfast\Model\Payment;
 use Psr\Log\LoggerInterface;
@@ -51,6 +52,9 @@ class Index extends Action
      * ACTION_SUSPEND
      */
     const ACTION_SUSPEND = 'suspend';
+
+    const ACTION_UNPAUSE = 'unpause';
+
     /**
      * ACTION_ACTIVATE
      */
@@ -104,6 +108,7 @@ class Index extends Action
         $this->logger = $logger;
         $this->resultPageFactory = $resultPageFactory;
         $this->paymentModel = $paymentModel;
+
         parent::__construct($context);
     }
 
@@ -202,11 +207,11 @@ class Index extends Action
                 default:
                     throw new \Exception(sprintf('Wrong action parameter: %s', $action));
             }
-            $this->messageManager->addSuccess(__('The payment state has been updated.'));
+            $this->messageManager->addSuccessMessage(__('The payment state has been updated.'));
         } catch (LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addError(__('We could not update the payment.'));
+            $this->messageManager->addErrorMessage(__('We could not update the payment.'));
             $this->logger->err($e);
         }
         if ($payment) {

@@ -16,6 +16,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\LocalizedExceptionFactory;
+use Magento\Framework\Stdlib\ArrayManager;
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Model\Info as PaymentInfo;
 use Magento\Quote\Api\Data\CartInterface;
@@ -136,6 +137,8 @@ class Payfast implements ManagerInterface
     protected $recurringPayment;
 
     protected $api;
+    private ArrayManager $arrayManager;
+
     /**
      * @param ConfigFactory $configFactory
      * @param StoreManagerInterface $storeManager
@@ -157,7 +160,8 @@ class Payfast implements ManagerInterface
         ProductRepository $productRepository,
         QuoteFactory $quoteFactory,
         PaymentFactory $paymentFactory,
-        PayfastRecurringPayment $recurringPayment
+        PayfastRecurringPayment $recurringPayment,
+        ArrayManager $arrayManager
     ) {
         $this->_storeManager = $storeManager;
         $this->_urlBuilder = $urlBuilder;
@@ -169,6 +173,7 @@ class Payfast implements ManagerInterface
         $this->quoteFactory = $quoteFactory;
         $this->paymentFactory = $paymentFactory;
         $this->recurringPayment = $recurringPayment;
+        $this->arrayManager = $arrayManager;
 
         $parameters = [ 'params' => [ $this->_code ] ];
 
@@ -680,9 +685,69 @@ class Payfast implements ManagerInterface
         return true;
     }
 
+    /**
+     * {
+    "code": 200,
+    "data": {
+        "response": {
+                "amount": 112329,
+                "cycles": 5,
+                "cycles_complete": 2,
+                "frequency": 3,
+                "run_date": "2021-07-29T00:00:00+02:00",
+                "status": 1,
+                "status_reason": "",
+                "status_text": "ACTIVE",
+                "token": "7671119c-5db7-4f72-a404-48c3e2fdcf46"
+            }
+        },
+        "status": "success"
+        }
+
+     * @param string $referenceId
+     * @param DataObject $result
+     * @throws \PayFast\Exceptions\InvalidRequestException
+     */
     public function getDetails($referenceId, DataObject $result)
     {
-        $result->setData($this->initiateApi()->subscriptions->fetch($referenceId));
+        $pre = __METHOD__ . ' : ';
+        $response = $this->initiateApi()->subscriptions->fetch($referenceId);
+        $filteredData = [];
+
+        if ((int)$this->arrayManager->get('code', $response,200) === 200 &&
+            $this->arrayManager->exists('data/response/status_text', $response)
+        ) {
+            $new = [
+                'amount' =>'billing_amount',
+                'cycles' =>'billing_period_max_cycles',
+                'frequency' => 'billing_period_frequency',
+                'run_date' => 'recurring_payment_start_date',
+                'status_text' => 'state'
+            ];
+
+
+
+            foreach ($new as $key => $val)
+            {
+                if ($this->arrayManager->exists('data/response/'.$key, $response)) {
+                    if ($key === 'amount') {
+                        $filteredData[$val] = floatval(round( $this->arrayManager->get('data/response/'.$key, $response) / 100, 2));
+                    } elseif ($key === 'run_date') {
+                        pflog(__($pre . 'filtered date = %1', $this->arrayManager->get('data/response/'.$key, $response)));
+                        $filteredData[$val] = date('Y-m-d', strtotime($this->arrayManager->get('data/response/'.$key, $response)));
+                    } elseif ($key === 'status_text') {
+                        $filteredData[$val] = strtolower($this->arrayManager->get('data/response/'.$key, $response));
+                    } else {
+                        $filteredData[$val] = $this->arrayManager->get('data/response/'.$key, $response);
+                    }
+                }
+            }
+
+        }
+        pflog($pre. json_encode($response));
+        pflog($pre. json_encode($filteredData));
+        $result->setData($filteredData);
+
     }
 
     public function canGetDetails()
@@ -690,9 +755,17 @@ class Payfast implements ManagerInterface
         return true;
     }
 
+    /**
+     * @param PayfastRecurringPayment $payment
+     * @return array
+     * @throws \PayFast\Exceptions\InvalidRequestException
+     *
+     */
     public function update(PayfastRecurringPayment $payment)
     {
-        return true;
+        return $this->initiateApi()
+            ->subscriptions
+            ->update($payment->getReferenceId(), $payment->getPostFields());
     }
 
     /**
@@ -737,7 +810,10 @@ class Payfast implements ManagerInterface
             ->subscriptions
             ->adhoc($data['guid'], ['amount' => $data['amount'], 'item_name' => $data['description']]);
 
-        pflog($pre . 'api Url is '. PayFastApi::$apiUrl. print_r($result, true));
+        pflog($pre . __('api Url is %1, %2'. PayFastApi::$apiUrl, print_r($result, true)));
+
+        return $result;
+
     }
 
     /**

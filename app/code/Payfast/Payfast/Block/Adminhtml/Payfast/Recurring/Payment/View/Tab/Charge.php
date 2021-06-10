@@ -16,6 +16,7 @@ use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 use Payfast\Payfast\Model\Payment;
+use Payfast\Payfast\Model\States;
 
 /**
  * Class Charge
@@ -89,7 +90,8 @@ class Charge extends \Magento\Backend\Block\Widget implements \Magento\Backend\B
         $pre = __METHOD__ . ' : ';
         $this->_logger->debug($pre . 'bof');
         $this->_logger->debug($pre . ' looking at this id' .$this->payment->getId());
-        return (int)$this->payment->getSubscriptionType() === SubscriptionType::RECURRING_ADHOC;
+        return (int)$this->payment->getSubscriptionType() === SubscriptionType::RECURRING_ADHOC &&
+            $this->payment->getState() === States::ACTIVE;
     }
 
     /**

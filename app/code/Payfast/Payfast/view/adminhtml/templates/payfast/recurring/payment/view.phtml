@@ -19,9 +19,9 @@
                             </button>
                         <?php endif; ?>
                         <?php if ($this->getCanSuspend()): ?>
-                            <button type="button" title="<?= /* @noEscape */ __('Suspend') ?>" class="action suspend"
+                            <button type="button" title="<?= /* @noEscape */ __('Pause') ?>" class="action suspend"
                                     onclick="if( confirm('<?= /* @noEscape */ $this->getConfirmationMessage() ?>') ) { window.location.href = '<?= /* @noEscape */ $this->getSuspendUrl() ?>'; } return false;">
-                                <span><?= /* @noEscape */ __('Suspendsss') ?></span>
+                                <span><?= /* @noEscape */ __('Suspend') ?></span>
                             </button>
                         <?php endif; ?>
                         <?php if ($this->getCanUpdate()): ?>
