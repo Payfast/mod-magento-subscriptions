@@ -78,7 +78,7 @@ class Grid extends Index
             $resultPage = $this->resultPageFactory->create();
             return $resultPage;
         } catch (LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
             $this->logger->err($e);
         }

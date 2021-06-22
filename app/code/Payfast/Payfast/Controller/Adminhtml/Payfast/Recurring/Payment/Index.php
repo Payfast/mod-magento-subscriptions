@@ -159,7 +159,7 @@ class Index extends Action
             $this->_view->loadLayout()->renderLayout();
             return;
         } catch (LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
             $this->logger->err($e);
         }

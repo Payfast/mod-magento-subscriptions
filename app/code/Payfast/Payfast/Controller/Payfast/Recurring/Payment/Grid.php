@@ -154,11 +154,11 @@ class Grid extends \Magento\Framework\App\Action\Action
                 default:
                     break;
             }
-            $this->messageManager->addSuccess(__('The payment state has been updated.'));
+            $this->messageManager->addSuccessMessage(__('The payment state has been updated.'));
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
-            $this->messageManager->addError(__('We couldn\'t update the payment.'));
+            $this->messageManager->addErrorMessage(__('We couldn\'t update the payment.'));
         }
         if ($payment) {
             $this->_redirect('*/*/view', ['payment' => $payment->getId()]);
@@ -212,7 +212,7 @@ class Grid extends \Magento\Framework\App\Action\Action
             $this->_view->renderLayout();
             return;
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->messageManager->addError($e->getMessage());
+            $this->messageManager->addErrorMessage($e->getMessage());
         } catch (\Exception $e) {
             $this->_objectManager->get('Magento\Logger')->logException($e);
         }
