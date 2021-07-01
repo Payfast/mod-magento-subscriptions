@@ -1,6 +1,8 @@
-<?xml version="1.0"?>
-<layout xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <referenceContainer name="content">
-        <block class="Payfast\Payfast\Block\Adminhtml\Payments" name="sales.payfast.recurring.payment.grid.container" cacheable="false"/>
-    </referenceContainer>
-</layout>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../../../lib/internal/Magento/Framework/View/Layout/etc/page_configuration.xsd">
+    <update handle="styles"/>
+    <body>
+        <referenceContainer name="content">
+            <uiComponent name="payfast_payfast_recurring_payment_listing"/>
+        </referenceContainer>
+    </body>
+</page>

@@ -220,9 +220,11 @@ class Index extends AbstractPayfast implements CsrfAwareActionInterface, HttpPos
             if (null === $recurringPayment->getRecurringPaymentStartDate() && !empty($this->data['billing_date'])) {
                 $recurringPayment->setRecurringPaymentStartDate($this->data['billing_date']);
             }
+            $recurringPayment->setUpdatedAt($recurringPayment->getNow());
             if ($recurringPayment->getState() !== States::ACTIVE) {
                 $recurringPayment->activate();
             } else {
+
                 $recurringPayment->save();
             }
 

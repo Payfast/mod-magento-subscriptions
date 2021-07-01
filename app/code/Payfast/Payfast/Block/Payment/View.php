@@ -13,6 +13,8 @@
 namespace Payfast\Payfast\Block\Payment;
 
 use Magento\Framework\View\Element\Template;
+use Payfast\Payfast\Model\PayfastRecurringPayment;
+use Payfast\Recurring\Model\Payment;
 
 /**
  * Class View
@@ -26,9 +28,9 @@ use Magento\Framework\View\Element\Template;
 class View extends Template
 {
     /**
-     * PayfastRecurringPayment
+     *   PayfastRecurringPayment
      *
-     * @var null
+     * @var PayfastRecurringPayment
      */
     protected $_payfastRecurringPayment = null;
 

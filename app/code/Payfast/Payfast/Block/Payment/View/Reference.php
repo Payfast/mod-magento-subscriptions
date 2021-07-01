@@ -80,7 +80,7 @@ class Reference extends \Payfast\Payfast\Block\Payment\View
     {
         parent::_prepareLayout();
         $this->_shouldRenderInfo = true;
-        foreach (['method_code', 'reference_id', 'schedule_description', 'state'] as $key) {
+        foreach (['method_code', 'reference_id', 'state', ] as $key) {
             $this->_addInfo(
                 [
                 'label' => $this->fields->getFieldLabel($key),

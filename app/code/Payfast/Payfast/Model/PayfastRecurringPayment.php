@@ -11,6 +11,7 @@ use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Model\Product;
 
 use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\Model\Context;
@@ -143,6 +144,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
     protected $productFactory;
 
     protected $productRepository;
+    protected TransactionFactory $transactionFactory;
 
     /**
      * PaypalRecurringPayment constructor.
@@ -181,6 +183,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
         AmountRenderer $amountRender,
         ProductInterfaceFactory $productFactory,
         ProductRepositoryInterface $productRepository,
+        TransactionFactory $transactionFactory,
         array $data = []
     ) {
         $this->_paymentData = $paymentData;
@@ -195,7 +198,7 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
         $this->amountRenderer = $amountRender;
         $this->productFactory = $productFactory;
         $this->productRepository = $productRepository;
-
+        $this->transactionFactory = $transactionFactory;
         parent::__construct($context, $registry, $resource, $resourceCollection, $data);
     }
 
@@ -401,6 +404,12 @@ class PayfastRecurringPayment extends \Magento\Framework\Model\AbstractModel
                 [
                 'title' => __('Subscription Details'),
                 'schedule' => $this->_renderSchedule('billing_period_unit', 'billing_period_frequency', 'billing_period_max_cycles'),
+                ],
+            ),
+            new \Magento\Framework\DataObject(
+                [
+                    'title' => __('subscription Type'),
+                    'schedule' => __('%1', SubscriptionType::RECURRING_LABEL[$this->_getData('subscription_type')])
                 ]
             )
         ];

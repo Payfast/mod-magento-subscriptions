@@ -15,7 +15,7 @@ namespace Payfast\Payfast\Model\ResourceModel;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\Snapshot;
 use Magento\Framework\Model\ResourceModel\Db\VersionControl\RelationComposite;
-
+//use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 /**
  * Class Payment
  *
@@ -42,14 +42,19 @@ class Payment extends AbstractDb
      * @param RelationComposite                                 $entityRelationComposite entityRelationComposite
      * @param null                                              $connectionName          connectionName
      */
-    public function __construct(
-        \Magento\Framework\Model\ResourceModel\Db\Context $context,
-        Snapshot $entitySnapshot,
-        RelationComposite $entityRelationComposite,
-        $connectionName = null
-    ) {
-        parent::__construct($context, $entitySnapshot, $entityRelationComposite, $connectionName);
-    }
+//    public function __construct(
+//        \Magento\Framework\Model\ResourceModel\Db\Context $context,
+//        Snapshot $entitySnapshot,
+//        RelationComposite $entityRelationComposite,
+//        $connectionName = null
+//    ) {
+//        parent::__construct($context, $entitySnapshot, $entityRelationComposite, $connectionName);
+//    }
+
+//    public function __construct(\Magento\Framework\Model\ResourceModel\Db\Context $context)
+//    {
+//        parent::__construct($context);
+//    }
 
     /**
      * Get connection to perform core queries and etc
@@ -82,6 +87,7 @@ class Payment extends AbstractDb
             'shipping_address_info' => [null, []]
         ];
     }
+
 
     /**
      * Return PayFast recurring payment child Orders Ids

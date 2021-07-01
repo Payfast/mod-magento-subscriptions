@@ -8,15 +8,14 @@ namespace Payfast\Payfast\Model;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Catalog\Api\Data\ProductInterfaceFactory;
+use Magento\Framework\DB\TransactionFactory;
 use Magento\Framework\Pricing\Helper\Data as AmountRenderer;
 use Magento\Framework\Serialize\SerializerInterface;
-use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\QuoteFactory;
 use Magento\Sales\Model\Order;
 use Payfast\Payfast\Model\Config\Source\Frequency;
 use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 
-use function Aws\filter;
+
 
 /**
  * Class Payment
@@ -148,6 +147,7 @@ class Payment extends PayfastRecurringPayment
         ProductInterfaceFactory $productFactory,
         ProductRepositoryInterface $productRepository,
         \Payfast\Payfast\Helper\Order $orderSubscription,
+        TransactionFactory $transactionFactory,
         array $data = []
     ) {
         $this->_orderFactory = $orderFactory;
@@ -177,6 +177,7 @@ class Payment extends PayfastRecurringPayment
             $amountRenderer,
             $productFactory,
             $productRepository,
+            $transactionFactory,
             $data
         );
     }
@@ -217,8 +218,10 @@ class Payment extends PayfastRecurringPayment
     public function submit()
     {
         $pre = __METHOD__ . ' : ';
-        $this->_getResource()->beginTransaction();
         try {
+            $transaction = $this->transactionFactory->create();
+
+//            $this->_getResource()->beginTransaction();
             $this->setInternalReferenceId($this->mathRandom->getUniqueHash($this->getId() . '-'));
             $this->setProfileId($this->mathRandom->getUniqueHash($this->getId() . '-'));
             $this->setOrderId($this->getQuote()->getReservedOrderId());
@@ -234,14 +237,15 @@ class Payment extends PayfastRecurringPayment
                 $this->setBillingPeriodFrequency($this->getData('pf_billing_period_frequency'));
                 $this->setInitialAmount($this->getData('pf_initial_amount'));
             }
-
+            $this->setUpdatedAt($this->getNow());
             $this->getManager()->submit($this, $this->getQuote()->getPayment());
-            $this->save();
-            $this->_getResource()->commit();
+
+            $transaction->addObject($this)->save();
+//            $this->_getResource()->commit();
 
 //            $this->activate();
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $this->_getResource()->rollBack();
+//            $this->_getResource()->rollBack();
             $this->messageManager->addExceptionMessage($e, $e->getMessage());
         }
     }
@@ -293,7 +297,7 @@ class Payment extends PayfastRecurringPayment
         $this->setNewState(States::PAUSE);
         $response = $this->getManager()->updateStatus($this);
         if ($response) {
-            $this->setState(States::PAUSE)->save();
+            $this->setState(States::PAUSED)->save();
         }
     }
 
@@ -354,11 +358,18 @@ class Payment extends PayfastRecurringPayment
         $this->_logger->debug($pre . 'result is '. json_encode($updateStatus));
 
         if ($updateStatus) {
+
             $this->setState(States::ACTIVE)->save();
             $this->_logger->debug($pre . 'activated '. $this->getReferenceId());
         }
 
         $this->_logger->debug($pre . 'eof');
+    }
+
+
+    public function getNow()
+    {
+        return $this->_dateTime->formatDate(true);
     }
 
     /**
@@ -449,38 +460,6 @@ class Payment extends PayfastRecurringPayment
 
         return $this->orderSubscription->createMageOrder($items, $this);
 
-//        $quote->addProduct($)
-
-        if (false) {
-
-            $order->setStoreId($this->getStoreId())
-                //->setIncrementId($orderId)
-                //->setState(\Magento\Sales\Model\Order::STATE_NEW)
-                ->setState(\Magento\Sales\Model\Order::STATE_PROCESSING)
-                ->setBaseToOrderRate($this->getInfoValue('order_info', 'base_to_quote_rate'))
-                ->setStoreToOrderRate($this->getInfoValue('order_info', 'store_to_quote_rate'))
-                ->setOrderCurrencyCode($this->getInfoValue('order_info', 'quote_currency_code'))
-                ->setBaseSubtotal($billingAmount)
-                ->setSubtotal($billingAmount)
-                ->setBaseShippingAmount($shippingAmount)
-                ->setShippingAmount($shippingAmount)
-                ->setBaseTaxAmount($taxAmount)
-                ->setTaxAmount($taxAmount)
-                ->setBaseGrandTotal($grandTotal)
-                ->setGrandTotal($grandTotal)
-                ->setIsVirtual($isVirtual)
-                ->setWeight($weight)
-                ->setTotalQtyOrdered($this->getInfoValue('order_info', 'items_qty'))
-                ->setBillingAddress($billingAddress)
-                ->setShippingAddress($shippingAddress)
-                ->setPayment($payment);
-            foreach ($items as $item) {
-                $order->addItem($item);
-            }
-        }
-
-
-        return $order;
     }
 
     /**
@@ -698,6 +677,7 @@ class Payment extends PayfastRecurringPayment
     public function getChildOrderIds()
     {
         $ids = $this->_getResource()->getChildOrderIds($this);
+        $ids = $this->getChildOrderIds($this);
         if (empty($ids)) {
             $ids[] = '-1';
         }

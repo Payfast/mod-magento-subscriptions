@@ -16,6 +16,7 @@ use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Store\Model\StoreManagerInterface;
 use Payfast\Payfast\Block\Fields;
+use Payfast\Payfast\Block\Payment\View;
 use Payfast\Payfast\Model\Payment;
 
 /**
@@ -27,7 +28,7 @@ use Payfast\Payfast\Model\Payment;
  * @license  https://www.payfast.co.za  Open Software License (OSL 3.0)
  * @link     https://www.payfast.co.za
  */
-class Schedule extends \Payfast\Payfast\Block\Payment\View
+class Schedule extends View
 {
     /**
      * Fields
@@ -75,7 +76,7 @@ class Schedule extends \Payfast\Payfast\Block\Payment\View
     /**
      * PrepareLayout
      *
-     * @return \Payfast\Payfast\Block\Payment\View|void
+     * @return View|void
      */
     protected function _prepareLayout()
     {

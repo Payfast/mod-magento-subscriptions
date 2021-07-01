@@ -8,6 +8,7 @@ namespace Payfast\Payfast\Controller\Payfast\Recurring\Payment;
 
 use Magento\Framework\Controller\ResultFactory;
 use \Magento\Framework\Exception\LocalizedException as LocalizedException;
+use Payfast\Payfast\Model\Config\Source\SubscriptionType;
 
 /**
  * Class Orders
@@ -97,8 +98,7 @@ class Orders extends Grid
             if ($this->customerSession->isLoggedIn()) {
                 $payment = $this->_initPayment();
                 $resultPage = $this->resultPageFactory->create();
-                $resultPage->getConfig()->getTitle()->prepend(__('PayFast Recurring Payments'));
-                $resultPage->getConfig()->getTitle()->prepend(__('PayFast Reference # %1', $payment->getReferenceId()));
+                $resultPage->getConfig()->getTitle()->prepend(__('%1 Reference # %2', SubscriptionType::RECURRING_LABEL[$payment->getSubscriptionType()],$payment->getReferenceId()));
                 return $resultPage;
             } else {
                 $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);

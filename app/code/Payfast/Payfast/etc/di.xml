@@ -168,5 +168,22 @@
     <type name="Magento\Catalog\Model\Product\Type\AbstractType">
         <plugin name="abstract_type_payfast_recurring_payment_plugin" type="Payfast\Payfast\Plugin\ProductTypeOptions"/>
     </type>
+
     <preference for="Payfast\Payfast\Model\ManagerInterface" type="Payfast\Payfast\Model\Payfast" />
+
+    <virtualType name="Payfast\Payfast\Model\ResourceModel\Payment\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">payfast_payfast_recurring_payment</argument>
+            <argument name="resourceModel" xsi:type="string">Payfast\Payfast\Model\ResourceModel\Payment</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="payfast_payfast_recurring_payment_listing_data_source" xsi:type="string">Payfast\Payfast\Model\ResourceModel\Payment\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+
 </config>
