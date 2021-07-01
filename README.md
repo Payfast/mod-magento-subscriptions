@@ -48,8 +48,9 @@ In order to use PayFast 2.4.0 with Magento 2.4.0 you will need a working Magento
 8. Click 'Save Config', you are now ready to process live transactions via PayFast.
 
 9. When you want to setup Subscription product for PayFast.
-    9.1 You'll need log into your Magento store admin and select or create a product where you can  enable PayFast Recurring Payment.
-    You can choose what type of Subscription type to you, only 2 options Recurring/Adhoc.
+    9.1 You'll need log into your Magento store admin dashboard and select or create a product where you can enable PayFast Recurring Payment.
+    You can choose type of Subscription type to you, only 2 options Recurring/Adhoc.
+    
     9.2 Save product.
     9.3 Note that your customers can only checkout with 1 product of subscription in the cart, they can add other products to their cart.
 
