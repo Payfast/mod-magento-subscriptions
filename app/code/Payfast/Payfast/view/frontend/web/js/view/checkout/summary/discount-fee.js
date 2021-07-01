@@ -3,10 +3,9 @@ define(
        'jquery',
        'Magento_Checkout/js/view/summary/abstract-total',
        'Magento_Checkout/js/model/quote',
-       'Magento_Checkout/js/model/totals',
-       'Magento_Catalog/js/price-utils'
+       'Magento_Checkout/js/model/totals'
    ],
-   function ($,Component,quote,totals,priceUtils) {
+   function ($,Component,quote,totals) {
        "use strict";
        return Component.extend({
            defaults: {
@@ -14,9 +13,7 @@ define(
            },
            totals: quote.getTotals(),
            isDisplayedDiscountTotal : function () {
-
-               // console.log('price ;', totals);
-               return true;
+               return (parseFloat(totals.totals().discount_amount) < 0);
            },
            getDiscountTotal : function () {
                var price = totals.getSegment('discount').value;
