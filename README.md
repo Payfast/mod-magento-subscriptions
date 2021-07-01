@@ -19,6 +19,7 @@ In order to use PayFast 2.4.0 with Magento 2.4.0 you will need a working Magento
     In the admin panel navigate to 'Stores', and add ZAR under currency Symbols and Rates.
 2. Copy the PayFast app folder to your root Magento folder.
     This will not override any files on your system.
+    
     2.1 install PayFast SDK with this command.
     `composer require payfast/payfast-php-sdk`
 3. You will now need to run the following commands in the given order:
